@@ -2,13 +2,14 @@ package operations
 
 import (
 	"errors"
+
 	"github.com/beyondstorage/go-storage/v4/types"
 )
 
-func (oo *OneOperator) List(path string) chan *types.Object {
-	it, err := oo.store.List("")
+func (uo *UniOperator) List(path string) chan *types.Object {
+	it, err := uo.store.List("")
 	if err != nil {
-		oo.errch <- err
+		uo.errCh <- err
 	}
 
 	ch := make(chan *types.Object, 16)
@@ -20,7 +21,7 @@ func (oo *OneOperator) List(path string) chan *types.Object {
 				break
 			}
 			if err != nil {
-				oo.errch <- err
+				uo.errCh <- err
 				return
 			}
 			ch <- o
