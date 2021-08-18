@@ -18,7 +18,7 @@ generate:
 	go generate ./...
 
 build: tidy generate format vet
-	go build -o bin/beyondctl ./cmd/beyondctl
+	go build -trimpath -race -o bin/beyondctl ./cmd/beyondctl
 
 test:
 	go test -race -coverprofile=coverage.txt -covermode=atomic -v ./...
