@@ -3,7 +3,7 @@
 - RFC PR: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/pull/0)
 - Tracking Issue: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/issues/0)
 
-# GSP-0: Add Identity Support
+# BCP-7: Add Identity Support
 
 ## Background
 
