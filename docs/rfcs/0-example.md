@@ -3,7 +3,7 @@
 - RFC PR: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/issues/0)
 - Tracking Issue: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/issues/0)
 
-# GSP-0: <proposal name>
+# BCP-0: <proposal name>
 
 - Updates: (delete this part if not applicable)
     - [GSP-20](./20-abc): Deletes something
