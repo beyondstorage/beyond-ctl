@@ -8,7 +8,10 @@ type UniOperator struct {
 }
 
 func NewUniOperator(store types.Storager) (oo *UniOperator, err error) {
-	return &UniOperator{store: store}, nil
+	return &UniOperator{
+		store: store,
+		errCh: make(chan error),
+	}, nil
 }
 
 func (uo *UniOperator) Errors() chan error {

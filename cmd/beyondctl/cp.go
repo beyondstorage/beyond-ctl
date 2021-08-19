@@ -44,7 +44,7 @@ var cpCmd = &cli.Command{
 
 		go func() {
 			for v := range bo.Errors() {
-				logger.Error("", zap.Error(v))
+				logger.Error("copy", zap.Error(v))
 			}
 		}()
 

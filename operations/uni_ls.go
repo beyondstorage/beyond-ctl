@@ -10,6 +10,7 @@ func (uo *UniOperator) List(path string) chan *types.Object {
 	it, err := uo.store.List(path)
 	if err != nil {
 		uo.errCh <- err
+		return nil
 	}
 
 	ch := make(chan *types.Object, 16)

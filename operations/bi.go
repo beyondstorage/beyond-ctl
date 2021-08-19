@@ -9,7 +9,11 @@ type BiOperator struct {
 }
 
 func NewBiOperator(src, dst types.Storager) (oo *BiOperator, err error) {
-	return &BiOperator{src: src, dst: dst}, nil
+	return &BiOperator{
+		src:   src,
+		dst:   dst,
+		errCh: make(chan error),
+	}, nil
 }
 
 func (bo *BiOperator) Errors() chan error {

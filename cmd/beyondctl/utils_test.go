@@ -66,6 +66,12 @@ func TestParseKeyFromConnectionString(t *testing.T) {
 			conn:  "fs://",
 			key:   "",
 		},
+		{
+			name:  "invalid path with key",
+			input: "fs://file.txt",
+			conn:  "fs://",
+			key:   "file.txt",
+		},
 	}
 
 	for _, tt := range cases {

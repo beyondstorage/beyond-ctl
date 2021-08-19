@@ -28,7 +28,7 @@ var lsCmd = &cli.Command{
 
 		go func() {
 			for v := range oo.Errors() {
-				logger.Error("", zap.Error(v))
+				logger.Error("list", zap.Error(v))
 			}
 		}()
 
