@@ -37,7 +37,7 @@ var cpCmd = &cli.Command{
 			return err
 		}
 
-		bo, err := operations.NewBiOperator(src, dst)
+		bo, err := operations.NewDualOperator(src, dst)
 		if err != nil {
 			return err
 		}

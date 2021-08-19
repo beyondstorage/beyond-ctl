@@ -21,7 +21,7 @@ var lsCmd = &cli.Command{
 			return err
 		}
 
-		oo, err := operations.NewUniOperator(store)
+		oo, err := operations.NewSingleOperator(store)
 		if err != nil {
 			return err
 		}

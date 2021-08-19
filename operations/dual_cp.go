@@ -4,10 +4,10 @@ import (
 	"io"
 )
 
-func (bo *BiOperator) Copy(src, dst string) {
-	obj, err := bo.src.Stat(src)
+func (do *DualOperator) Copy(src, dst string) {
+	obj, err := do.src.Stat(src)
 	if err != nil {
-		bo.errCh <- err
+		do.errCh <- err
 		return
 	}
 	size := obj.MustGetContentLength()
@@ -23,19 +23,19 @@ func (bo *BiOperator) Copy(src, dst string) {
 		defer func() {
 			err := w.Close()
 			if err != nil {
-				bo.errCh <- err
+				do.errCh <- err
 			}
 		}()
-		_, err := bo.src.Read(src, w)
+		_, err := do.src.Read(src, w)
 		if err != nil {
-			bo.errCh <- err
+			do.errCh <- err
 			return
 		}
 	}()
 
-	_, err = bo.dst.Write(dst, r, size)
+	_, err = do.dst.Write(dst, r, size)
 	if err != nil {
-		bo.errCh <- err
+		do.errCh <- err
 		return
 	}
 }

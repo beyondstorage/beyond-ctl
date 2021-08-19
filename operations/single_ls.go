@@ -6,10 +6,10 @@ import (
 	"github.com/beyondstorage/go-storage/v4/types"
 )
 
-func (uo *UniOperator) List(path string) chan *types.Object {
-	it, err := uo.store.List(path)
+func (so *SingleOperator) List(path string) chan *types.Object {
+	it, err := so.store.List(path)
 	if err != nil {
-		uo.errCh <- err
+		so.errCh <- err
 		return nil
 	}
 
@@ -22,7 +22,7 @@ func (uo *UniOperator) List(path string) chan *types.Object {
 				break
 			}
 			if err != nil {
-				uo.errCh <- err
+				so.errCh <- err
 				return
 			}
 			ch <- o
