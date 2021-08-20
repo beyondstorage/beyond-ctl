@@ -32,8 +32,8 @@ The config struct will be like:
 
 ```go
 type Config struct {
-    Version  int                  `json:"version" toml:"version"`
-    Profiles map[string]Conection `json:"profiles" toml:"profiles"`
+    Version  int                   `json:"version" toml:"version"`
+    Profiles map[string]Connection `json:"profiles" toml:"profiles"`
 }
 
 type Connection struct {
