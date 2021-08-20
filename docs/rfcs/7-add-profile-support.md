@@ -32,8 +32,23 @@ The config struct will be like:
 
 ```go
 type Config struct {
-    Version string             `json:"version"`
-    Profiles map[string]string `json:"profiles"`
+    Version  int                  `json:"version" toml:"version"`
+    Profiles map[string]Conection `json:"profiles" toml:"profiles"`
+}
+
+type Connection struct {
+    Type    string              `json:"type" toml:"type"`
+    Name    string              `json:"name" toml:"name"`
+    WorkDir string              `json:"work_dir" toml:"work_dir"`
+    Pairs   map[string]string   `json:"pairs" toml:"pairs"`
+}
+
+func (c Connection) String() string {
+    // Build connection string from Connection
+}
+
+func NewConnectionFromString(input string) Connection {
+    // Parse connection string into Connection
 }
 ```
 
@@ -42,7 +57,7 @@ compatibility.
 
 The field `Identities` contains key to connection string as a map.
 
-We will save config as json format into local file.  
+We will save config as toml format into local file.  
 
 ### Commands
 
@@ -50,7 +65,6 @@ The commands will be like:
 
 ```
 beyondctl profile set <key> <connection string>
-beyondctl profile get <key>
 beyondctl profile delete <key>
 beyondctl profile list
 ```
@@ -79,13 +93,28 @@ file.
 Minio mc alias
 implementation: <https://github.com/minio/mc/blob/a88acb58d41eec81791e97672c5318f4582e00dc/cmd/alias-set.go#L154>
 
+### Why toml instead of json?
+
+`toml` is human-readable, easy to maintain, supports comments.
+
+json is suitable for machines but not humans, we can add `--json` to support json output.
+
+### What if add profile to an existing key?
+
+For now, we just return a `profile_exists` error.
+
+Maybe we can add a flag `--force` to satisfy both actions if needed:
+
+- If `--force` flag was set, the new one would overwrite the existed one. 
+- If not, a `profile_exists` error will be returned. 
+
 ## Compatibility
 
 None
 
 ## Implementation
 
-1. Add config model
+1. Add config model and implement the methods
 2. Add `--config` as global flag to specify config file path
 3. Support read config from file and write config into file
 4. Add commands to reach profile in config file

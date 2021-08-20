@@ -6,10 +6,10 @@
 # BCP-0: <proposal name>
 
 - Updates: (delete this part if not applicable)
-    - [GSP-20](./20-abc): Deletes something
+    - [BCP-20](./20-abc): Deletes something
 - Updated By: (delete this part if not applicable)
-    - [GSP-10](./10-do-be-do-be-do): Adds something
-    - [GSP-1000](./1000-lalala): Deprecates this RFC
+    - [BCP-10](./10-do-be-do-be-do): Adds something
+    - [BCP-1000](./1000-lalala): Deprecates this RFC
 
 ## Background
 
