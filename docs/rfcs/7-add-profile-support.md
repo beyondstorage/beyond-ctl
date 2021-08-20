@@ -31,33 +31,32 @@ So I propose to add profile support to record user's connection string with an a
 The config struct will be like:
 
 ```go
+type Profile struct {
+    Connection string `json:"connection" toml:"connection"`
+}
+
 type Config struct {
-    Version  int                   `json:"version" toml:"version"`
-    Profiles map[string]Connection `json:"profiles" toml:"profiles"`
-}
-
-type Connection struct {
-    Type    string              `json:"type" toml:"type"`
-    Name    string              `json:"name" toml:"name"`
-    WorkDir string              `json:"work_dir" toml:"work_dir"`
-    Pairs   map[string]string   `json:"pairs" toml:"pairs"`
-}
-
-func (c Connection) String() string {
-    // Build connection string from Connection
-}
-
-func NewConnectionFromString(input string) Connection {
-    // Parse connection string into Connection
+    Version  int                `json:"version" toml:"version"`
+    Profiles map[string]Profile `json:"profiles" toml:"profiles"`
 }
 ```
 
 The field `Version` used to keep config compatible, and will return an error if config struct changed and cannot ensure
 compatibility.
 
-The field `Profiles` contains key to connection struct as a map.
+The field `Profiles` contains key to `Profile` struct as a map.
 
-We will save config as toml format into local file.  
+We will save config as toml format into local file, whose content will be like:
+
+```toml
+version = 1
+
+[profiles.one-profile]
+connection = "type://content/of/connection?k=v&k2=v2"
+
+[profiles.another-profile]
+connection = "type://another/content/of/connection?k=v&k2=v2"
+```
 
 ### Commands
 
