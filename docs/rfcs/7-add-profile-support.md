@@ -111,7 +111,48 @@ for it, such as `p` in the future. The same situation for `remove`, `rm` is a co
 
 For now, we have no plan to support alias in our commands. Because it will lead misunderstanding for users 
 
-### Other Implementation
+### Optimization for fs?
+
+We can add special treatment for `fs`. For example:
+
+```
+beyondctl cp local_dir test_s3:qqqq
+```
+
+If src/dst doesn't include a profile name like `local_dir` here, we can treat it as `fs://<pwd>/local_dir`. So the real command will become:
+
+```
+beyondctl cp fs:/path/to/local_dir test_s3:qqq
+```
+
+This can be implemented in another proposal.
+
+### Interactive support for profile command?
+
+In the further, we will introduce interactive profile creation:
+
+```shell
+> beyondctl profile add
+It looks like you didn't input connection string, use interactive creation instead.
+Please input the name.
+> xxxx
+Please choose the service type.
+> s3
+Please input the credential.
+S3 support following credential protocol:
+- hmac: "hmac:access_key:secret_key"
+- env
+> hmac:access_key:secret_key
+Please input endpoint. (Input enter to use default value)
+>
+Profile xxxxx has been created, you can use it in the following ways:
+
+    beyondctl ls xxxxx
+    beyondctl ls xxxxx:/abc
+    byonndctl cp file xxxxx:/abc/xxxxx
+```
+
+### Other Comparable Implementation
 
 #### git remote
 
