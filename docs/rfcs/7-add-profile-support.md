@@ -89,9 +89,6 @@ file.
 
 ## Rationale
 
-Minio mc alias
-implementation: <https://github.com/minio/mc/blob/a88acb58d41eec81791e97672c5318f4582e00dc/cmd/alias-set.go#L154>
-
 ### Why toml instead of json?
 
 `toml` is human-readable, easy to maintain, supports comments.
@@ -106,6 +103,62 @@ Maybe we can add a flag `--force` to satisfy both actions if needed:
 
 - If `--force` flag was set, the new one would overwrite the existed one. 
 - If not, a `profile_exists` error will be returned. 
+
+### Support alias for profile commands?
+
+Because the name of `profile` command is a little long for user input, maybe we can add an alias
+for it, such as `p` in the future. The same situation for `remove`, `rm` is a common alias for it.
+
+For now, we have no plan to support alias in our commands. Because it will lead misunderstanding for users 
+
+### Other Implementation
+
+#### git remote
+
+```
+NAME
+       git-remote - Manage set of tracked repositories
+
+SYNOPSIS
+       git remote [-v | --verbose]
+       git remote add [-t <branch>] [-m <master>] [-f] [--[no-]tags] [--mirror=(fetch|push)] <name> <url>
+       git remote rename <old> <new>
+       git remote remove <name>
+       git remote set-head <name> (-a | --auto | -d | --delete | <branch>)
+       git remote set-branches [--add] <name> <branch>...
+       git remote get-url [--push] [--all] <name>
+       git remote set-url [--push] <name> <newurl> [<oldurl>]
+       git remote set-url --add [--push] <name> <newurl>
+       git remote set-url --delete [--push] <name> <url>
+       git remote [-v | --verbose] show [-n] <name>...
+       git remote prune [-n | --dry-run] <name>...
+       git remote [-v | --verbose] update [-p | --prune] [(<group> | <remote>)...]
+```
+
+#### minio mcli
+
+```
+:) mcli alias --help
+NAME:
+  mcli alias - set, remove and list aliases in configuration file
+
+USAGE:
+  mcli alias COMMAND [COMMAND FLAGS | -h] [ARGUMENTS...]
+
+COMMANDS:
+  set, s      set a new alias to configuration file
+  list, ls    list aliases in configuration file
+  remove, rm  remove an alias from configuration file
+
+FLAGS:
+  --config-dir value, -C value  path to configuration folder (default: "/home/xuanwo/.mcli")
+  --quiet, -q                   disable progress bar display
+  --no-color                    disable color theme
+  --json                        enable JSON lines formatted output
+  --debug                       enable debug output
+  --insecure                    disable SSL certificate verification
+  --help, -h                    show help
+```
 
 ## Compatibility
 
