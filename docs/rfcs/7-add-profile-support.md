@@ -63,18 +63,18 @@ connection = "type://another/content/of/connection?k=v&k2=v2"
 The commands will be like:
 
 ```
-beyondctl profile set <key> <connection string>
-beyondctl profile delete <key>
+beyondctl profile add <key> <connection string>
+beyondctl profile remove <key>
 beyondctl profile list
 ```
 
 For example:
 
 ```
-beyondctl profile set test-s3 s3://bucket_name/qqq?crendential=hmac:access_key:secret_key&endpoint=xxxx:xxx:xx
+beyondctl profile add test-s3 s3://bucket_name/qqq?crendential=hmac:access_key:secret_key&endpoint=xxxx:xxx:xx
 ```
 
-This command will set a connection string with key `test-s3`, so every time we need input arg to initialize a storager
+This command will add a connection string with key `test-s3`, so every time we need input arg to initialize a storager
 with given connection string, we can use `test-s3` instead, for example:
 
 ```
