@@ -1,7 +1,7 @@
 - Author: Prnyself <281239768@qq.com>
 - Start Date: 2021-08-19
 - RFC PR: [beyondstorage/beyond-ctl#7](https://github.com/beyondstorage/beyond-ctl/pull/7)
-- Tracking Issue: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/issues/0)
+- Tracking Issue: [beyondstorage/beyond-ctl#9](https://github.com/beyondstorage/beyond-ctl/issues/9)
 
 # BCP-7: Add Profile Support
 
