@@ -55,7 +55,7 @@ func NewConnectionFromString(input string) Connection {
 The field `Version` used to keep config compatible, and will return an error if config struct changed and cannot ensure
 compatibility.
 
-The field `Identities` contains key to connection string as a map.
+The field `Profiles` contains key to connection string as a map.
 
 We will save config as toml format into local file.  
 
