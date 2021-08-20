@@ -37,7 +37,7 @@ type Profile struct {
 
 type Config struct {
     Version  int                `json:"version" toml:"version"`
-    Profiles map[string]Profile `json:"profiles" toml:"profiles"`
+    Profiles map[string]Profile `json:"profile" toml:"profile"`
 }
 ```
 
@@ -51,10 +51,10 @@ We will save config as toml format into local file, whose content will be like:
 ```toml
 version = 1
 
-[profiles.one-profile]
+[profile.one-profile]
 connection = "type://content/of/connection?k=v&k2=v2"
 
-[profiles.another-profile]
+[profile.another-profile]
 connection = "type://another/content/of/connection?k=v&k2=v2"
 ```
 
@@ -63,8 +63,8 @@ connection = "type://another/content/of/connection?k=v&k2=v2"
 The commands will be like:
 
 ```
-beyondctl profile add <key> <connection string>
-beyondctl profile remove <key>
+beyondctl profile add <name> <connection string>
+beyondctl profile remove <name>
 beyondctl profile list
 ```
 
