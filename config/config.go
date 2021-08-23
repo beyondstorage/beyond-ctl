@@ -25,14 +25,8 @@ func New() *Config {
 	}
 }
 
-func NewDefault() *Config {
-	cfg := New()
-	cfg.Version = Version
-	return cfg
-}
-
 func LoadFromFile(path string) (*Config, error) {
-	cfg := NewDefault()
+	cfg := New()
 
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
