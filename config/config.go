@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"sync"
 
@@ -39,7 +40,7 @@ func (c *Config) LoadConfigFromFile(path string) error {
 	c.Lock()
 	defer c.Unlock()
 
-	data, err := os.ReadFile(path)
+	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		return err
 	}
