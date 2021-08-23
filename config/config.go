@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/BurntSushi/toml"
@@ -28,13 +30,18 @@ func New() *Config {
 func LoadFromFile(path string) (*Config, error) {
 	cfg := New()
 
-	data, err := ioutil.ReadFile(path)
+	fullPath, err := expandHomeDir(path)
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := ioutil.ReadFile(fullPath)
 	if err != nil {
 		// if config file not exist, do not load
 		if os.IsNotExist(err) {
 			// write default config into path if not exist
-			if err := cfg.WriteToFile(path); err != nil {
-				return nil, fmt.Errorf("config file at %s not found, write default config failed: %w", path, err)
+			if err := cfg.WriteToFile(fullPath); err != nil {
+				return nil, fmt.Errorf("config file at %s not found, write default config failed: %w", fullPath, err)
 			}
 			return cfg, nil
 		}
@@ -55,7 +62,17 @@ func (c *Config) WriteToFile(path string) error {
 	c.Lock()
 	defer c.Unlock()
 
-	f, err := os.Create(path)
+	fullPath, err := expandHomeDir(path)
+	if err != nil {
+		return err
+	}
+
+	// make parent dirs
+	if err := os.MkdirAll(filepath.Dir(fullPath), os.ModePerm); err != nil {
+		return err
+	}
+
+	f, err := os.Create(fullPath)
 	if err != nil {
 		return err
 	}
@@ -63,4 +80,17 @@ func (c *Config) WriteToFile(path string) error {
 
 	enc := toml.NewEncoder(f)
 	return enc.Encode(c)
+}
+
+func expandHomeDir(path string) (string, error) {
+	if strings.Index(path, "~/") != 0 {
+		return path, nil
+	}
+
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	// replace `~/` with home dir
+	return strings.Replace(path, "~/", homeDir+"/", 1), nil
 }
