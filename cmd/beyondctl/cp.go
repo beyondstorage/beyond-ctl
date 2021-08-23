@@ -31,6 +31,7 @@ var cpCmd = &cli.Command{
 		if err != nil {
 			return err
 		}
+		cfg.MergeProfileFromEnv()
 
 		srcConn, srcKey, err := cfg.ParseProfileInput(ctx.Args().Get(0))
 		if err != nil {
