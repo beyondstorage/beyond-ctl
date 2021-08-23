@@ -2,30 +2,18 @@ package config
 
 import "errors"
 
-var (
-	// ErrProfileAlreadyExist returned when add profile to an existing name
-	ErrProfileAlreadyExist = errors.New("profile already exists")
-)
-
 type Profile struct {
 	Connection string `json:"connection" toml:"connection"`
 }
 
-// Encoder used to encode struct
-type Encoder interface {
-	Encode(v interface{}) error
-}
-
-func (c *Config) AppendProfile(name string, prof Profile, force bool) error {
+func (c *Config) AppendProfile(name string, prof Profile) error {
 	c.Lock()
 	defer c.Unlock()
 
-	// if not force append, check existence and return error if true
-	if !force {
-		_, ok := c.Profiles[name]
-		if ok {
-			return ErrProfileAlreadyExist
-		}
+	// check existence and return error if exists
+	_, ok := c.Profiles[name]
+	if ok {
+		return errors.New("profile already exists")
 	}
 	c.Profiles[name] = prof
 	return nil

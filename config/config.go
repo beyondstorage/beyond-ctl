@@ -1,7 +1,6 @@
 package config
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -13,50 +12,41 @@ import (
 // Version of config
 const Version = 1
 
-var (
-	// ErrVerNotCompatible returned when version check failed
-	ErrVerNotCompatible = errors.New("the version of config file is not compatible")
-)
-
 type Config struct {
 	sync.Mutex
 	Version  int                `json:"version" toml:"version"`
 	Profiles map[string]Profile `json:"profile" toml:"profile"`
 }
 
-func NewConfig() *Config {
+func New() *Config {
 	return &Config{
+		Version:  Version, // set current version to default value, will change by parsing from
 		Profiles: make(map[string]Profile),
 	}
 }
 
-func DefaultConfig() *Config {
-	conf := NewConfig()
-	conf.Version = Version
-	return conf
+func NewDefault() *Config {
+	cfg := New()
+	cfg.Version = Version
+	return cfg
 }
 
-func (c *Config) LoadConfigFromFile(path string) error {
-	c.Lock()
-	defer c.Unlock()
+func LoadFromFile(path string) (*Config, error) {
+	cfg := NewDefault()
 
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		return err
 	}
 
-	if err = toml.Unmarshal(data, c); err != nil {
-		return err
+	if err = toml.Unmarshal(data, cfg); err != nil {
+		return nil, err
 	}
 
-	return c.Check()
-}
-
-func (c *Config) Check() error {
-	if c.Version != Version {
-		return fmt.Errorf("config ver. %d is expected, %w", Version, ErrVerNotCompatible)
+	if cfg.Version != Version {
+		return nil, fmt.Errorf("config ver. %d is expected, version of config file is not compatible", Version)
 	}
-	return nil
+	return cfg, nil
 }
 
 func (c *Config) WriteToFile(path string) error {

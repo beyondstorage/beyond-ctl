@@ -32,16 +32,16 @@ var profileAddCmd = &cli.Command{
 	},
 	Action: func(ctx *cli.Context) error {
 		path := ctx.String(flagConfig)
-		cfg := config.NewConfig()
 
-		if err := cfg.LoadConfigFromFile(path); err != nil {
+		cfg, err := config.LoadFromFile(path)
+		if err != nil {
 			return err
 		}
 
 		name, connStr := ctx.Args().Get(0), ctx.Args().Get(1)
-		err := cfg.AppendProfile(name, config.Profile{
+		err = cfg.AppendProfile(name, config.Profile{
 			Connection: connStr,
-		}, false)
+		})
 		if err != nil {
 			return err
 		}
@@ -64,9 +64,8 @@ var profileRemoveCmd = &cli.Command{
 	},
 	Action: func(ctx *cli.Context) error {
 		path := ctx.String(flagConfig)
-		cfg := config.NewConfig()
-
-		if err := cfg.LoadConfigFromFile(path); err != nil {
+		cfg, err := config.LoadFromFile(path)
+		if err != nil {
 			return err
 		}
 
@@ -91,19 +90,17 @@ var profileListCmd = &cli.Command{
 	},
 	Action: func(ctx *cli.Context) error {
 		path := ctx.String(flagConfig)
-		cfg := config.NewConfig()
-
-		if err := cfg.LoadConfigFromFile(path); err != nil {
+		cfg, err := config.LoadFromFile(path)
+		if err != nil {
 			return err
 		}
 
-		var enc config.Encoder
 		if ctx.Bool("json") {
-			enc = json.NewEncoder(os.Stdout)
+			err = json.NewEncoder(os.Stdout).Encode(cfg.Profiles)
 		} else {
-			enc = toml.NewEncoder(os.Stdout)
+			err = toml.NewEncoder(os.Stdout).Encode(cfg.Profiles)
 		}
 
-		return enc.Encode(cfg.Profiles)
+		return err
 	},
 }
