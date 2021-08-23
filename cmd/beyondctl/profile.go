@@ -86,9 +86,6 @@ var profileListCmd = &cli.Command{
 		&cli.BoolFlag{
 			Name:  "json",
 			Usage: "list profile from config",
-			EnvVars: []string{
-				"BEYCTL_JSON",
-			},
 			Value: false,
 		},
 	},

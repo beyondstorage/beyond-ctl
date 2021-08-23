@@ -25,9 +25,9 @@ var configFlag = cli.StringFlag{
 	Usage:   "Load config from `FILE`",
 	Aliases: []string{"c"},
 	EnvVars: []string{
-		"BEYCTL_CONFIG",
+		"BEYOND_CTL_CONFIG",
 	},
-	Value: "~/.beyondctl/config.toml",
+	Value: "~/.config/beyondctl/config.toml",
 }
 
 func main() {
