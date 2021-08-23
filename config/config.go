@@ -36,7 +36,15 @@ func LoadFromFile(path string) (*Config, error) {
 
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
-		return err
+		// if config file not exist, do not load
+		if os.IsNotExist(err) {
+			// write default config into path if not exist
+			if err := cfg.WriteToFile(path); err != nil {
+				return nil, fmt.Errorf("config file at %s not found, write default config failed: %w", path, err)
+			}
+			return cfg, nil
+		}
+		return nil, err
 	}
 
 	if err = toml.Unmarshal(data, cfg); err != nil {
