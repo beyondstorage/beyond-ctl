@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/urfave/cli/v2"
@@ -8,6 +9,8 @@ import (
 )
 
 const flagConfig = "config"
+
+var configDir string
 
 var app = cli.App{
 	Name: "beyondctl",
@@ -27,7 +30,7 @@ var configFlag = cli.StringFlag{
 	EnvVars: []string{
 		"BEYOND_CTL_CONFIG",
 	},
-	Value: "~/.config/beyondctl/config.toml",
+	Value: fmt.Sprintf("%s/beyondctl/config.toml", configDir),
 }
 
 func main() {
@@ -36,5 +39,14 @@ func main() {
 	err := app.Run(os.Args)
 	if err != nil {
 		logger.Fatal("beyondctl execute", zap.Error(err))
+	}
+}
+
+func init() {
+	var err error
+
+	configDir, err = os.UserConfigDir()
+	if err != nil {
+		panic("$HOME is not specified")
 	}
 }

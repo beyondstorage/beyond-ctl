@@ -5,8 +5,8 @@ import (
 	"github.com/beyondstorage/go-storage/v4/types"
 )
 
-func (oo *OneOperator) List(path string) chan *types.Object {
-	it, err := oo.store.List("")
+func (oo *SingleOperator) List(path string) chan *types.Object {
+	it, err := oo.store.List(path)
 	if err != nil {
 		oo.errch <- err
 	}

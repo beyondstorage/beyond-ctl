@@ -36,15 +36,15 @@ func LoadFromFile(path string) (*Config, error) {
 	}
 
 	data, err := ioutil.ReadFile(fullPath)
-	if err != nil {
-		// if config file not exist, do not load
-		if os.IsNotExist(err) {
-			// write default config into path if not exist
-			if err := cfg.WriteToFile(fullPath); err != nil {
-				return nil, fmt.Errorf("config file at %s not found, write default config failed: %w", fullPath, err)
-			}
-			return cfg, nil
+	if err != nil && os.IsNotExist(err) {
+		// if config file not exist, do not load, write default config instead.
+		xerr := cfg.WriteToFile(fullPath)
+		if xerr != nil {
+			return nil, fmt.Errorf("config file at %s not found, write default config failed: %w", fullPath, err)
 		}
+		return cfg, nil
+	}
+	if err != nil {
 		return nil, err
 	}
 
@@ -78,11 +78,14 @@ func (c *Config) WriteToFile(path string) error {
 	}
 	defer f.Close()
 
-	enc := toml.NewEncoder(f)
-	return enc.Encode(c)
+	return toml.NewEncoder(f).Encode(c)
 }
 
 func expandHomeDir(path string) (string, error) {
+	if filepath.IsAbs(path) {
+		return path, nil
+	}
+
 	if strings.Index(path, "~/") != 0 {
 		return path, nil
 	}
