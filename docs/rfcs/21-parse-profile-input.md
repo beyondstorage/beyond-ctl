@@ -1,7 +1,7 @@
 - Author: Prnyself <281239768@qq.com>
 - Start Date: 2021-08-24
 - RFC PR: [beyondstorage/beyond-ctl#21](https://github.com/beyondstorage/beyond-ctl/pull/21)
-- Tracking Issue: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/issues/0)
+- Tracking Issue: [beyondstorage/beyond-ctl#22](https://github.com/beyondstorage/beyond-ctl/issues/22)
 
 # BCP-21: Parse Profile Input
 
@@ -36,9 +36,9 @@ So I propose to add following rules when parse input:
 
 For now, we initialize `profile` list from config file, and modify config file when execute `add` or `remove` `profile`
 command. To support set profile by environment, we should specify the prefix of environment variables which will be used
-as profile key and value. 
+as profile key and value.
 
-For `BEYOND_CTL_PROFILE_xxxx = s3://xxxx`, a profile with name `xxxx` and connection string 
+For `BEYOND_CTL_PROFILE_xxxx = s3://xxxx`, a profile with name `xxxx` and connection string
 `s3://xxxx` will be merged into config profile, and can be used in input, without adding into config file.
 
 Moreover, to avoid writing environment variable profile into config file, we do not support using environment variables
@@ -54,7 +54,7 @@ It will introduce complex problems and situation into profiles. For example
 BEYOND_CTL_PROFILE_key1 = s3://xxxx beyondctl add key1 fs:///xxx 
 ```
 
-This will lead into a conflict between input and environment variable, which is meaningless. 
+This will lead into a conflict between input and environment variable, which is meaningless.
 
 ## Compatibility
 
@@ -63,6 +63,6 @@ None.
 ## Implementation
 
 1. Add input parser by rules listed in proposal
-2. Support reading environment variables with given prefix, and merge them into current `profile` 
+2. Support reading environment variables with given prefix, and merge them into current `profile`
 
 [BCP-7]: https://github.com/beyondstorage/beyond-ctl/blob/master/docs/rfcs/7-add-profile-support.md
