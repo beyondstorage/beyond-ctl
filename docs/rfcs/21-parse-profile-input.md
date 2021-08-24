@@ -24,10 +24,10 @@ profile by environment variables?
 So I propose to add following rules when parse input:
 
 - using `:` as the separator between `profile` and `key`, such as `test-s3:dir_to_list`.
-- try to find `profile` with given `name` (in both situation listed below, error would return if connection string
-  invalid)
-    - if found, use `profile`'s connection string
-    - if not, treat it as raw connection string, e.g. `s3://bucket-name/dir/:object_name`
+- try to find `profile` with given `name`
+    - if found, use `profile`'s connection string, error would return if connection string
+      invalid
+    - if not, a `profile not found` error would return
 - if no separator found, treat input as local fs path
     - if the path is an absolute path, set `/` as `work_dir`, and the input as `key`
     - if the path is a relative path, set `pwd` as `work_dir`, and the input as `key`
@@ -45,6 +45,14 @@ Moreover, to avoid writing environment variable profile into config file, we do 
 in `profile` commands.
 
 ## Rationale
+
+### Why not support raw connection string from input?
+
+- First, the connection is usually too long to input.
+- Second, there would be some sensitive data such as sk or password in connection string, which is not appropriate to
+  show in input string.
+- Third, we add support for get profile from environment variable, so it is unnecessary for user to input raw
+  connection.
 
 ### Why not support env vars in profile commands?
 
