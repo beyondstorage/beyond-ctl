@@ -91,8 +91,8 @@ github.com/beyondstorage/go-service-cos/v2 v2.2.0 h1:MSoswF7t6t5XQ3GM+eVP0rQD8/c
 github.com/beyondstorage/go-service-cos/v2 v2.2.0/go.mod h1:r5RZAj9JzYqg9ZuRxJCgYs1Dngmpm1oBqFhEB/aQPHk=
 github.com/beyondstorage/go-service-dropbox/v2 v2.2.0 h1:k8Jd3Jg+5D9HfVofQhBTjaKLmvFHIpCMwf8Rapd7hZs=
 github.com/beyondstorage/go-service-dropbox/v2 v2.2.0/go.mod h1:r6XggkJQvdSgxo2dCrHhR8dA6DGJWm/W7YvNfISBVek=
-github.com/beyondstorage/go-service-fs/v3 v3.3.0 h1:VOFdcshI4M1ovPbfwBpSdTp2CkzvdDKT6F70WQRdp4A=
-github.com/beyondstorage/go-service-fs/v3 v3.3.0/go.mod h1:/keWarsnGKz219wMyGN57OM7s5BUIZ/YlK9LhsXMwtQ=
+github.com/beyondstorage/go-service-fs/v3 v3.4.0 h1:stf8D8I/YZTIlzG7yHmm9Vc89pmS5nX4FzoCZE14pOI=
+github.com/beyondstorage/go-service-fs/v3 v3.4.0/go.mod h1:aVsiIUlcG8skmQwJyELv7XOEFyh3U/tgp7rGgQMIw5o=
 github.com/beyondstorage/go-service-ftp v0.1.0 h1:z2ixWvDv9stzhGoJkv9AmEMGtzytOOTPWl9Vq/bi6H8=
 github.com/beyondstorage/go-service-ftp v0.1.0/go.mod h1:9muNx+M8lUeFoGDk1xEeBMNLN4QyiOR8noI8owAiY9A=
 github.com/beyondstorage/go-service-gcs/v2 v2.2.0 h1:oSH9tGb1NY2fKxBuvyIc3tvhEo6sLeO/tP933Ainz5Y=
