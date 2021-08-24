@@ -10,8 +10,6 @@ import (
 
 const flagConfig = "config"
 
-var configDir string
-
 var app = cli.App{
 	Name: "beyondctl",
 	Flags: []cli.Flag{
@@ -30,7 +28,7 @@ var configFlag = cli.StringFlag{
 	EnvVars: []string{
 		"BEYOND_CTL_CONFIG",
 	},
-	Value: fmt.Sprintf("%s/beyondctl/config.toml", configDir),
+	Value: fmt.Sprintf("%s/beyondctl/config.toml", userConfigDir()),
 }
 
 func main() {
@@ -42,11 +40,10 @@ func main() {
 	}
 }
 
-func init() {
-	var err error
-
-	configDir, err = os.UserConfigDir()
+func userConfigDir() string {
+	configDir, err := os.UserConfigDir()
 	if err != nil {
 		panic("$HOME is not specified")
 	}
+	return configDir
 }

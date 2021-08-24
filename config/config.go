@@ -86,7 +86,7 @@ func expandHomeDir(path string) (string, error) {
 		return path, nil
 	}
 
-	if strings.Index(path, "~/") != 0 {
+	if !strings.HasPrefix(path, "~/") {
 		return path, nil
 	}
 
