@@ -1,9 +1,9 @@
 - Author: Prnyself <281239768@qq.com>
 - Start Date: 2021-08-24
-- RFC PR: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/issues/0)
+- RFC PR: [beyondstorage/beyond-ctl#21](https://github.com/beyondstorage/beyond-ctl/pull/21)
 - Tracking Issue: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/issues/0)
 
-# BCP-0: Parse Profile Input
+# BCP-21: Parse Profile Input
 
 ## Background
 
