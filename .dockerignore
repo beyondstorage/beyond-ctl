@@ -1,0 +1,8 @@
+# Remove all docs alike file
+*.md
+*.html
+*.txt
+.idea/
+.github/
+bin/
+docs/
