@@ -21,6 +21,7 @@ var lsCmd = &cli.Command{
 		if err != nil {
 			return err
 		}
+		cfg.MergeProfileFromEnv()
 
 		conn, path, err := cfg.ParseProfileInput(ctx.Args().Get(0))
 		if err != nil {

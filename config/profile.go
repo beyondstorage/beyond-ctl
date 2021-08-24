@@ -7,7 +7,11 @@ import (
 	"strings"
 )
 
-const profileSeparator = ":"
+const (
+	profileSeparator = ":"
+
+	profileEnvPrefix = "BEYOND_CTL_PROFILE_"
+)
 
 type Profile struct {
 	Connection string `json:"connection" toml:"connection"`
@@ -78,4 +82,34 @@ func (c *Config) ParseProfileInput(input string) (conn, key string, err error) {
 		key = input[sepIdx+1:]
 	}
 	return
+}
+
+func (c *Config) MergeProfileFromEnv() {
+	c.Lock()
+	defer c.Unlock()
+
+	env := getEnvWith(profileEnvPrefix)
+	for k, v := range env {
+		c.Profiles[k] = Profile{Connection: v}
+	}
+}
+
+// getEnvWith get env var with given prefix and return a map with key trimmed prefix
+func getEnvWith(prefix string) map[string]string {
+	res := make(map[string]string)
+
+	for _, env := range os.Environ() {
+		// os.Environ format as `key=value`
+		// environ with same name would be overwrite, so we can use map as result
+		parts := strings.Split(env, "=")
+		key, value := parts[0], parts[1]
+
+		if prefix != "" && !strings.HasPrefix(key, prefix) {
+			continue
+		}
+
+		res[strings.TrimPrefix(key, prefix)] = value
+	}
+
+	return res
 }
