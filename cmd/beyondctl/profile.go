@@ -39,7 +39,7 @@ var profileAddCmd = &cli.Command{
 		}
 
 		name, connStr := ctx.Args().Get(0), ctx.Args().Get(1)
-		err = cfg.AppendProfile(name, config.Profile{
+		err = cfg.AddProfile(name, config.Profile{
 			Connection: connStr,
 		})
 		if err != nil {

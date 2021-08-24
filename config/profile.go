@@ -6,7 +6,7 @@ type Profile struct {
 	Connection string `json:"connection" toml:"connection"`
 }
 
-func (c *Config) AppendProfile(name string, prof Profile) error {
+func (c *Config) AddProfile(name string, prof Profile) error {
 	c.Lock()
 	defer c.Unlock()
 
