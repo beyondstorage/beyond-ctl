@@ -1,3 +1,5 @@
+bou.ke/monkey v1.0.2 h1:kWcnsrCNUatbxncxR/ThdYqbytgOIArtYWqcQLQzKLI=
+bou.ke/monkey v1.0.2/go.mod h1:OqickVX3tNx6t33n1xvtTtu85YN5s6cKwVug+oHMaIA=
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 cloud.google.com/go v0.38.0/go.mod h1:990N+gfupTy94rShfmMCWGDn0LpTmnzTp2qbd1dvSRU=
@@ -62,6 +64,7 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/Kubuxu/go-os-helper v0.0.1/go.mod h1:N8B+I7vPCT80IcP58r50u4+gEEcsZETFUpAzWW2ep1Y=
 github.com/QcloudApi/qcloud_sign_golang v0.0.0-20141224014652-e4130a326409/go.mod h1:1pk82RBxDY/JZnPQrtqHlUFfCctgdorsd9M06fMynOM=
+github.com/Xuanwo/go-bufferpool v0.0.0-20200622083641-bc954721ce54/go.mod h1:Mle++9GGouhOwGj52i9PJLNAPmW2nb8PWBP7JJzNCzk=
 github.com/Xuanwo/go-bufferpool v0.1.0 h1:f8eEZcAa/pe+baqTRXwgrVYQpqGX0TC26qCxQvLNlKA=
 github.com/Xuanwo/go-bufferpool v0.1.0/go.mod h1:Mle++9GGouhOwGj52i9PJLNAPmW2nb8PWBP7JJzNCzk=
 github.com/Xuanwo/templateutils v0.1.0 h1:WpkWOqQtIQ2vAIpJLa727DdN8WtxhUkkbDGa6UhntJY=
@@ -80,6 +83,7 @@ github.com/beyondstorage/go-credential v0.0.0-20210804082910-7c63d94f2826/go.mod
 github.com/beyondstorage/go-endpoint v1.0.1/go.mod h1:P2hknaGrziOJJKySv/XnAiVw/d3v12/LZu2gSxEx4nM=
 github.com/beyondstorage/go-endpoint v1.1.0 h1:cpjmQdrAMyaLoT161NIFU/eXcsuMI3xViycid5/mBZg=
 github.com/beyondstorage/go-endpoint v1.1.0/go.mod h1:P2hknaGrziOJJKySv/XnAiVw/d3v12/LZu2gSxEx4nM=
+github.com/beyondstorage/go-integration-test/v4 v4.1.1/go.mod h1:ihtCaOJvaHGE0v+IhY6ZUF5NU1IND6xmdrJI9Lq/jhc=
 github.com/beyondstorage/go-integration-test/v4 v4.2.0/go.mod h1:jLyYWSGUjQRH7U1HdaLbXE5sxBgqrtK73q+Q7PGIuSs=
 github.com/beyondstorage/go-integration-test/v4 v4.3.0/go.mod h1:HKgzemQZpxoHBL49JYEUnLTb5eteUhzcvmmPL7EDT/Y=
 github.com/beyondstorage/go-service-azblob/v2 v2.2.0 h1:79WsySo51jA+tuHkN9agcxmSYWY4ad+tP+VKPIr95SA=
@@ -104,16 +108,20 @@ github.com/beyondstorage/go-service-minio v0.1.0 h1:v5V2G0qtYidudkm9DGtacCYDZEJs
 github.com/beyondstorage/go-service-minio v0.1.0/go.mod h1:IYGsmM2AQwN1se7hjh6dJuaZHMAPWlXuXJIMkrncJck=
 github.com/beyondstorage/go-service-oss/v2 v2.3.0 h1:et/4yrgE/32eMvDfoeyI38O2C7UrpzcNoxILC5BqeC4=
 github.com/beyondstorage/go-service-oss/v2 v2.3.0/go.mod h1:1QIf33rz6AJg6KImx6v7n+zEkdUWQSquUFoT0De7ngc=
+github.com/beyondstorage/go-service-qingstor/v3 v3.2.0 h1:74nZZ8hvB8JxN7zYzHJMgxRQxOR7Zn56rQhgNTLwcUg=
+github.com/beyondstorage/go-service-qingstor/v3 v3.2.0/go.mod h1:quW3B/90+LrMxoH+ZWhLrSLLJw4Syc6a/4Bykm+HYKE=
 github.com/beyondstorage/go-service-s3/v2 v2.3.0 h1:mCdCuGmQ/26A1Xhj9tnFcRy3bXf1h5MT/TyFrJW8CAI=
 github.com/beyondstorage/go-service-s3/v2 v2.3.0/go.mod h1:B4gLy8g/uhjkLkVymkRES/tIKH2UhB0zmkzqzGaN5LU=
 github.com/beyondstorage/go-service-uss/v2 v2.2.0 h1:pH4dGOy68saYPUBmEgerALxgiucZlI9q3YT/9YCXuNQ=
 github.com/beyondstorage/go-service-uss/v2 v2.2.0/go.mod h1:KCFyGR04lBiI/u7Hd6Qm6KNwA2QGWG30au1NtCGbWhc=
+github.com/beyondstorage/go-storage/v4 v4.2.0/go.mod h1:rUNzOXcikYk5w0ewvNsKbztg7ndQDyDvjDuP0bznSLU=
 github.com/beyondstorage/go-storage/v4 v4.3.0/go.mod h1:0fdcRCzLKMQe7Ve4zPlyTGgoPYwuINiV79Gx9tCt9tQ=
 github.com/beyondstorage/go-storage/v4 v4.3.2/go.mod h1:8FHjTUFuwLl/mmIGpOL9g3RTZPyye7vneFN/JkRj5Tg=
 github.com/beyondstorage/go-storage/v4 v4.4.0/go.mod h1:mc9VzBImjXDg1/1sLfta2MJH79elfM6m47ZZvZ+q/Uw=
 github.com/beyondstorage/go-storage/v4 v4.4.1-0.20210730075750-6e541b87ea46/go.mod h1:mc9VzBImjXDg1/1sLfta2MJH79elfM6m47ZZvZ+q/Uw=
 github.com/beyondstorage/go-storage/v4 v4.5.0 h1:cWkX1A+yVLldEpj/Ad9capev9K1fbVIVcRvwqWsMgpw=
 github.com/beyondstorage/go-storage/v4 v4.5.0/go.mod h1:mc9VzBImjXDg1/1sLfta2MJH79elfM6m47ZZvZ+q/Uw=
+github.com/beyondstorage/specs/go v0.0.0-20210623065218-d1c2d7d81259/go.mod h1:vF/Q0P1tCvhVAUrxg7i6NvrARRMQVTAuQdDNqpSzR1w=
 github.com/btcsuite/btcd v0.20.1-beta h1:Ik4hyJqN8Jfyv3S4AGBOmyouMsYE3EdYODkMbQjwPGw=
 github.com/btcsuite/btcd v0.20.1-beta/go.mod h1:wVuoA8VJLEcwgqHBwHmzLRazpKxTv13Px/pDuV7OomQ=
 github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f/go.mod h1:TdznJufoqS23FtqVCzL0ZqgP5MqXbb4fg/WgDys70nA=
@@ -357,6 +365,8 @@ github.com/opentracing/opentracing-go v1.1.0 h1:pWlfV3Bxv7k65HYwkikxat0+s3pV4bsq
 github.com/opentracing/opentracing-go v1.1.0/go.mod h1:UkNAQd3GIcIGf0SeVgPpRdFStlNbqXla1AfSYxPUl2o=
 github.com/pelletier/go-toml v1.9.3 h1:zeC5b1GviRUyKYd6OJPvBU/mcVDVoL1OhT17FCt5dSQ=
 github.com/pelletier/go-toml v1.9.3/go.mod h1:u1nR/EPcESfeI/szUZKdtJ0xRNbUoANCkoOuaOx1Y+c=
+github.com/pengsrc/go-shared v0.2.1-0.20190131101655-1999055a4a14 h1:XeOYlK9W1uCmhjJSsY78Mcuh7MVkNjTzmHx1yBzizSU=
+github.com/pengsrc/go-shared v0.2.1-0.20190131101655-1999055a4a14/go.mod h1:jVblp62SafmidSkvWrXyxAme3gaTfEtWwRPGz5cpvHg=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
@@ -365,6 +375,10 @@ github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZN
 github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:xMI15A0UPsDsEKsMN9yxemIoYk6Tm2C1GtYGdfGttqA=
 github.com/qingstor/go-mime v0.1.0 h1:FhTJtM7TRm9pfgCXpjGUxqwbumGojrgE9ecRz5PXvfc=
 github.com/qingstor/go-mime v0.1.0/go.mod h1:EDwWgaMufg74m7futsF0ZGkdA52ajjAycY+XDeV8M88=
+github.com/qingstor/log v0.0.0-20200804082313-615256cccabc h1:633tgwvkk8O26HZD/upVtDzWcrMoCiffZAVDtEtFW9E=
+github.com/qingstor/log v0.0.0-20200804082313-615256cccabc/go.mod h1:XfNhERXtkg/S9MWaMOk/m7mrmj4vcWDvhw17hmH4JGQ=
+github.com/qingstor/qingstor-sdk-go/v4 v4.3.0 h1:+qcVqBiuGUsTPJZCHc5QK81NgfIMLjoIHXovdIRHKvk=
+github.com/qingstor/qingstor-sdk-go/v4 v4.3.0/go.mod h1:GT0QY+LwqnOQhsRkbxUds8cTYR4inZpgOQEkCKYRiAs=
 github.com/qiniu/go-sdk/v7 v7.9.7 h1:sVt6cHzG52nGGULeZkcAVpwj5eyQcgJsbSbTPkPAkLo=
 github.com/qiniu/go-sdk/v7 v7.9.7/go.mod h1:Eeqk1/Km3f1MuLUUkg2JCSg/dVkydKbBvEdJJqFgn9g=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
@@ -392,6 +406,7 @@ github.com/spaolacci/murmur3 v1.1.0/go.mod h1:JwIasOWyU6f++ZhiEuf87xNszmSA2myDM2
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
+github.com/stretchr/testify v1.3.1-0.20190311161405-34c6fa2dc709/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
@@ -807,8 +822,9 @@ gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7/go.mod h1:dt/ZhP58zS4L8KSrWD
 gopkg.in/yaml.v2 v2.2.1/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
 gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
 gopkg.in/yaml.v2 v2.2.3/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
-gopkg.in/yaml.v2 v2.2.8 h1:obN1ZagJSUGI0Ek/LBmuj4SNLPfIny3KsKFopxRdj10=
 gopkg.in/yaml.v2 v2.2.8/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
+gopkg.in/yaml.v2 v2.4.0 h1:D8xgwECY7CYvx+Y2n4sBz93Jn9JRvxdiyyo8CTfuKaY=
+gopkg.in/yaml.v2 v2.4.0/go.mod h1:RDklbk79AGWmwhnvt/jBztapEOGDOx6ZbXqjP6csGnQ=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b h1:h8qDotaEPuJATrMmW04NCwg7v22aHH28wwpauUhK9Oo=
 gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=

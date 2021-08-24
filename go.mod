@@ -16,6 +16,7 @@ require (
 	github.com/beyondstorage/go-service-memory v0.2.0
 	github.com/beyondstorage/go-service-minio v0.1.0
 	github.com/beyondstorage/go-service-oss/v2 v2.3.0
+	github.com/beyondstorage/go-service-qingstor/v3 v3.2.0
 	github.com/beyondstorage/go-service-s3/v2 v2.3.0
 	github.com/beyondstorage/go-service-uss/v2 v2.2.0
 	github.com/beyondstorage/go-storage/v4 v4.5.0
