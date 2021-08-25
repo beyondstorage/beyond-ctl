@@ -19,16 +19,16 @@ func (oo *SingleOperator) List(path string) (ch chan *ListResult, err error) {
 
 	ch = make(chan *ListResult, 16)
 	go func() {
+		defer close(ch)
+
 		for {
 			o, err := it.Next()
 			if err != nil && errors.Is(err, types.IterateDone) {
-				close(ch)
 				break
 			}
 			if err != nil {
 				ch <- &ListResult{Error: err}
-				close(ch)
-				return
+				break
 			}
 			ch <- &ListResult{Object: o}
 		}
