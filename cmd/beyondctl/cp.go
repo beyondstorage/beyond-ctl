@@ -57,13 +57,17 @@ var cpCmd = &cli.Command{
 			return err
 		}
 
-		go func() {
-			for v := range bo.Errors() {
-				logger.Error("copy", zap.Error(v))
-			}
-		}()
+		ch, err := bo.Copy(srcKey, dstKey)
+		if err != nil {
+			return err
+		}
 
-		bo.Copy(srcKey, dstKey)
+		for v := range ch {
+			if v.Error != nil {
+				logger.Error("read next object", zap.Error(v.Error))
+				return v.Error
+			}
+		}
 		return
 	},
 }

@@ -4,12 +4,12 @@ import (
 	"io"
 )
 
-func (do *DualOperator) Copy(src, dst string) {
+func (do *DualOperator) Copy(src, dst string) (ch chan *ObjectResult, err error) {
 	obj, err := do.src.Stat(src)
 	if err != nil {
-		do.errCh <- err
-		return
+		return nil, err
 	}
+
 	size := obj.MustGetContentLength()
 
 	// assign dst by src if blank
@@ -17,25 +17,32 @@ func (do *DualOperator) Copy(src, dst string) {
 		dst = src
 	}
 
-	r, w := io.Pipe()
-
+	ch = make(chan *ObjectResult, 16)
 	go func() {
-		defer func() {
-			err := w.Close()
+		defer close(ch)
+
+		r, w := io.Pipe()
+
+		go func() {
+			defer func() {
+				cErr := w.Close()
+				if cErr != nil {
+					ch <- &ObjectResult{Error: cErr}
+				}
+			}()
+			_, err = do.src.Read(src, w)
 			if err != nil {
-				do.errCh <- err
+				ch <- &ObjectResult{Error: err}
+				return
 			}
 		}()
-		_, err := do.src.Read(src, w)
+
+		_, err = do.dst.Write(dst, r, size)
 		if err != nil {
-			do.errCh <- err
+			ch <- &ObjectResult{Error: err}
 			return
 		}
 	}()
 
-	_, err = do.dst.Write(dst, r, size)
-	if err != nil {
-		do.errCh <- err
-		return
-	}
+	return ch, nil
 }
