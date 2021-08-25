@@ -27,6 +27,13 @@ func TestConfig_ParseProfileInput(t *testing.T) {
 			hasErr: false,
 		},
 		{
+			name:   "object key with :",
+			input:  "test1:/dir/to/file:with:colon",
+			conn:   "s3://bucket-name/dir/",
+			key:    "/dir/to/file:with:colon",
+			hasErr: false,
+		},
+		{
 			name:   "invalid conn",
 			input:  ":/dir/to/file",
 			conn:   "",
@@ -54,13 +61,6 @@ func TestConfig_ParseProfileInput(t *testing.T) {
 			key:    "/path/to/file",
 			hasErr: false,
 		},
-		// {
-		// 	name:   "fs rel path",
-		// 	input:  "path/to/file",
-		// 	conn:   "fs:///absolute/path/to/wd",
-		// 	key:    "path/to/file",
-		// 	hasErr: false,
-		// },
 	}
 
 	for _, tt := range cases {

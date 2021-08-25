@@ -41,7 +41,8 @@ func (c *Config) ParseProfileInput(input string) (conn, key string, err error) {
 	c.Lock()
 	defer c.Unlock()
 
-	sepIdx := strings.LastIndex(input, profileSeparator)
+	// Restriction: profile name cannot contain :
+	sepIdx := strings.Index(input, profileSeparator)
 
 	// separator not found, treat as normal fs path
 	// 1. if path is absolute path, set work dir is /
@@ -88,9 +89,19 @@ func (c *Config) MergeProfileFromEnv() {
 	c.Lock()
 	defer c.Unlock()
 
-	env := getEnvWith(profileEnvPrefix)
-	for k, v := range env {
-		c.Profiles[k] = Profile{Connection: v}
+	for _, env := range os.Environ() {
+		// os.Environ format as `key=value`
+		// environ with same name would be overwrite, so we can use map as result
+		parts := strings.Split(env, "=")
+		key, value := parts[0], parts[1]
+
+		if !strings.HasPrefix(key, profileEnvPrefix) {
+			continue
+		}
+
+		// environ like BEYOND_CTL_PROFILE_xxx=val would be added as xxx:val
+		name := strings.TrimPrefix(key, profileEnvPrefix)
+		c.Profiles[name] = Profile{Connection: value}
 	}
 }
 
