@@ -2,30 +2,40 @@ package operations
 
 import (
 	"errors"
+
 	"github.com/beyondstorage/go-storage/v4/types"
 )
 
-func (oo *SingleOperator) List(path string) chan *types.Object {
+// ObjectResult is the result for Object.
+// Only one of Object or Error will be valid.
+// We need to check Error before use Object.
+type ObjectResult struct {
+	Object *types.Object
+	Error  error
+}
+
+func (oo *SingleOperator) List(path string) (ch chan *ObjectResult, err error) {
 	it, err := oo.store.List(path)
 	if err != nil {
-		oo.errch <- err
+		return nil, err
 	}
 
-	ch := make(chan *types.Object, 16)
+	ch = make(chan *ObjectResult, 16)
 	go func() {
+		defer close(ch)
+
 		for {
 			o, err := it.Next()
 			if err != nil && errors.Is(err, types.IterateDone) {
-				close(ch)
 				break
 			}
 			if err != nil {
-				oo.errch <- err
-				return
+				ch <- &ObjectResult{Error: err}
+				break
 			}
-			ch <- o
+			ch <- &ObjectResult{Object: o}
 		}
 	}()
 
-	return ch
+	return ch, nil
 }

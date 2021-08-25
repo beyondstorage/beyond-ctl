@@ -38,14 +38,20 @@ var lsCmd = &cli.Command{
 			return err
 		}
 
-		go func() {
-			for v := range so.Errors() {
-				logger.Error("", zap.Error(v))
-			}
-		}()
+		ch, err := so.List(path)
+		if err != nil {
+			logger.Error("list",
+				zap.String("path", path),
+				zap.Error(err))
+			return err
+		}
 
-		for v := range so.List(path) {
-			fmt.Print(parseToShell(v))
+		for v := range ch {
+			if v.Error != nil {
+				logger.Error("read next object", zap.Error(v.Error))
+				return v.Error
+			}
+			fmt.Print(parseToShell(v.Object))
 		}
 		// End of line
 		fmt.Print("\n")

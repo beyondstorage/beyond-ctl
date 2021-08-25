@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/urfave/cli/v2"
-	"go.uber.org/zap"
 )
 
 const flagConfig = "config"
@@ -32,11 +31,10 @@ var configFlag = cli.StringFlag{
 }
 
 func main() {
-	logger, _ := zap.NewDevelopment()
-
 	err := app.Run(os.Args)
 	if err != nil {
-		logger.Fatal("beyondctl execute", zap.Error(err))
+		// FIXME: we need to respect platform style later.
+		os.Exit(1)
 	}
 }
 
