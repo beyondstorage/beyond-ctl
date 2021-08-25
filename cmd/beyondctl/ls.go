@@ -31,17 +31,20 @@ var lsCmd = &cli.Command{
 
 		cfg, err := config.LoadFromFile(ctx.String(flagConfig))
 		if err != nil {
+			logger.Error("load config", zap.Error(err))
 			return err
 		}
 		cfg.MergeProfileFromEnv()
 
 		conn, path, err := cfg.ParseProfileInput(ctx.Args().Get(0))
 		if err != nil {
+			logger.Error("parse profile input", zap.Error(err))
 			return err
 		}
 
 		store, err := services.NewStoragerFromString(conn)
 		if err != nil {
+			logger.Error("into storager", zap.Error(err))
 			return err
 		}
 
@@ -132,7 +135,7 @@ func (oa objectAttr) longFormat(isFirst bool) string {
 		buf.AppendString("dir ")
 	}
 	// FIXME: it's hard to calculate the padding, so we hardcoded the padding here.
-	buf.AppendString(fmt.Sprintf("%8d", oa.size))
+	buf.AppendString(fmt.Sprintf("%12d", oa.size))
 	buf.AppendString(" ")
 	// gnuls will print year instead if not the same year.
 	if time.Now().Year() != oa.updatedAt.Year() {
