@@ -21,6 +21,11 @@ func (c *Config) AddProfile(name string, prof Profile) error {
 	c.Lock()
 	defer c.Unlock()
 
+	// profile name cannot contains ':'
+	if strings.Contains(name, profileSeparator) {
+		return errors.New("profile name invalid")
+	}
+
 	// check existence and return error if exists
 	_, ok := c.Profiles[name]
 	if ok {
@@ -103,24 +108,4 @@ func (c *Config) MergeProfileFromEnv() {
 		name := strings.TrimPrefix(key, profileEnvPrefix)
 		c.Profiles[name] = Profile{Connection: value}
 	}
-}
-
-// getEnvWith get env var with given prefix and return a map with key trimmed prefix
-func getEnvWith(prefix string) map[string]string {
-	res := make(map[string]string)
-
-	for _, env := range os.Environ() {
-		// os.Environ format as `key=value`
-		// environ with same name would be overwrite, so we can use map as result
-		parts := strings.Split(env, "=")
-		key, value := parts[0], parts[1]
-
-		if prefix != "" && !strings.HasPrefix(key, prefix) {
-			continue
-		}
-
-		res[strings.TrimPrefix(key, prefix)] = value
-	}
-
-	return res
 }
