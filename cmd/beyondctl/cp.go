@@ -29,26 +29,31 @@ var cpCmd = &cli.Command{
 
 		cfg, err := config.LoadFromFile(path)
 		if err != nil {
+			logger.Error("load config", zap.Error(err))
 			return err
 		}
 		cfg.MergeProfileFromEnv()
 
 		srcConn, srcKey, err := cfg.ParseProfileInput(ctx.Args().Get(0))
 		if err != nil {
+			logger.Error("parse profile input from src", zap.Error(err))
 			return err
 		}
 		dstConn, dstKey, err := cfg.ParseProfileInput(ctx.Args().Get(1))
 		if err != nil {
+			logger.Error("parse profile input from dst", zap.Error(err))
 			return err
 		}
 
 		src, err := services.NewStoragerFromString(srcConn)
 		if err != nil {
+			logger.Error("init src storager", zap.Error(err), zap.String("conn string", srcConn))
 			return err
 		}
 
 		dst, err := services.NewStoragerFromString(dstConn)
 		if err != nil {
+			logger.Error("init dst storager", zap.Error(err), zap.String("conn string", dstConn))
 			return err
 		}
 
@@ -59,12 +64,13 @@ var cpCmd = &cli.Command{
 
 		ch, err := bo.Copy(srcKey, dstKey)
 		if err != nil {
+			logger.Error("copy", zap.String("src", srcKey), zap.String("dst", dstKey), zap.Error(err))
 			return err
 		}
 
 		for v := range ch {
 			if v.Error != nil {
-				logger.Error("read next object", zap.Error(v.Error))
+				logger.Error("read next result", zap.Error(v.Error))
 				return v.Error
 			}
 		}
