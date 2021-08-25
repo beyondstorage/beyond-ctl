@@ -50,6 +50,7 @@ var lsCmd = &cli.Command{
 			return err
 		}
 
+		// TODO: we need support more format that gnsls supports.
 		format := shortListFormat
 		if ctx.Bool("l") || ctx.String("format") == "long" {
 			format = longListFormat
@@ -130,6 +131,7 @@ func (oa objectAttr) longFormat(isFirst bool) string {
 		// Keep align with read.
 		buf.AppendString("dir ")
 	}
+	// FIXME: it's hard to calculate the padding, so we hardcoded the padding here.
 	buf.AppendString(fmt.Sprintf("%8d", oa.size))
 	buf.AppendString(" ")
 	// gnuls will print year instead if not the same year.
