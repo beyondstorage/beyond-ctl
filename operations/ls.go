@@ -6,18 +6,21 @@ import (
 	"github.com/beyondstorage/go-storage/v4/types"
 )
 
-type ListResult struct {
+// ObjectResult is the result for Object.
+// Only one of Object or Error will be valid.
+// We need to check Error before use Object.
+type ObjectResult struct {
 	Object *types.Object
 	Error  error
 }
 
-func (oo *SingleOperator) List(path string) (ch chan *ListResult, err error) {
+func (oo *SingleOperator) List(path string) (ch chan *ObjectResult, err error) {
 	it, err := oo.store.List(path)
 	if err != nil {
 		return nil, err
 	}
 
-	ch = make(chan *ListResult, 16)
+	ch = make(chan *ObjectResult, 16)
 	go func() {
 		defer close(ch)
 
@@ -27,10 +30,10 @@ func (oo *SingleOperator) List(path string) (ch chan *ListResult, err error) {
 				break
 			}
 			if err != nil {
-				ch <- &ListResult{Error: err}
+				ch <- &ObjectResult{Error: err}
 				break
 			}
-			ch <- &ListResult{Object: o}
+			ch <- &ObjectResult{Object: o}
 		}
 	}()
 
