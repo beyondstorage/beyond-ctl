@@ -97,7 +97,7 @@ func (c *Config) MergeProfileFromEnv() {
 	for _, env := range os.Environ() {
 		// os.Environ format as `key=value`
 		// environ with same name would be overwrite, so we can use map as result
-		parts := strings.Split(env, "=")
+		parts := strings.SplitN(env, "=", 2)
 		key, value := parts[0], parts[1]
 
 		if !strings.HasPrefix(key, profileEnvPrefix) {
