@@ -48,7 +48,8 @@ var lsCmd = &cli.Command{
 
 		for v := range ch {
 			if v.Error != nil {
-				logger.Error("read next object", zap.Error(err))
+				logger.Error("read next object", zap.Error(v.Error))
+				break
 			}
 			fmt.Print(parseToShell(v.Object))
 		}
