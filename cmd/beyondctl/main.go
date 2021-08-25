@@ -15,6 +15,7 @@ var app = cli.App{
 		&configFlag,
 	},
 	Commands: []*cli.Command{
+		cpCmd,
 		lsCmd,
 		profileCmd,
 	},
