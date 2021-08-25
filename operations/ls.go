@@ -6,14 +6,6 @@ import (
 	"github.com/beyondstorage/go-storage/v4/types"
 )
 
-// ObjectResult is the result for Object.
-// Only one of Object or Error will be valid.
-// We need to check Error before use Object.
-type ObjectResult struct {
-	Object *types.Object
-	Error  error
-}
-
 func (oo *SingleOperator) List(path string) (ch chan *ObjectResult, err error) {
 	it, err := oo.store.List(path)
 	if err != nil {

@@ -4,7 +4,7 @@ import (
 	"io"
 )
 
-func (do *DualOperator) Copy(src, dst string) (ch chan *ObjectResult, err error) {
+func (do *DualOperator) Copy(src, dst string) (ch chan *EmptyResult, err error) {
 	obj, err := do.src.Stat(src)
 	if err != nil {
 		return nil, err
@@ -17,7 +17,7 @@ func (do *DualOperator) Copy(src, dst string) (ch chan *ObjectResult, err error)
 		dst = src
 	}
 
-	ch = make(chan *ObjectResult, 16)
+	ch = make(chan *EmptyResult, 16)
 	go func() {
 		defer close(ch)
 
@@ -27,19 +27,19 @@ func (do *DualOperator) Copy(src, dst string) (ch chan *ObjectResult, err error)
 			defer func() {
 				cErr := w.Close()
 				if cErr != nil {
-					ch <- &ObjectResult{Error: cErr}
+					ch <- &EmptyResult{Error: cErr}
 				}
 			}()
 			_, err = do.src.Read(src, w)
 			if err != nil {
-				ch <- &ObjectResult{Error: err}
+				ch <- &EmptyResult{Error: err}
 				return
 			}
 		}()
 
 		_, err = do.dst.Write(dst, r, size)
 		if err != nil {
-			ch <- &ObjectResult{Error: err}
+			ch <- &EmptyResult{Error: err}
 			return
 		}
 	}()
