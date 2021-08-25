@@ -3,11 +3,12 @@ package operations
 import (
 	"errors"
 
+	"github.com/beyondstorage/go-storage/v4/pairs"
 	"github.com/beyondstorage/go-storage/v4/types"
 )
 
 func (oo *SingleOperator) List(path string) (ch chan *ObjectResult, err error) {
-	it, err := oo.store.List(path)
+	it, err := oo.store.List(path, pairs.WithListMode(types.ListModeDir))
 	if err != nil {
 		return nil, err
 	}
