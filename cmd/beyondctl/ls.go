@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"path/filepath"
+	"time"
 
 	"github.com/beyondstorage/go-storage/v4/services"
 	"github.com/beyondstorage/go-storage/v4/types"
@@ -14,6 +16,16 @@ import (
 
 var lsCmd = &cli.Command{
 	Name: "ls",
+	Flags: []cli.Flag{
+		&cli.BoolFlag{
+			Name:  "l",
+			Usage: "use a long listing format",
+		},
+		&cli.StringFlag{
+			Name:  "format",
+			Usage: "across long -l",
+		},
+	},
 	Action: func(ctx *cli.Context) (err error) {
 		logger, _ := zap.NewDevelopment()
 
@@ -38,6 +50,11 @@ var lsCmd = &cli.Command{
 			return err
 		}
 
+		format := shortListFormat
+		if ctx.Bool("l") || ctx.String("format") == "long" {
+			format = longListFormat
+		}
+
 		ch, err := so.List(path)
 		if err != nil {
 			logger.Error("list",
@@ -46,12 +63,21 @@ var lsCmd = &cli.Command{
 			return err
 		}
 
+		isFirst := true
+
 		for v := range ch {
 			if v.Error != nil {
 				logger.Error("read next object", zap.Error(v.Error))
 				return v.Error
 			}
-			fmt.Print(parseToShell(v.Object))
+
+			oa := parseObject(v.Object)
+			fmt.Print(oa.Format(format, isFirst))
+
+			// Update isFirst
+			if isFirst {
+				isFirst = false
+			}
 		}
 		// End of line
 		fmt.Print("\n")
@@ -59,11 +85,79 @@ var lsCmd = &cli.Command{
 	},
 }
 
-func parseToShell(o *types.Object) (content string) {
+const (
+	shortListFormat = iota
+	longListFormat
+)
+
+type objectAttr struct {
+	mode      types.ObjectMode
+	name      string
+	size      int64
+	updatedAt time.Time
+}
+
+func (oa objectAttr) Format(layout int, isFirst bool) string {
+	switch layout {
+	case shortListFormat:
+		return oa.shortFormat(isFirst)
+	case longListFormat:
+		return oa.longFormat(isFirst)
+	default:
+		panic("not supported format")
+	}
+}
+
+func (oa objectAttr) shortFormat(isFirst bool) string {
+	if isFirst {
+		return oa.name
+	}
+	return oa.name + " "
+}
+
+func (oa objectAttr) longFormat(isFirst bool) string {
 	buf := pool.Get()
 	defer buf.Free()
 
-	buf.AppendString(o.Path)
+	// If not the first entry, we need to print a new line.
+	if !isFirst {
+		buf.AppendString("\n")
+	}
+
+	if oa.mode.IsRead() {
+		buf.AppendString("read")
+	} else if oa.mode.IsDir() {
+		// Keep align with read.
+		buf.AppendString("dir ")
+	}
+	buf.AppendString(fmt.Sprintf("%8d", oa.size))
 	buf.AppendString(" ")
-	return string(buf.Bytes())
+	// gnuls will print year instead if not the same year.
+	if time.Now().Year() != oa.updatedAt.Year() {
+		buf.AppendString(oa.updatedAt.Format("Jan 02  2006"))
+	} else {
+		buf.AppendString(oa.updatedAt.Format("Jan 02 15:04"))
+	}
+	buf.AppendString(" ")
+	buf.AppendString(oa.name)
+
+	return buf.String()
+}
+
+func parseObject(o *types.Object) objectAttr {
+	oa := objectAttr{
+		name: filepath.Base(o.Path),
+	}
+
+	if v, ok := o.GetContentLength(); ok {
+		oa.size = v
+	}
+
+	if v, ok := o.GetLastModified(); ok {
+		oa.updatedAt = v
+	}
+
+	// Mode could be updated after lazy stat.
+	oa.mode = o.Mode
+	return oa
 }
