@@ -44,7 +44,7 @@ var lsCmd = &cli.Command{
 
 		store, err := services.NewStoragerFromString(conn)
 		if err != nil {
-			logger.Error("into storager", zap.Error(err))
+			logger.Error("init storager", zap.Error(err))
 			return err
 		}
 
@@ -71,7 +71,7 @@ var lsCmd = &cli.Command{
 
 		for v := range ch {
 			if v.Error != nil {
-				logger.Error("read next object", zap.Error(v.Error))
+				logger.Error("read next result", zap.Error(v.Error))
 				return v.Error
 			}
 

@@ -34,7 +34,6 @@ var configFlag = cli.StringFlag{
 func main() {
 	err := app.Run(os.Args)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
 		// FIXME: we need to respect platform style later.
 		os.Exit(1)
 	}
