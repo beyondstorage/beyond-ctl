@@ -8,31 +8,43 @@ import (
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 
+	"github.com/beyondstorage/beyond-ctl/config"
 	"github.com/beyondstorage/beyond-ctl/operations"
 )
 
 var lsCmd = &cli.Command{
 	Name: "ls",
-	Action: func(context *cli.Context) (err error) {
+	Action: func(ctx *cli.Context) (err error) {
 		logger, _ := zap.NewDevelopment()
 
-		store, err := services.NewStoragerFromString(context.Args().First())
+		cfg, err := config.LoadFromFile(ctx.String(flagConfig))
+		if err != nil {
+			return err
+		}
+		cfg.MergeProfileFromEnv()
+
+		conn, path, err := cfg.ParseProfileInput(ctx.Args().Get(0))
 		if err != nil {
 			return err
 		}
 
-		oo, err := operations.NewSingleOperator(store)
+		store, err := services.NewStoragerFromString(conn)
+		if err != nil {
+			return err
+		}
+
+		so, err := operations.NewSingleOperator(store)
 		if err != nil {
 			return err
 		}
 
 		go func() {
-			for v := range oo.Errors() {
+			for v := range so.Errors() {
 				logger.Error("", zap.Error(v))
 			}
 		}()
 
-		for v := range oo.List("") {
+		for v := range so.List(path) {
 			fmt.Print(parseToShell(v))
 		}
 		// End of line
