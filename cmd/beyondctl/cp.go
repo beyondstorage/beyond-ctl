@@ -80,7 +80,7 @@ var cpCmd = &cli.Command{
 
 		var ch chan *operations.EmptyResult
 		// FIXME: we hardcoded 1GB here, we will allow user config it.
-		if size < 1024*1024*1024 {
+		if size < 512*1024*1024 {
 			ch, err = do.CopyFileViaWrite(srcKey, dstKey, size)
 		} else {
 			// TODO: we will support other copy method later.

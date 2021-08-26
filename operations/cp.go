@@ -72,10 +72,8 @@ func (do *DualOperator) CopyFileViaMultipart(src, dst string, totalSize int64) (
 		var index int
 
 		for {
-			// handle size for the last part
-			if offset+partSize > totalSize {
-				partSize = totalSize - offset
-			}
+			println("partsize", partSize)
+			println("offset", offset)
 
 			wg.Add(1)
 			err = do.pool.Submit(func() {
@@ -87,11 +85,16 @@ func (do *DualOperator) CopyFileViaMultipart(src, dst string, totalSize int64) (
 				break
 			}
 
+			index++
 			offset += partSize
+			// Offset >= totalSize means we have read all content
 			if offset >= totalSize {
 				break
 			}
-			index++
+			// Handle the last part
+			if offset+partSize > totalSize {
+				partSize = totalSize - offset
+			}
 		}
 
 		wg.Wait()
@@ -152,6 +155,7 @@ func (do *DualOperator) copyMultipart(
 	if err != nil {
 		do.logger.Error("pipe write", zap.String("path", dstObj.Path), zap.Error(err))
 		ch <- &PartResult{Error: err}
+		return
 	}
 	ch <- &PartResult{Part: p}
 }
