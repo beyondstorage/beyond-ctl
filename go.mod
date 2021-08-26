@@ -17,11 +17,13 @@ require (
 	github.com/beyondstorage/go-service-minio v0.1.0
 	github.com/beyondstorage/go-service-oss/v2 v2.3.0
 	github.com/beyondstorage/go-service-qingstor/v3 v3.2.0
-	github.com/beyondstorage/go-service-s3/v2 v2.3.0
+	github.com/beyondstorage/go-service-s3/v2 v2.3.1-0.20210826060528-bee03ad541a9
 	github.com/beyondstorage/go-service-uss/v2 v2.2.0
-	github.com/beyondstorage/go-storage/v4 v4.5.0
+	github.com/beyondstorage/go-storage/v4 v4.6.0
+	github.com/docker/go-units v0.4.0
 	github.com/panjf2000/ants/v2 v2.4.6
 	github.com/stretchr/testify v1.7.0
 	github.com/urfave/cli/v2 v2.3.0
 	go.uber.org/zap v1.19.0
+	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
 )

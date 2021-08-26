@@ -30,6 +30,7 @@ var lsCmd = &cli.Command{
 
 		cfg, err := loadConfig(c, true)
 		if err != nil {
+			logger.Error("load config", zap.Error(err))
 			return err
 		}
 
