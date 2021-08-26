@@ -7,14 +7,13 @@ import (
 )
 
 const (
-	defaultMultipartThreshold int64 = 1024 * 1024 * 1024 // 1G
-	defaultMultipartPartSize  int64 = 128 * 1024 * 1024  // 128M
+	defaultMultipartPartSize int64 = 128 * 1024 * 1024 // 128M
 )
 
-func calculatePartSize(stor types.Storager, totalSize int64) (int64, error) {
-	maxNum, numOK := stor.Metadata().GetMultipartNumberMaximum()
-	maxSize, maxOK := stor.Metadata().GetMultipartSizeMaximum()
-	minSize, minOK := stor.Metadata().GetMultipartSizeMinimum()
+func calculatePartSize(store types.Storager, totalSize int64) (int64, error) {
+	maxNum, numOK := store.Metadata().GetMultipartNumberMaximum()
+	maxSize, maxOK := store.Metadata().GetMultipartSizeMaximum()
+	minSize, minOK := store.Metadata().GetMultipartSizeMinimum()
 
 	partSize := defaultMultipartPartSize
 

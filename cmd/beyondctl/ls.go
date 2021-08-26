@@ -10,7 +10,6 @@ import (
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 
-	"github.com/beyondstorage/beyond-ctl/config"
 	"github.com/beyondstorage/beyond-ctl/operations"
 )
 
@@ -26,17 +25,15 @@ var lsCmd = &cli.Command{
 			Usage: "across long -l",
 		},
 	},
-	Action: func(ctx *cli.Context) (err error) {
+	Action: func(c *cli.Context) (err error) {
 		logger, _ := zap.NewDevelopment()
 
-		cfg, err := config.LoadFromFile(ctx.String(flagConfig))
+		cfg, err := loadConfig(c, true)
 		if err != nil {
-			logger.Error("load config", zap.Error(err))
 			return err
 		}
-		cfg.MergeProfileFromEnv()
 
-		conn, path, err := cfg.ParseProfileInput(ctx.Args().Get(0))
+		conn, path, err := cfg.ParseProfileInput(c.Args().Get(0))
 		if err != nil {
 			logger.Error("parse profile input", zap.Error(err))
 			return err
@@ -48,14 +45,11 @@ var lsCmd = &cli.Command{
 			return err
 		}
 
-		so, err := operations.NewSingleOperator(store)
-		if err != nil {
-			return err
-		}
+		so := operations.NewSingleOperator(store)
 
 		// TODO: we need support more format that gnsls supports.
 		format := shortListFormat
-		if ctx.Bool("l") || ctx.String("format") == "long" {
+		if c.Bool("l") || c.String("format") == "long" {
 			format = longListFormat
 		}
 
