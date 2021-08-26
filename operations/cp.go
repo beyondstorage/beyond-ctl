@@ -11,6 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// CopyFileViaWrite will copy a file via Write operation.
 func (do *DualOperator) CopyFileViaWrite(src, dst string, size int64) (ch chan *EmptyResult, err error) {
 	ch = make(chan *EmptyResult, 4)
 
@@ -45,6 +46,16 @@ func (do *DualOperator) CopyFileViaWrite(src, dst string, size int64) (ch chan *
 	return ch, nil
 }
 
+// CopyFileViaMultipart will copy a file via Multipart related operation.
+//
+// We will:
+// - Create a multipart object.
+// - Write into this multipart object via split source file into parts (read by offset)
+// - Complete the multipart object.
+//
+// We have two channels have:
+// - errch is returned to cmd and used as an error channel.
+// - partch is used internally to control the part copy multipart logic.
 func (do *DualOperator) CopyFileViaMultipart(src, dst string, totalSize int64) (errch chan *EmptyResult, err error) {
 	errch = make(chan *EmptyResult, 4)
 	partch := make(chan *PartResult, 4)
@@ -65,6 +76,7 @@ func (do *DualOperator) CopyFileViaMultipart(src, dst string, totalSize int64) (
 	}
 
 	go func() {
+		// Close partch to inform that all parts have been done.
 		defer close(partch)
 
 		wg := &sync.WaitGroup{}
@@ -104,6 +116,7 @@ func (do *DualOperator) CopyFileViaMultipart(src, dst string, totalSize int64) (
 	}()
 
 	go func() {
+		// Close errch to inform that this copy operation has been done.
 		defer close(errch)
 
 		parts := make([]*types.Part, 0)
