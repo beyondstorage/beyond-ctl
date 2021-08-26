@@ -19,3 +19,11 @@ type ObjectResult struct {
 	Object *types.Object
 	Error  error
 }
+
+// PartResult is the result for Part.
+// Only one of Part or Error will be valid.
+// We need to check Error before use Part.
+type PartResult struct {
+	Part  *types.Part
+	Error error
+}

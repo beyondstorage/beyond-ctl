@@ -7,8 +7,7 @@ import (
 )
 
 const (
-	defaultMultipartThreshold int64 = 1024 * 1024 * 1024 // 1G
-	defaultMultipartPartSize  int64 = 128 * 1024 * 1024  // 128M
+	defaultMultipartPartSize int64 = 128 * 1024 * 1024 // 128M
 )
 
 func calculatePartSize(stor types.Storager, totalSize int64) (int64, error) {

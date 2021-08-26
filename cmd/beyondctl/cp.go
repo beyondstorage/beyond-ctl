@@ -57,22 +57,46 @@ var cpCmd = &cli.Command{
 			return err
 		}
 
-		bo, err := operations.NewDualOperator(src, dst)
+		so := operations.NewSingleOperator(src)
+
+		srcObject, err := so.Stat(srcKey)
 		if err != nil {
+			logger.Error("stat", zap.String("path", srcKey), zap.Error(err))
 			return err
 		}
 
-		ch, err := bo.Copy(srcKey, dstKey)
+		if srcObject.Mode.IsDir() {
+			logger.Error("copy dir is not supported for now")
+			return fmt.Errorf("copy dir not supported")
+		}
+
+		size, ok := srcObject.GetContentLength()
+		if !ok {
+			logger.Error("can't get object content length", zap.String("path", srcKey))
+			return fmt.Errorf("get object content length failed")
+		}
+
+		do := operations.NewDualOperator(src, dst)
+
+		var ch chan *operations.EmptyResult
+		// FIXME: we hardcoded 1GB here, we will allow user config it.
+		if size < 1024*1024*1024 {
+			ch, err = do.CopyFileViaWrite(srcKey, dstKey, size)
+		} else {
+			// TODO: we will support other copy method later.
+			ch, err = do.CopyFileViaMultipart(srcKey, dstKey, size)
+		}
 		if err != nil {
-			logger.Error("copy", zap.String("src", srcKey), zap.String("dst", dstKey), zap.Error(err))
+			logger.Error("start copy",
+				zap.String("src", srcKey),
+				zap.String("dst", dstKey),
+				zap.Error(err))
 			return err
 		}
 
 		for v := range ch {
-			if v.Error != nil {
-				logger.Error("read next result", zap.Error(v.Error))
-				return v.Error
-			}
+			logger.Error("read next result", zap.Error(v.Error))
+			return v.Error
 		}
 		return
 	},

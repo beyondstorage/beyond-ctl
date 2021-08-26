@@ -1,7 +1,9 @@
 package operations
 
 import (
+	"fmt"
 	"io"
+	"sort"
 	"sync"
 
 	"github.com/beyondstorage/go-storage/v4/pairs"
@@ -9,18 +11,33 @@ import (
 	"go.uber.org/zap"
 )
 
-func (do *DualOperator) Copy(src, dst string) (ch chan *EmptyResult, err error) {
-	// assign dst by src if blank
-	if dst == "" {
-		dst = src
-	}
-
+func (do *DualOperator) CopyFileViaWrite(src, dst string, size int64) (ch chan *EmptyResult, err error) {
 	ch = make(chan *EmptyResult, 4)
+
+	r, w := io.Pipe()
+
+	go func() {
+		defer func() {
+			err := w.Close()
+			if err != nil {
+				do.logger.Error("close pipe writer", zap.Error(err))
+				ch <- &EmptyResult{Error: err}
+			}
+		}()
+
+		_, err := do.src.Read(src, w)
+		if err != nil {
+			do.logger.Error("pipe read", zap.String("path", src), zap.Error(err))
+			ch <- &EmptyResult{Error: err}
+		}
+	}()
+
 	go func() {
 		defer close(ch)
 
-		err = do.CopyFile(src, dst)
+		_, err := do.dst.Write(dst, r, size)
 		if err != nil {
+			do.logger.Error("pipe write", zap.String("path", dst), zap.Error(err))
 			ch <- &EmptyResult{Error: err}
 		}
 	}()
@@ -28,118 +45,113 @@ func (do *DualOperator) Copy(src, dst string) (ch chan *EmptyResult, err error) 
 	return ch, nil
 }
 
-func (do *DualOperator) CopyFile(src, dst string) error {
-	obj, err := do.src.Stat(src)
-	if err != nil {
-		return err
+func (do *DualOperator) CopyFileViaMultipart(src, dst string, totalSize int64) (errch chan *EmptyResult, err error) {
+	errch = make(chan *EmptyResult, 4)
+	partch := make(chan *PartResult, 4)
+
+	dstMultiparter, ok := do.dst.(types.Multiparter)
+	if !ok {
+		return nil, fmt.Errorf("dst is not a dstMultiparter")
 	}
 
-	size := obj.MustGetContentLength()
-	if _, ok := do.dst.(types.Multiparter); size > defaultMultipartThreshold && ok {
-		return do.CopyLargeFile(src, dst, size)
-	}
-
-	return do.CopySmallFile(src, dst, size)
-}
-
-func (do *DualOperator) CopyLargeFile(src, dst string, totalSize int64) error {
-	logger, _ := zap.NewDevelopment()
-
-	multiparter := do.dst.(types.Multiparter)
-
-	obj, err := multiparter.CreateMultipart(dst)
+	dstObj, err := dstMultiparter.CreateMultipart(dst)
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("create multipart: %w", err)
 	}
 
 	partSize, err := calculatePartSize(do.src, totalSize)
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("calculate part size: %w", err)
 	}
 
-	var wg sync.WaitGroup
-	var offset int64
-	var index uint32
-	parts := make([]*types.Part, 0)
+	go func() {
+		defer close(partch)
 
-	multipartID := obj.MustGetMultipartID()
-	for {
-		wg.Add(1)
-		// handle size for the last part
-		if offset+partSize > totalSize {
-			partSize = totalSize - offset
+		wg := &sync.WaitGroup{}
+		var offset int64
+		var index int
+
+		for {
+			// handle size for the last part
+			if offset+partSize > totalSize {
+				partSize = totalSize - offset
+			}
+
+			wg.Add(1)
+			err = do.pool.Submit(func() {
+				do.copyMultipart(partch, wg, src, dstObj, partSize, offset, index)
+			})
+			if err != nil {
+				do.logger.Error("submit task", zap.Error(err))
+				errch <- &EmptyResult{Error: err}
+				break
+			}
+
+			offset += partSize
+			if offset >= totalSize {
+				break
+			}
+			index++
 		}
 
-		parts = append(parts, &types.Part{
-			Index: int(index),
-			Size:  partSize,
+		wg.Wait()
+	}()
+
+	go func() {
+		parts := make([]*types.Part, 0)
+		for v := range partch {
+			if v.Error != nil {
+				errch <- &EmptyResult{Error: v.Error}
+				continue
+			}
+			parts = append(parts, v.Part)
+		}
+
+		sort.SliceStable(parts, func(i, j int) bool {
+			return parts[i].Index < parts[j].Index
 		})
 
-		go func(size int64, offset int64, index uint32) {
-			defer wg.Done()
-
-			r, w := io.Pipe()
-
-			go func() {
-				defer func() {
-					cErr := w.Close()
-					if cErr != nil {
-						logger.Error("close writer", zap.Error(err))
-					}
-				}()
-				_, err = do.src.Read(src, w, pairs.WithSize(size), pairs.WithOffset(offset))
-				if err != nil {
-					logger.Error("read from", zap.String("path", src),
-						zap.Int64("size", size), zap.Int64("offset", offset), zap.Error(err))
-				}
-			}()
-
-			o := do.dst.Create(dst, pairs.WithMultipartID(multipartID))
-			_, part, err := multiparter.WriteMultipart(o, r, size, int(index))
-			if err != nil {
-				logger.Error("write multipart", zap.String("path", dst), zap.Int64("size", size),
-					zap.Uint32("index", index), zap.String("id", multipartID), zap.Error(err))
-				return
-			}
-			parts[int(index)].ETag = part.ETag
-		}(partSize, offset, index)
-
-		offset += partSize
-		if offset >= totalSize {
-			break
+		err = dstMultiparter.CompleteMultipart(dstObj, parts)
+		if err != nil {
+			errch <- &EmptyResult{Error: err}
+			return
 		}
-		index++
-	}
+	}()
 
-	wg.Wait()
-
-	err = multiparter.CompleteMultipart(obj, parts)
-	if err != nil {
-		return err
-	}
-	return nil
+	return errch, nil
 }
 
-func (do *DualOperator) CopySmallFile(src, dst string, size int64) error {
-	logger, _ := zap.NewDevelopment()
+func (do *DualOperator) copyMultipart(
+	ch chan *PartResult, wg *sync.WaitGroup,
+	src string, dstObj *types.Object,
+	size, offset int64, index int,
+) {
+	defer wg.Done()
+
 	r, w := io.Pipe()
 
 	go func() {
 		defer func() {
-			cErr := w.Close()
-			if cErr != nil {
-				logger.Error("close writer", zap.Error(cErr))
+			err := w.Close()
+			if err != nil {
+				do.logger.Error("close pipe writer", zap.Error(err))
+				ch <- &PartResult{Error: err}
 			}
 		}()
-		_, err := do.src.Read(src, w)
+
+		_, err := do.src.Read(src, w, pairs.WithSize(size), pairs.WithOffset(offset))
 		if err != nil {
-			logger.Error("read from source", zap.String("path", src), zap.Int64("size", size))
+			do.logger.Error("pipe read", zap.String("path", src), zap.Error(err))
+			ch <- &PartResult{Error: err}
 		}
 	}()
 
-	_, err := do.dst.Write(dst, r, size)
+	multiparter := do.dst.(types.Multiparter)
+
+	_, p, err := multiparter.WriteMultipart(dstObj, r, size, index)
 	if err != nil {
-		return err
+		do.logger.Error("pipe write", zap.String("path", dstObj.Path), zap.Error(err))
+		ch <- &PartResult{Error: err}
 	}
-	return nil
+	ch <- &PartResult{Part: p}
 }

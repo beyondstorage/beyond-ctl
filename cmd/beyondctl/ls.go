@@ -48,10 +48,7 @@ var lsCmd = &cli.Command{
 			return err
 		}
 
-		so, err := operations.NewSingleOperator(store)
-		if err != nil {
-			return err
-		}
+		so := operations.NewSingleOperator(store)
 
 		// TODO: we need support more format that gnsls supports.
 		format := shortListFormat
