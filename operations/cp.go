@@ -72,12 +72,15 @@ func (do *DualOperator) CopyFileViaMultipart(src, dst string, totalSize int64) (
 		var index int
 
 		for {
-			println("partsize", partSize)
-			println("offset", offset)
-
 			wg.Add(1)
+
+			// Reallocate var here to prevent closure catch.
+			taskSize := partSize
+			taskIndex := index
+			taskOffset := offset
+
 			err = do.pool.Submit(func() {
-				do.copyMultipart(partch, wg, src, dstObj, partSize, offset, index)
+				do.copyMultipart(partch, wg, src, dstObj, taskSize, taskOffset, taskIndex)
 			})
 			if err != nil {
 				do.logger.Error("submit task", zap.Error(err))
@@ -101,6 +104,8 @@ func (do *DualOperator) CopyFileViaMultipart(src, dst string, totalSize int64) (
 	}()
 
 	go func() {
+		defer close(errch)
+
 		parts := make([]*types.Part, 0)
 		for v := range partch {
 			if v.Error != nil {
@@ -145,6 +150,14 @@ func (do *DualOperator) copyMultipart(
 		_, err := do.src.Read(src, w, pairs.WithSize(size), pairs.WithOffset(offset))
 		if err != nil {
 			do.logger.Error("pipe read", zap.String("path", src), zap.Error(err))
+			ch <- &PartResult{Error: err}
+		}
+	}()
+
+	defer func() {
+		err := r.Close()
+		if err != nil {
+			do.logger.Error("close pipe reader", zap.Error(err))
 			ch <- &PartResult{Error: err}
 		}
 	}()
