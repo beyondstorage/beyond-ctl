@@ -3,8 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"go.uber.org/zap"
 	"os"
+
+	"go.uber.org/zap"
 
 	"github.com/BurntSushi/toml"
 	"github.com/urfave/cli/v2"
@@ -110,7 +111,10 @@ var profileListCmd = &cli.Command{
 			err = toml.NewEncoder(os.Stdout).Encode(cfg.Profiles)
 		}
 
-		logger.Error("encode config", zap.Error(err))
-		return err
+		if err != nil {
+			logger.Error("encode config", zap.Error(err))
+			return err
+		}
+		return nil
 	},
 }
