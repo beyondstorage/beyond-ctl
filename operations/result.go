@@ -7,7 +7,7 @@ import "github.com/beyondstorage/go-storage/v4/types"
 
 // EmptyResult is the result for empty return.
 // Only Error field will be valid.
-// Used in process like copy, which does not return an Object.
+// We will use this type of result as an error channel.
 type EmptyResult struct {
 	Error error
 }
