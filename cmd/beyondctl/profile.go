@@ -44,7 +44,7 @@ var profileAddCmd = &cli.Command{
 			return err
 		}
 
-		if err := cfg.WriteToFile(c.String(mainFlagConfig)); err != nil {
+		if err := cfg.WriteToFile(c.String(globalFlagConfig)); err != nil {
 			return err
 		}
 		return nil
@@ -68,7 +68,7 @@ var profileRemoveCmd = &cli.Command{
 
 		cfg.RemoveProfile(c.Args().First())
 
-		if err := cfg.WriteToFile(c.String(mainFlagConfig)); err != nil {
+		if err := cfg.WriteToFile(c.String(globalFlagConfig)); err != nil {
 			return err
 		}
 		return nil

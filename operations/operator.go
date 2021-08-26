@@ -17,10 +17,12 @@ func NewSingleOperator(store types.Storager) (oo *SingleOperator) {
 }
 
 type DualOperator struct {
-	src    types.Storager
-	dst    types.Storager
-	pool   *ants.Pool
-	logger *zap.Logger
+	src        types.Storager
+	dst        types.Storager
+	readPairs  []types.Pair
+	writePairs []types.Pair
+	pool       *ants.Pool
+	logger     *zap.Logger
 }
 
 func NewDualOperator(src, dst types.Storager) (do *DualOperator) {
@@ -51,5 +53,15 @@ func (do *DualOperator) WithWorkers(workers int) *DualOperator {
 	}
 
 	do.pool = pool
+	return do
+}
+
+func (do *DualOperator) WithReadPairs(ps ...types.Pair) *DualOperator {
+	do.readPairs = ps
+	return do
+}
+
+func (do *DualOperator) WithWritePairs(ps ...types.Pair) *DualOperator {
+	do.writePairs = ps
 	return do
 }

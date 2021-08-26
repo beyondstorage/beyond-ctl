@@ -26,7 +26,7 @@ func (do *DualOperator) CopyFileViaWrite(src, dst string, size int64) (ch chan *
 			}
 		}()
 
-		_, err := do.src.Read(src, w)
+		_, err := do.src.Read(src, w, do.readPairs...)
 		if err != nil {
 			do.logger.Error("pipe read", zap.String("path", src), zap.Error(err))
 			ch <- &EmptyResult{Error: err}
@@ -36,7 +36,7 @@ func (do *DualOperator) CopyFileViaWrite(src, dst string, size int64) (ch chan *
 	go func() {
 		defer close(ch)
 
-		_, err := do.dst.Write(dst, r, size)
+		_, err := do.dst.Write(dst, r, size, do.writePairs...)
 		if err != nil {
 			do.logger.Error("pipe write", zap.String("path", dst), zap.Error(err))
 			ch <- &EmptyResult{Error: err}
@@ -160,7 +160,11 @@ func (do *DualOperator) copyMultipart(
 			}
 		}()
 
-		_, err := do.src.Read(src, w, pairs.WithSize(size), pairs.WithOffset(offset))
+		ps := make([]types.Pair, 0, len(do.readPairs)+2)
+		ps = append(ps, pairs.WithSize(size), pairs.WithOffset(offset))
+		ps = append(ps, do.readPairs...)
+
+		_, err := do.src.Read(src, w, ps...)
 		if err != nil {
 			do.logger.Error("pipe read", zap.String("path", src), zap.Error(err))
 			ch <- &PartResult{Error: err}
@@ -177,7 +181,7 @@ func (do *DualOperator) copyMultipart(
 
 	multiparter := do.dst.(types.Multiparter)
 
-	_, p, err := multiparter.WriteMultipart(dstObj, r, size, index)
+	_, p, err := multiparter.WriteMultipart(dstObj, r, size, index, do.writePairs...)
 	if err != nil {
 		do.logger.Error("pipe write", zap.String("path", dstObj.Path), zap.Error(err))
 		ch <- &PartResult{Error: err}

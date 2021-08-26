@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/beyondstorage/go-storage/v4/services"
+	"github.com/beyondstorage/go-storage/v4/types"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 
@@ -18,7 +19,7 @@ var cpCmd = &cli.Command{
 	Name:      "cp",
 	Usage:     "copy file from source storager to target storager",
 	UsageText: "beyondctl cp [command options] [source] [target]",
-	Flags: []cli.Flag{
+	Flags: append([]cli.Flag{
 		&cli.Int64Flag{
 			Name:  cpFlagMultipartThreshold,
 			Usage: "Specify multipart threshold. If source file size is larger than this value, beyondctl will use multipart method to copy file.",
@@ -28,7 +29,7 @@ var cpCmd = &cli.Command{
 			Value:       1024 * 1024 * 1024, // Use 1 GB as the default value.
 			DefaultText: "1GB",
 		},
-	},
+	}, globalFlags...),
 	Before: func(c *cli.Context) error {
 		if args := c.Args().Len(); args < 2 {
 			return fmt.Errorf("cp command wants two args, but got %d", args)
@@ -40,6 +41,7 @@ var cpCmd = &cli.Command{
 
 		cfg, err := loadConfig(c, true)
 		if err != nil {
+			logger.Error("load config", zap.Error(err))
 			return err
 		}
 
@@ -86,9 +88,39 @@ var cpCmd = &cli.Command{
 		}
 
 		do := operations.NewDualOperator(src, dst)
-		if c.IsSet(mainFlagWorkers) {
-			do.WithWorkers(c.Int(mainFlagWorkers))
+		if c.IsSet(globalFlagWorkers) {
+			do.WithWorkers(c.Int(globalFlagWorkers))
 		}
+
+		// Handle read pairs.
+		var readPairs []types.Pair
+		if c.IsSet(globalFlagReadSpeedLimit) {
+			limitPair, err := parseLimit(c.String(globalFlagReadSpeedLimit))
+			if err != nil {
+				logger.Error("read limit is invalid",
+					zap.String("input", c.String(globalFlagReadSpeedLimit)),
+					zap.Error(err))
+				return err
+			}
+
+			readPairs = append(readPairs, limitPair)
+		}
+		do.WithReadPairs(readPairs...)
+
+		// Handle write pairs.
+		var writePairs []types.Pair
+		if c.IsSet(globalFlagWriteSpeedLimit) {
+			limitPair, err := parseLimit(c.String(globalFlagWriteSpeedLimit))
+			if err != nil {
+				logger.Error("write limit is invalid",
+					zap.String("input", c.String(globalFlagWriteSpeedLimit)),
+					zap.Error(err))
+				return err
+			}
+
+			writePairs = append(writePairs, limitPair)
+		}
+		do.WithWritePairs(writePairs...)
 
 		var ch chan *operations.EmptyResult
 		if size < c.Int64(cpFlagMultipartThreshold) {

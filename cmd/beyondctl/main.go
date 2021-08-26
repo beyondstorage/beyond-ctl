@@ -8,31 +8,48 @@ import (
 )
 
 const (
-	mainFlagConfig  = "config"
-	mainFlagWorkers = "workers"
+	globalFlagConfig          = "config"
+	globalFlagWorkers         = "workers"
+	globalFlagReadSpeedLimit  = "read-speed-limit"
+	globalFlagWriteSpeedLimit = "write-speed-limit"
 )
+
+var globalFlags = []cli.Flag{
+	&cli.StringFlag{
+		Name:    globalFlagConfig,
+		Usage:   "Load config from `FILE`",
+		Aliases: []string{"c"},
+		EnvVars: []string{
+			"BEYOND_CTL_CONFIG",
+		},
+		Value: fmt.Sprintf("%s/beyondctl/config.toml", userConfigDir()),
+	},
+	&cli.IntFlag{
+		Name:  globalFlagWorkers,
+		Usage: "Specify the workers number",
+		EnvVars: []string{
+			"BEYOND_CTL_WORKERS",
+		},
+		Value: 4,
+	},
+	&cli.StringFlag{
+		Name:  globalFlagReadSpeedLimit,
+		Usage: "Specify speed limit for read I/O operations, for example, 1MB, 10mb, 3GiB.",
+		EnvVars: []string{
+			"BEYOND_CTL_READ_SPEED_LIMIT",
+		},
+	},
+	&cli.StringFlag{
+		Name:  globalFlagWriteSpeedLimit,
+		Usage: "Specify speed limit for write I/O operations, for example, 1MB, 10mb, 3GiB.",
+		EnvVars: []string{
+			"BEYOND_CTL_WRITE_SPEED_LIMIT",
+		},
+	},
+}
 
 var app = cli.App{
 	Name: "beyondctl",
-	Flags: []cli.Flag{
-		&cli.StringFlag{
-			Name:    mainFlagConfig,
-			Usage:   "Load config from `FILE`",
-			Aliases: []string{"c"},
-			EnvVars: []string{
-				"BEYOND_CTL_CONFIG",
-			},
-			Value: fmt.Sprintf("%s/beyondctl/config.toml", userConfigDir()),
-		},
-		&cli.IntFlag{
-			Name:  mainFlagWorkers,
-			Usage: "Specify the workers number",
-			EnvVars: []string{
-				"BEYOND_CTL_WORKERS",
-			},
-			Value: 4,
-		},
-	},
 	Commands: []*cli.Command{
 		cpCmd,
 		lsCmd,

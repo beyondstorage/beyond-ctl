@@ -110,8 +110,8 @@ github.com/beyondstorage/go-service-oss/v2 v2.3.0 h1:et/4yrgE/32eMvDfoeyI38O2C7U
 github.com/beyondstorage/go-service-oss/v2 v2.3.0/go.mod h1:1QIf33rz6AJg6KImx6v7n+zEkdUWQSquUFoT0De7ngc=
 github.com/beyondstorage/go-service-qingstor/v3 v3.2.0 h1:74nZZ8hvB8JxN7zYzHJMgxRQxOR7Zn56rQhgNTLwcUg=
 github.com/beyondstorage/go-service-qingstor/v3 v3.2.0/go.mod h1:quW3B/90+LrMxoH+ZWhLrSLLJw4Syc6a/4Bykm+HYKE=
-github.com/beyondstorage/go-service-s3/v2 v2.3.0 h1:mCdCuGmQ/26A1Xhj9tnFcRy3bXf1h5MT/TyFrJW8CAI=
-github.com/beyondstorage/go-service-s3/v2 v2.3.0/go.mod h1:B4gLy8g/uhjkLkVymkRES/tIKH2UhB0zmkzqzGaN5LU=
+github.com/beyondstorage/go-service-s3/v2 v2.3.1-0.20210826060528-bee03ad541a9 h1:W56t4K8yNKcdC4Gz8eZ5hJKHL0SHKIuAI86HzuPtXUE=
+github.com/beyondstorage/go-service-s3/v2 v2.3.1-0.20210826060528-bee03ad541a9/go.mod h1:JJ+UqQX7DX8HeCcCR+BmF7DyLO4pOTLl4gcMkZOioG4=
 github.com/beyondstorage/go-service-uss/v2 v2.2.0 h1:pH4dGOy68saYPUBmEgerALxgiucZlI9q3YT/9YCXuNQ=
 github.com/beyondstorage/go-service-uss/v2 v2.2.0/go.mod h1:KCFyGR04lBiI/u7Hd6Qm6KNwA2QGWG30au1NtCGbWhc=
 github.com/beyondstorage/go-storage/v4 v4.2.0/go.mod h1:rUNzOXcikYk5w0ewvNsKbztg7ndQDyDvjDuP0bznSLU=
@@ -119,8 +119,9 @@ github.com/beyondstorage/go-storage/v4 v4.3.0/go.mod h1:0fdcRCzLKMQe7Ve4zPlyTGgo
 github.com/beyondstorage/go-storage/v4 v4.3.2/go.mod h1:8FHjTUFuwLl/mmIGpOL9g3RTZPyye7vneFN/JkRj5Tg=
 github.com/beyondstorage/go-storage/v4 v4.4.0/go.mod h1:mc9VzBImjXDg1/1sLfta2MJH79elfM6m47ZZvZ+q/Uw=
 github.com/beyondstorage/go-storage/v4 v4.4.1-0.20210730075750-6e541b87ea46/go.mod h1:mc9VzBImjXDg1/1sLfta2MJH79elfM6m47ZZvZ+q/Uw=
-github.com/beyondstorage/go-storage/v4 v4.5.0 h1:cWkX1A+yVLldEpj/Ad9capev9K1fbVIVcRvwqWsMgpw=
 github.com/beyondstorage/go-storage/v4 v4.5.0/go.mod h1:mc9VzBImjXDg1/1sLfta2MJH79elfM6m47ZZvZ+q/Uw=
+github.com/beyondstorage/go-storage/v4 v4.6.0 h1:a05dtbYjMZB7LrUSvVzzHwlx33B4yEmd5oQB7Itk7VY=
+github.com/beyondstorage/go-storage/v4 v4.6.0/go.mod h1:mc9VzBImjXDg1/1sLfta2MJH79elfM6m47ZZvZ+q/Uw=
 github.com/beyondstorage/specs/go v0.0.0-20210623065218-d1c2d7d81259/go.mod h1:vF/Q0P1tCvhVAUrxg7i6NvrARRMQVTAuQdDNqpSzR1w=
 github.com/btcsuite/btcd v0.20.1-beta h1:Ik4hyJqN8Jfyv3S4AGBOmyouMsYE3EdYODkMbQjwPGw=
 github.com/btcsuite/btcd v0.20.1-beta/go.mod h1:wVuoA8VJLEcwgqHBwHmzLRazpKxTv13Px/pDuV7OomQ=
@@ -156,6 +157,8 @@ github.com/davecgh/go-spew v0.0.0-20171005155431-ecdeabc65495/go.mod h1:J7Y8YcW2
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/docker/go-units v0.4.0 h1:3uh0PgVws3nIA0Q+MwDC8yjEPf9zjRfZZWXZYDct3Tw=
+github.com/docker/go-units v0.4.0/go.mod h1:fgPhTUdO+D/Jk86RDLlptpiXQzgHJF7gydDDbaIK4Dk=
 github.com/dropbox/dropbox-sdk-go-unofficial/v6 v6.0.2 h1:g7J3J9ppMgiMtV3OnjTWh0XPksfn5pzPtl4MWSpeWbc=
 github.com/dropbox/dropbox-sdk-go-unofficial/v6 v6.0.2/go.mod h1:rSS3kM9XMzSQ6pw91Qgd6yB5jdt70N4OdtrAf74As5M=
 github.com/dustin/go-humanize v1.0.0 h1:VSnTsYCnlFHaM2/igO1h6X3HA71jcobQuxemgkq4zYo=
