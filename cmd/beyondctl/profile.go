@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"go.uber.org/zap"
 	"os"
 
 	"github.com/BurntSushi/toml"
@@ -31,8 +32,11 @@ var profileAddCmd = &cli.Command{
 		return nil
 	},
 	Action: func(c *cli.Context) error {
+		logger, _ := zap.NewDevelopment()
+
 		cfg, err := loadConfig(c, false)
 		if err != nil {
+			logger.Error("load config", zap.Error(err))
 			return err
 		}
 
@@ -41,10 +45,12 @@ var profileAddCmd = &cli.Command{
 			Connection: connStr,
 		})
 		if err != nil {
+			logger.Error("add profile", zap.Error(err))
 			return err
 		}
 
 		if err := cfg.WriteToFile(c.String(globalFlagConfig)); err != nil {
+			logger.Error("write to file", zap.Error(err))
 			return err
 		}
 		return nil
@@ -61,14 +67,18 @@ var profileRemoveCmd = &cli.Command{
 		return nil
 	},
 	Action: func(c *cli.Context) error {
+		logger, _ := zap.NewDevelopment()
+
 		cfg, err := loadConfig(c, false)
 		if err != nil {
+			logger.Error("load config", zap.Error(err))
 			return err
 		}
 
 		cfg.RemoveProfile(c.Args().First())
 
 		if err := cfg.WriteToFile(c.String(globalFlagConfig)); err != nil {
+			logger.Error("write to file", zap.Error(err))
 			return err
 		}
 		return nil
@@ -86,8 +96,11 @@ var profileListCmd = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
+		logger, _ := zap.NewDevelopment()
+
 		cfg, err := loadConfig(c, false)
 		if err != nil {
+			logger.Error("load config", zap.Error(err))
 			return err
 		}
 
@@ -97,6 +110,7 @@ var profileListCmd = &cli.Command{
 			err = toml.NewEncoder(os.Stdout).Encode(cfg.Profiles)
 		}
 
+		logger.Error("encode config", zap.Error(err))
 		return err
 	},
 }
