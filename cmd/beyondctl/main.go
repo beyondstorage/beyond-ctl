@@ -7,28 +7,37 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-const flagConfig = "config"
+const (
+	mainFlagConfig  = "config"
+	mainFlagWorkers = "workers"
+)
 
 var app = cli.App{
 	Name: "beyondctl",
 	Flags: []cli.Flag{
-		&configFlag,
+		&cli.StringFlag{
+			Name:    mainFlagConfig,
+			Usage:   "Load config from `FILE`",
+			Aliases: []string{"c"},
+			EnvVars: []string{
+				"BEYOND_CTL_CONFIG",
+			},
+			Value: fmt.Sprintf("%s/beyondctl/config.toml", userConfigDir()),
+		},
+		&cli.IntFlag{
+			Name:  mainFlagWorkers,
+			Usage: "Specify the workers number",
+			EnvVars: []string{
+				"BEYOND_CTL_WORKERS",
+			},
+			Value: 4,
+		},
 	},
 	Commands: []*cli.Command{
 		cpCmd,
 		lsCmd,
 		profileCmd,
 	},
-}
-
-var configFlag = cli.StringFlag{
-	Name:    flagConfig,
-	Usage:   "Load config from `FILE`",
-	Aliases: []string{"c"},
-	EnvVars: []string{
-		"BEYOND_CTL_CONFIG",
-	},
-	Value: fmt.Sprintf("%s/beyondctl/config.toml", userConfigDir()),
 }
 
 func main() {

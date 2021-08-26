@@ -43,3 +43,13 @@ func NewDualOperator(src, dst types.Storager) (do *DualOperator) {
 		logger: logger,
 	}
 }
+
+func (do *DualOperator) WithWorkers(workers int) *DualOperator {
+	pool, err := ants.NewPool(workers)
+	if err != nil {
+		panic(fmt.Errorf("inti worker pool: %w", err))
+	}
+
+	do.pool = pool
+	return do
+}
