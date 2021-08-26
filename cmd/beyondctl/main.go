@@ -15,15 +15,6 @@ const (
 )
 
 var globalFlags = []cli.Flag{
-	&cli.StringFlag{
-		Name:    globalFlagConfig,
-		Usage:   "Load config from `FILE`",
-		Aliases: []string{"c"},
-		EnvVars: []string{
-			"BEYOND_CTL_CONFIG",
-		},
-		Value: fmt.Sprintf("%s/beyondctl/config.toml", userConfigDir()),
-	},
 	&cli.IntFlag{
 		Name:  globalFlagWorkers,
 		Usage: "Specify the workers number",
@@ -50,6 +41,17 @@ var globalFlags = []cli.Flag{
 
 var app = cli.App{
 	Name: "beyondctl",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:    globalFlagConfig,
+			Usage:   "Load config from `FILE`",
+			Aliases: []string{"c"},
+			EnvVars: []string{
+				"BEYOND_CTL_CONFIG",
+			},
+			Value: fmt.Sprintf("%s/beyondctl/config.toml", userConfigDir()),
+		},
+	},
 	Commands: []*cli.Command{
 		cpCmd,
 		lsCmd,
