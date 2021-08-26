@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	commonFlagConfig          = "config"
+	globalFlagConfig = "config"
+
 	commonFlagWorkers         = "workers"
 	commonFlagReadSpeedLimit  = "read-speed-limit"
 	commonFlagWriteSpeedLimit = "write-speed-limit"
@@ -43,7 +44,7 @@ var app = cli.App{
 	Name: "beyondctl",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:    commonFlagConfig,
+			Name:    globalFlagConfig,
 			Usage:   "Load config from `FILE`",
 			Aliases: []string{"c"},
 			EnvVars: []string{
