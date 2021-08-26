@@ -59,7 +59,7 @@ func (do *DualOperator) CopyFileViaMultipart(src, dst string, totalSize int64) (
 		return nil, fmt.Errorf("create multipart: %w", err)
 	}
 
-	partSize, err := calculatePartSize(do.src, totalSize)
+	partSize, err := calculatePartSize(do.dst, totalSize)
 	if err != nil {
 		return nil, fmt.Errorf("calculate part size: %w", err)
 	}
