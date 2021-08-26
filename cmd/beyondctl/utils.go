@@ -14,7 +14,7 @@ import (
 )
 
 func loadConfig(c *cli.Context, loadEnv bool) (*config.Config, error) {
-	path := c.String(globalFlagConfig)
+	path := c.String(commonFlagConfig)
 	cfg, err := config.LoadFromFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("load config %s: %w", path, err)

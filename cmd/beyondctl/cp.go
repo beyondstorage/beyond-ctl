@@ -29,7 +29,7 @@ var cpCmd = &cli.Command{
 			Value:       1024 * 1024 * 1024, // Use 1 GB as the default value.
 			DefaultText: "1GB",
 		},
-	}, globalFlags...),
+	}, commonFlags...),
 	Before: func(c *cli.Context) error {
 		if args := c.Args().Len(); args < 2 {
 			return fmt.Errorf("cp command wants two args, but got %d", args)
@@ -88,17 +88,17 @@ var cpCmd = &cli.Command{
 		}
 
 		do := operations.NewDualOperator(src, dst)
-		if c.IsSet(globalFlagWorkers) {
-			do.WithWorkers(c.Int(globalFlagWorkers))
+		if c.IsSet(commonFlagWorkers) {
+			do.WithWorkers(c.Int(commonFlagWorkers))
 		}
 
 		// Handle read pairs.
 		var readPairs []types.Pair
-		if c.IsSet(globalFlagReadSpeedLimit) {
-			limitPair, err := parseLimit(c.String(globalFlagReadSpeedLimit))
+		if c.IsSet(commonFlagReadSpeedLimit) {
+			limitPair, err := parseLimit(c.String(commonFlagReadSpeedLimit))
 			if err != nil {
 				logger.Error("read limit is invalid",
-					zap.String("input", c.String(globalFlagReadSpeedLimit)),
+					zap.String("input", c.String(commonFlagReadSpeedLimit)),
 					zap.Error(err))
 				return err
 			}
@@ -109,11 +109,11 @@ var cpCmd = &cli.Command{
 
 		// Handle write pairs.
 		var writePairs []types.Pair
-		if c.IsSet(globalFlagWriteSpeedLimit) {
-			limitPair, err := parseLimit(c.String(globalFlagWriteSpeedLimit))
+		if c.IsSet(commonFlagWriteSpeedLimit) {
+			limitPair, err := parseLimit(c.String(commonFlagWriteSpeedLimit))
 			if err != nil {
 				logger.Error("write limit is invalid",
-					zap.String("input", c.String(globalFlagWriteSpeedLimit)),
+					zap.String("input", c.String(commonFlagWriteSpeedLimit)),
 					zap.Error(err))
 				return err
 			}
