@@ -41,7 +41,8 @@ var commonFlags = []cli.Flag{
 }
 
 var app = cli.App{
-	Name: "beyondctl",
+	Name:    "beyondctl",
+	Version: "0.0.1",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    globalFlagConfig,
