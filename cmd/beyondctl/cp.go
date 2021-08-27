@@ -5,6 +5,7 @@ import (
 
 	"github.com/beyondstorage/go-storage/v4/services"
 	"github.com/beyondstorage/go-storage/v4/types"
+	"github.com/docker/go-units"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 
@@ -20,14 +21,13 @@ var cpCmd = &cli.Command{
 	Usage:     "copy file from source storager to target storager",
 	UsageText: "beyondctl cp [command options] [source] [target]",
 	Flags: append([]cli.Flag{
-		&cli.Int64Flag{
+		&cli.StringFlag{
 			Name:  cpFlagMultipartThreshold,
 			Usage: "Specify multipart threshold. If source file size is larger than this value, beyondctl will use multipart method to copy file.",
 			EnvVars: []string{
 				"BEYOND_CTL_MULTIPART_THRESHOLD",
 			},
-			Value:       1024 * 1024 * 1024, // Use 1 GB as the default value.
-			DefaultText: "1GB",
+			Value: "1GB", // Use 1 GB as the default value.
 		},
 	}, commonFlags...),
 	Before: func(c *cli.Context) error {
@@ -122,8 +122,17 @@ var cpCmd = &cli.Command{
 		}
 		do.WithWritePairs(writePairs...)
 
+		// parse flag multipart-threshold, 1GB is the default value
+		multipartThreshold, err := units.FromHumanSize(c.String(cpFlagMultipartThreshold))
+		if err != nil {
+			logger.Error("multipart-threshold is invalid",
+				zap.String("input", c.String(cpFlagMultipartThreshold)),
+				zap.Error(err))
+			return err
+		}
+
 		var ch chan *operations.EmptyResult
-		if size < c.Int64(cpFlagMultipartThreshold) {
+		if size < multipartThreshold {
 			ch, err = do.CopyFileViaWrite(srcKey, dstKey, size)
 		} else {
 			// TODO: we will support other copy method later.
