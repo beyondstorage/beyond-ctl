@@ -33,13 +33,18 @@ func calculatePartSize(store types.Storager, totalSize int64) (int64, error) {
 			}
 			// if part size >= total size, consider total object as last part, which is not limited by minimum part size
 			if partSize < totalSize {
+				// otherwise, if partSize less than minimum, double part size
 				if minOK && partSize < minSize {
 					partSize = partSize << 1
 					continue
 				}
+			} else {
+				partSize = totalSize
+				break
 			}
-			return partSize, nil
+			break
 		}
+		return partSize, nil
 	}
 
 	// if multipart number has maximum restriction, count part size dynamically
@@ -59,6 +64,9 @@ func calculatePartSize(store types.Storager, totalSize int64) (int64, error) {
 				partSize = partSize << 1
 				continue
 			}
+		} else {
+			partSize = totalSize
+			break
 		}
 
 		// if partSize too large, try to count by the max part number
