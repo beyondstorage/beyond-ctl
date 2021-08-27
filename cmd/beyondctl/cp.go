@@ -27,7 +27,7 @@ var cpCmd = &cli.Command{
 			EnvVars: []string{
 				"BEYOND_CTL_MULTIPART_THRESHOLD",
 			},
-			Value: "1GB", // Use 1 GB as the default value.
+			Value: "1GiB", // Use 1 GiB as the default value.
 		},
 	}, commonFlags...),
 	Before: func(c *cli.Context) error {
