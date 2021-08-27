@@ -7,6 +7,13 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+// Build time values.
+//
+// We will set this value via `go build -ldflags "-X main.Version"`
+var (
+	Version string
+)
+
 const (
 	globalFlagConfig = "config"
 
@@ -41,8 +48,9 @@ var commonFlags = []cli.Flag{
 }
 
 var app = cli.App{
-	Name:    "beyondctl",
-	Version: "0.0.1",
+	Name:        "beyondctl",
+	Description: "the command-line tool for all storage services",
+	Version:     Version,
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    globalFlagConfig,

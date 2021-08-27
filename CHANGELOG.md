@@ -13,5 +13,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - cmd: Support copy single file
 - cmd: Support user profile
-
-

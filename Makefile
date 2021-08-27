@@ -1,6 +1,12 @@
 SHELL := /bin/bash
 
-.PHONY: all check format vet build test generate tidy
+.PHONY: all check format vet build test generate tidy release
+
+VERSION := v0.0.1
+
+GOOS ?= $(shell go env GOOS)
+GOARCH ?= $(shell go env GOARCH)
+GO_BUILD := CGO_ENABLED=0 go build -ldflags "-X main.Version=${VERSION}"
 
 help:
 	@echo "Please use \`make <target>\` where <target> is one of"
@@ -18,7 +24,27 @@ generate:
 	go generate ./...
 
 build: tidy generate format vet
-	go build -o bin/beyondctl ./cmd/beyondctl
+	${GO_BUILD} -o bin/beyondctl ./cmd/beyondctl
+
+release:
+	mkdir -p ./release
+
+	GOOS=${GOOS} GOARCH=${GOARCH} ${GO_BUILD} -o ./bin/${GOOS}_${GOARCH}/beyondctl_${VERSION}_${GOOS}_${GOARCH} ./cmd/beyondctl
+	tar -C ./bin/${GOOS}_${GOARCH}/ -czf ./release/beyondctl_${VERSION}_${GOOS}_${GOARCH}.tar.gz beyondctl_${VERSION}_${GOOS}_${GOARCH}
+
+release-linux-amd64: GOOS := linux
+release-linux-amd64: GOARCH := amd64
+release-linux-amd64: release
+
+release-darwin-amd64: GOOS := darwin
+release-darwin-amd64: GOARCH := amd64
+release-darwin-amd64: release
+
+release-windows-amd64: GOOS := windows
+release-windows-amd64: GOARCH := amd64
+release-windows-amd64: release
+
+release-all: release-linux-amd64 release-darwin-amd64 release-windows-amd64
 
 test:
 	go test -race -coverprofile=coverage.txt -covermode=atomic -v ./...
