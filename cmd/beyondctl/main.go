@@ -53,7 +53,6 @@ var app = cli.App{
 			Value: fmt.Sprintf("%s/beyondctl/config.toml", userConfigDir()),
 		},
 	},
-	Version: "0.1.0",
 	Commands: []*cli.Command{
 		cpCmd,
 		lsCmd,
