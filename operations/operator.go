@@ -9,11 +9,38 @@ import (
 )
 
 type SingleOperator struct {
-	store types.Storager
+	store  types.Storager
+	pool   *ants.Pool
+	logger *zap.Logger
 }
 
 func NewSingleOperator(store types.Storager) (oo *SingleOperator) {
-	return &SingleOperator{store: store}
+	pool, err := ants.NewPool(4)
+	if err != nil {
+		panic(fmt.Errorf("inti worker pool: %w", err))
+	}
+
+	// TODO: we will allow user config log level.
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		panic(fmt.Errorf("init logger: %w", err))
+	}
+
+	return &SingleOperator{
+		store:  store,
+		pool:   pool,
+		logger: logger,
+	}
+}
+
+func (so *SingleOperator) WithWorkers(workers int) *SingleOperator {
+	pool, err := ants.NewPool(workers)
+	if err != nil {
+		panic(fmt.Errorf("inti worker pool: %w", err))
+	}
+
+	so.pool = pool
+	return so
 }
 
 type DualOperator struct {
@@ -26,7 +53,6 @@ type DualOperator struct {
 }
 
 func NewDualOperator(src, dst types.Storager) (do *DualOperator) {
-	// TODO: we will support setting workers via command line.
 	pool, err := ants.NewPool(4)
 	if err != nil {
 		panic(fmt.Errorf("inti worker pool: %w", err))
