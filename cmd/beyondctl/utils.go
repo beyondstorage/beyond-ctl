@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/Xuanwo/go-bufferpool"
 	"time"
 
 	"github.com/beyondstorage/go-storage/v4/pairs"
@@ -13,8 +14,10 @@ import (
 	"github.com/beyondstorage/beyond-ctl/config"
 )
 
+var pool = bufferpool.New(128)
+
 func loadConfig(c *cli.Context, loadEnv bool) (*config.Config, error) {
-	path := c.String(globalFlagConfig)
+	path := c.String(flagConfigName)
 	cfg, err := config.LoadFromFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("load config %s: %w", path, err)

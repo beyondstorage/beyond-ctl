@@ -13,18 +13,25 @@ import (
 	"github.com/beyondstorage/beyond-ctl/operations"
 )
 
-var lsCmd = &cli.Command{
-	Name: "ls",
-	Flags: []cli.Flag{
-		&cli.BoolFlag{
-			Name:  "l",
-			Usage: "use a long listing format",
-		},
-		&cli.StringFlag{
-			Name:  "format",
-			Usage: "across long -l",
-		},
+const (
+	lsFlagLongName = "l"
+	lsFlagFormat   = "format"
+)
+
+var lsFlags = []cli.Flag{
+	&cli.BoolFlag{
+		Name:  lsFlagLongName,
+		Usage: "use a long listing format",
 	},
+	&cli.StringFlag{
+		Name:  lsFlagFormat,
+		Usage: "across long -l",
+	},
+}
+
+var lsCmd = &cli.Command{
+	Name:  "ls",
+	Flags: mergeFlags(globalFlags, lsFlags),
 	Action: func(c *cli.Context) (err error) {
 		logger, _ := zap.NewDevelopment()
 

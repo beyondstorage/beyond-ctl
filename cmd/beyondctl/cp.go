@@ -13,23 +13,25 @@ import (
 )
 
 const (
-	cpFlagMultipartThreshold = "multipart-threshold"
+	cpFlagMultipartThresholdName = "multipart-threshold"
 )
+
+var cpFlags = []cli.Flag{
+	&cli.StringFlag{
+		Name:  cpFlagMultipartThresholdName,
+		Usage: "Specify multipart threshold. If source file size is larger than this value, beyondctl will use multipart method to copy file.",
+		EnvVars: []string{
+			"BEYOND_CTL_MULTIPART_THRESHOLD",
+		},
+		Value: "1GiB", // Use 1 GiB as the default value.
+	},
+}
 
 var cpCmd = &cli.Command{
 	Name:      "cp",
 	Usage:     "copy file from source storager to target storager",
 	UsageText: "beyondctl cp [command options] [source] [target]",
-	Flags: append([]cli.Flag{
-		&cli.StringFlag{
-			Name:  cpFlagMultipartThreshold,
-			Usage: "Specify multipart threshold. If source file size is larger than this value, beyondctl will use multipart method to copy file.",
-			EnvVars: []string{
-				"BEYOND_CTL_MULTIPART_THRESHOLD",
-			},
-			Value: "1GiB", // Use 1 GiB as the default value.
-		},
-	}, commonFlags...),
+	Flags:     mergeFlags(globalFlags, ioFlags, cpFlags),
 	Before: func(c *cli.Context) error {
 		if args := c.Args().Len(); args < 2 {
 			return fmt.Errorf("cp command wants two args, but got %d", args)
@@ -88,17 +90,17 @@ var cpCmd = &cli.Command{
 		}
 
 		do := operations.NewDualOperator(src, dst)
-		if c.IsSet(commonFlagWorkers) {
-			do.WithWorkers(c.Int(commonFlagWorkers))
+		if c.IsSet(flagWorkersName) {
+			do.WithWorkers(c.Int(flagWorkersName))
 		}
 
 		// Handle read pairs.
 		var readPairs []types.Pair
-		if c.IsSet(commonFlagReadSpeedLimit) {
-			limitPair, err := parseLimit(c.String(commonFlagReadSpeedLimit))
+		if c.IsSet(flagReadSpeedLimitName) {
+			limitPair, err := parseLimit(c.String(flagReadSpeedLimitName))
 			if err != nil {
 				logger.Error("read limit is invalid",
-					zap.String("input", c.String(commonFlagReadSpeedLimit)),
+					zap.String("input", c.String(flagReadSpeedLimitName)),
 					zap.Error(err))
 				return err
 			}
@@ -109,11 +111,11 @@ var cpCmd = &cli.Command{
 
 		// Handle write pairs.
 		var writePairs []types.Pair
-		if c.IsSet(commonFlagWriteSpeedLimit) {
-			limitPair, err := parseLimit(c.String(commonFlagWriteSpeedLimit))
+		if c.IsSet(flagWriteSpeedLimitName) {
+			limitPair, err := parseLimit(c.String(flagWriteSpeedLimitName))
 			if err != nil {
 				logger.Error("write limit is invalid",
-					zap.String("input", c.String(commonFlagWriteSpeedLimit)),
+					zap.String("input", c.String(flagWriteSpeedLimitName)),
 					zap.Error(err))
 				return err
 			}
@@ -123,10 +125,10 @@ var cpCmd = &cli.Command{
 		do.WithWritePairs(writePairs...)
 
 		// parse flag multipart-threshold, 1GB is the default value
-		multipartThreshold, err := units.FromHumanSize(c.String(cpFlagMultipartThreshold))
+		multipartThreshold, err := units.FromHumanSize(c.String(cpFlagMultipartThresholdName))
 		if err != nil {
 			logger.Error("multipart-threshold is invalid",
-				zap.String("input", c.String(cpFlagMultipartThreshold)),
+				zap.String("input", c.String(cpFlagMultipartThresholdName)),
 				zap.Error(err))
 			return err
 		}

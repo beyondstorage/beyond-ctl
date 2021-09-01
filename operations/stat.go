@@ -4,8 +4,8 @@ import (
 	"github.com/beyondstorage/go-storage/v4/types"
 )
 
-func (oo *SingleOperator) Stat(path string) (o *types.Object, err error) {
-	o, err = oo.store.Stat(path)
+func (so *SingleOperator) Stat(path string) (o *types.Object, err error) {
+	o, err = so.store.Stat(path)
 	if err != nil {
 		return nil, err
 	}

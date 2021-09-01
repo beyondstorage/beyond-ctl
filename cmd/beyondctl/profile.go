@@ -50,7 +50,7 @@ var profileAddCmd = &cli.Command{
 			return err
 		}
 
-		if err := cfg.WriteToFile(c.String(globalFlagConfig)); err != nil {
+		if err := cfg.WriteToFile(c.String(flagConfigName)); err != nil {
 			logger.Error("write to file", zap.Error(err))
 			return err
 		}
@@ -78,7 +78,7 @@ var profileRemoveCmd = &cli.Command{
 
 		cfg.RemoveProfile(c.Args().First())
 
-		if err := cfg.WriteToFile(c.String(globalFlagConfig)); err != nil {
+		if err := cfg.WriteToFile(c.String(flagConfigName)); err != nil {
 			logger.Error("write to file", zap.Error(err))
 			return err
 		}
