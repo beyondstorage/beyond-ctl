@@ -117,8 +117,9 @@ github.com/beyondstorage/go-storage/v4 v4.3.2/go.mod h1:8FHjTUFuwLl/mmIGpOL9g3RT
 github.com/beyondstorage/go-storage/v4 v4.4.0/go.mod h1:mc9VzBImjXDg1/1sLfta2MJH79elfM6m47ZZvZ+q/Uw=
 github.com/beyondstorage/go-storage/v4 v4.4.1-0.20210730075750-6e541b87ea46/go.mod h1:mc9VzBImjXDg1/1sLfta2MJH79elfM6m47ZZvZ+q/Uw=
 github.com/beyondstorage/go-storage/v4 v4.5.0/go.mod h1:mc9VzBImjXDg1/1sLfta2MJH79elfM6m47ZZvZ+q/Uw=
-github.com/beyondstorage/go-storage/v4 v4.6.0 h1:a05dtbYjMZB7LrUSvVzzHwlx33B4yEmd5oQB7Itk7VY=
 github.com/beyondstorage/go-storage/v4 v4.6.0/go.mod h1:mc9VzBImjXDg1/1sLfta2MJH79elfM6m47ZZvZ+q/Uw=
+github.com/beyondstorage/go-storage/v4 v4.7.0 h1:7hpRFNoPY0vWRSH/p2biD2dUQdZMrs1TuIkkqDefmCE=
+github.com/beyondstorage/go-storage/v4 v4.7.0/go.mod h1:mc9VzBImjXDg1/1sLfta2MJH79elfM6m47ZZvZ+q/Uw=
 github.com/btcsuite/btcd v0.20.1-beta h1:Ik4hyJqN8Jfyv3S4AGBOmyouMsYE3EdYODkMbQjwPGw=
 github.com/btcsuite/btcd v0.20.1-beta/go.mod h1:wVuoA8VJLEcwgqHBwHmzLRazpKxTv13Px/pDuV7OomQ=
 github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f/go.mod h1:TdznJufoqS23FtqVCzL0ZqgP5MqXbb4fg/WgDys70nA=
