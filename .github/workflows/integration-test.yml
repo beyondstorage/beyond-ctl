@@ -1,0 +1,39 @@
+name: "Integration Test"
+
+on: [push,pull_request]
+
+jobs:
+  integration_test:
+    name: Integration Test
+    runs-on: ${{ matrix.os }}
+
+    services:
+      minio:
+        image: wktk/minio-server
+        ports:
+          - 9000:9000
+        env:
+          MINIO_ACCESS_KEY: "minioadmin"
+          MINIO_SECRET_KEY: "minioadmin"
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.16"
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build
+        run: make build
+
+      - name: Test
+        env:
+          BEYOND_CTL_INTEGRATION_TEST: "on"
+          BEYOND_CTL_TEST_SERVICE: "s3://test/%s?credential=hmac:minioadmin:minioadmin&endpoint=http:127.0.0.1:9000&location=test&force_path_style=true"
+        run: make integration_test
