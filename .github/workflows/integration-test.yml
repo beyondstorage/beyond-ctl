@@ -5,7 +5,7 @@ on: [push,pull_request]
 jobs:
   integration_test:
     name: Integration Test
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     services:
       minio:
@@ -15,10 +15,6 @@ jobs:
         env:
           MINIO_ACCESS_KEY: "minioadmin"
           MINIO_SECRET_KEY: "minioadmin"
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
       - name: Set up Go 1.x
