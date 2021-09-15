@@ -1,0 +1,39 @@
+name: "Integration Test"
+
+on: [push,pull_request]
+
+jobs:
+  integration_test:
+    name: Integration Test
+    runs-on: ubuntu-latest
+
+    services:
+      minio:
+        image: wktk/minio-server
+        ports:
+          - 9000:9000
+        env:
+          MINIO_ACCESS_KEY: "minioadmin"
+          MINIO_SECRET_KEY: "minioadmin"
+
+    steps:
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.16"
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup test bucket
+        env:
+          AWS_ACCESS_KEY_ID: "minioadmin"
+          AWS_SECRET_ACCESS_KEY: "minioadmin"
+          AWS_EC2_METADATA_DISABLED: "true"
+        run: aws --endpoint-url http://127.0.0.1:9000/ s3 mb s3://test
+
+      - name: Test
+        env:
+          BEYOND_CTL_INTEGRATION_TEST: "on"
+          BEYOND_CTL_TEST_SERVICE: "s3://test/%s?credential=hmac:minioadmin:minioadmin&endpoint=http:127.0.0.1:9000&location=test&force_path_style=true"
+        run: make integration_test
