@@ -13,7 +13,7 @@ var (
 	Version string
 )
 
-var App = cli.App{
+var app = cli.App{
 	Name:        "beyondctl",
 	Description: "the command-line tool for all storage services",
 	Version:     Version,
@@ -27,7 +27,7 @@ var App = cli.App{
 }
 
 func main() {
-	err := App.Run(os.Args)
+	err := app.Run(os.Args)
 	if err != nil {
 		// FIXME: we need to respect platform style later.
 		os.Exit(1)

@@ -6,3 +6,4 @@
 .github/
 bin/
 docs/
+Makefile.env

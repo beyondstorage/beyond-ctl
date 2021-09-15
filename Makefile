@@ -2,6 +2,8 @@ SHELL := /bin/bash
 
 .PHONY: all check format vet build test generate tidy release
 
+-include Makefile.env
+
 VERSION := v0.0.1
 
 GOOS ?= $(shell go env GOOS)
@@ -20,10 +22,7 @@ format:
 vet:
 	go vet ./...
 
-generate:
-	go generate ./...
-
-build: tidy generate format vet
+build: tidy format vet
 	${GO_BUILD} -o bin/beyondctl ./cmd/beyondctl
 
 release:
@@ -47,8 +46,11 @@ release-windows-amd64: release
 release-all: release-linux-amd64 release-darwin-amd64 release-windows-amd64
 
 test:
-	go test -race -coverprofile=coverage.txt -covermode=atomic -v ./...
+	BEYOND_CTL_INTEGRATION_TEST=off go test -race -coverprofile=coverage.txt -covermode=atomic -v ./...
 	go tool cover -html="coverage.txt" -o "coverage.html"
+
+integration_test:
+	go test -race -coverprofile=coverage.txt -covermode=atomic -v ./cmd/beyondctl
 
 tidy:
 	go mod tidy
