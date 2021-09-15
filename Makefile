@@ -49,7 +49,7 @@ release-windows-amd64: release
 release-all: release-linux-amd64 release-darwin-amd64 release-windows-amd64
 
 test:
-	go test -race -coverprofile=coverage.txt -covermode=atomic -v ./...
+	BEYOND_CTL_INTEGRATION_TEST=off go test -race -coverprofile=coverage.txt -covermode=atomic -v ./...
 	go tool cover -html="coverage.txt" -o "coverage.html"
 
 integration_test:

@@ -103,6 +103,10 @@ func tearDownLs(t *testing.T, base string) {
 }
 
 func TestLs(t *testing.T) {
+	if os.Getenv("BEYOND_CTL_INTEGRATION_TEST") != "on" {
+		t.Skipf("BEYOND_CTL_INTEGRATION_TEST is not 'on', skipped")
+	}
+
 	base, _ := setupLs(t)
 	defer tearDownLs(t, base)
 
