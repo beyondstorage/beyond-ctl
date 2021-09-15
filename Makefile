@@ -25,7 +25,7 @@ vet:
 generate:
 	go generate ./...
 
-build: tidy generate format vet
+build: generate tidy format vet
 	${GO_BUILD} -o bin/beyondctl ./cmd/beyondctl
 
 release:
