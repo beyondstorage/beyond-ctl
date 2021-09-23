@@ -25,6 +25,6 @@ require (
 	github.com/panjf2000/ants/v2 v2.4.6
 	github.com/stretchr/testify v1.7.0
 	github.com/urfave/cli/v2 v2.3.0
-	go.uber.org/zap v1.19.0
+	go.uber.org/zap v1.19.1
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
 )
