@@ -102,8 +102,8 @@ github.com/beyondstorage/go-service-ipfs v0.2.0 h1:mBGyqpxUZeq5d6Z1SJP8dYQdJpiBI
 github.com/beyondstorage/go-service-ipfs v0.2.0/go.mod h1:lpg5t7cGcKDNCih9KwLoWzaByGLkwzYrs9pEY4bf8fk=
 github.com/beyondstorage/go-service-kodo/v2 v2.3.0 h1:otIu904eD/m6cLa1PW+DNKXEeaPV4u6YkBlplhbVYpo=
 github.com/beyondstorage/go-service-kodo/v2 v2.3.0/go.mod h1:7bfAb9qjeCtQdnW12VOOHnSU9PFWnxMB4aGR7P8zKh8=
-github.com/beyondstorage/go-service-memory v0.2.0 h1:VYIgkKc25XpudmBozu5FJWjuW0+WhBn/uAb+RDhxpKQ=
-github.com/beyondstorage/go-service-memory v0.2.0/go.mod h1:XQwDQ2AwNxt2ImUHgPyPedHcQxUUgxY3EwUEJUvfY1o=
+github.com/beyondstorage/go-service-memory v0.3.0 h1:T5d+oJXs4WPp5qTDwbNk23SZfsNURPONJUvp9W0r9+Y=
+github.com/beyondstorage/go-service-memory v0.3.0/go.mod h1:m5vYYzOQNflKJNGkzxi+LHy6mvIN/zSyUSovCn+9tCk=
 github.com/beyondstorage/go-service-minio v0.1.0 h1:v5V2G0qtYidudkm9DGtacCYDZEJsTUJoH6zwERR8kEU=
 github.com/beyondstorage/go-service-minio v0.1.0/go.mod h1:IYGsmM2AQwN1se7hjh6dJuaZHMAPWlXuXJIMkrncJck=
 github.com/beyondstorage/go-service-oss/v2 v2.3.0 h1:et/4yrgE/32eMvDfoeyI38O2C7UrpzcNoxILC5BqeC4=
@@ -118,7 +118,6 @@ github.com/beyondstorage/go-storage/v4 v4.3.0/go.mod h1:0fdcRCzLKMQe7Ve4zPlyTGgo
 github.com/beyondstorage/go-storage/v4 v4.3.2/go.mod h1:8FHjTUFuwLl/mmIGpOL9g3RTZPyye7vneFN/JkRj5Tg=
 github.com/beyondstorage/go-storage/v4 v4.4.0/go.mod h1:mc9VzBImjXDg1/1sLfta2MJH79elfM6m47ZZvZ+q/Uw=
 github.com/beyondstorage/go-storage/v4 v4.4.1-0.20210730075750-6e541b87ea46/go.mod h1:mc9VzBImjXDg1/1sLfta2MJH79elfM6m47ZZvZ+q/Uw=
-github.com/beyondstorage/go-storage/v4 v4.5.0/go.mod h1:mc9VzBImjXDg1/1sLfta2MJH79elfM6m47ZZvZ+q/Uw=
 github.com/beyondstorage/go-storage/v4 v4.7.0 h1:7hpRFNoPY0vWRSH/p2biD2dUQdZMrs1TuIkkqDefmCE=
 github.com/beyondstorage/go-storage/v4 v4.7.0/go.mod h1:mc9VzBImjXDg1/1sLfta2MJH79elfM6m47ZZvZ+q/Uw=
 github.com/btcsuite/btcd v0.20.1-beta h1:Ik4hyJqN8Jfyv3S4AGBOmyouMsYE3EdYODkMbQjwPGw=
