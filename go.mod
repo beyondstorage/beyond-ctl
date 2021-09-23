@@ -14,7 +14,7 @@ require (
 	github.com/beyondstorage/go-service-ipfs v0.2.0
 	github.com/beyondstorage/go-service-kodo/v2 v2.3.0
 	github.com/beyondstorage/go-service-memory v0.3.0
-	github.com/beyondstorage/go-service-minio v0.1.0
+	github.com/beyondstorage/go-service-minio v0.2.0
 	github.com/beyondstorage/go-service-oss/v2 v2.3.0
 	github.com/beyondstorage/go-service-qingstor/v3 v3.3.0
 	github.com/beyondstorage/go-service-s3/v2 v2.4.0
