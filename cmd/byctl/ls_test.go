@@ -110,7 +110,7 @@ func TestLs(t *testing.T) {
 	base, _ := setupLs(t)
 	defer tearDownLs(t, base)
 
-	err := app.Run([]string{"beyondctl", "ls", "-l",
+	err := app.Run([]string{"byctl", "ls", "-l",
 		fmt.Sprintf("%s:", base)})
 	if err != nil {
 		t.Error(err)

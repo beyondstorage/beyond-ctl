@@ -19,7 +19,7 @@ const (
 var cpFlags = []cli.Flag{
 	&cli.StringFlag{
 		Name:  cpFlagMultipartThresholdName,
-		Usage: "Specify multipart threshold. If source file size is larger than this value, beyondctl will use multipart method to copy file.",
+		Usage: "Specify multipart threshold. If source file size is larger than this value, byctl will use multipart method to copy file.",
 		EnvVars: []string{
 			"BEYOND_CTL_MULTIPART_THRESHOLD",
 		},
@@ -30,7 +30,7 @@ var cpFlags = []cli.Flag{
 var cpCmd = &cli.Command{
 	Name:      "cp",
 	Usage:     "copy file from source storager to target storager",
-	UsageText: "beyondctl cp [command options] [source] [target]",
+	UsageText: "byctl cp [command options] [source] [target]",
 	Flags:     mergeFlags(globalFlags, ioFlags, cpFlags),
 	Before: func(c *cli.Context) error {
 		if args := c.Args().Len(); args < 2 {

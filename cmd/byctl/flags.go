@@ -34,7 +34,7 @@ var (
 		EnvVars: []string{
 			"BEYOND_CTL_CONFIG",
 		},
-		Value: fmt.Sprintf("%s/beyondctl/config.toml", userConfigDir()),
+		Value: fmt.Sprintf("%s/byctl/config.toml", userConfigDir()),
 	}
 	flagWorkers = &cli.IntFlag{
 		Name:  flagWorkersName,
