@@ -100,8 +100,8 @@ github.com/beyondstorage/go-service-gcs/v2 v2.2.0 h1:oSH9tGb1NY2fKxBuvyIc3tvhEo6
 github.com/beyondstorage/go-service-gcs/v2 v2.2.0/go.mod h1:RYczYKK3OL0cscb+GiP1MVZzas7zCCaFY0vYN3GfK/E=
 github.com/beyondstorage/go-service-ipfs v0.1.0 h1:x95Am3rm0wfex85Jl1EFhfU3WdA44nKg5t4FEULJt9M=
 github.com/beyondstorage/go-service-ipfs v0.1.0/go.mod h1:WY3xS1k2fNAi2Au2tKTC9NPUJwsskYEaZjjDXs2VkKQ=
-github.com/beyondstorage/go-service-kodo/v2 v2.2.0 h1:OFa0o/H0j/TxnpT5MwPtrn8WDoiyBM1nMnRu2IL30S0=
-github.com/beyondstorage/go-service-kodo/v2 v2.2.0/go.mod h1:hNkpN2a2BLbiUVM3LyVRLsvV7iW/8Gj3sxnZHlkv+rg=
+github.com/beyondstorage/go-service-kodo/v2 v2.3.0 h1:otIu904eD/m6cLa1PW+DNKXEeaPV4u6YkBlplhbVYpo=
+github.com/beyondstorage/go-service-kodo/v2 v2.3.0/go.mod h1:7bfAb9qjeCtQdnW12VOOHnSU9PFWnxMB4aGR7P8zKh8=
 github.com/beyondstorage/go-service-memory v0.2.0 h1:VYIgkKc25XpudmBozu5FJWjuW0+WhBn/uAb+RDhxpKQ=
 github.com/beyondstorage/go-service-memory v0.2.0/go.mod h1:XQwDQ2AwNxt2ImUHgPyPedHcQxUUgxY3EwUEJUvfY1o=
 github.com/beyondstorage/go-service-minio v0.1.0 h1:v5V2G0qtYidudkm9DGtacCYDZEJsTUJoH6zwERR8kEU=
@@ -380,8 +380,8 @@ github.com/qingstor/go-mime v0.1.0 h1:FhTJtM7TRm9pfgCXpjGUxqwbumGojrgE9ecRz5PXvf
 github.com/qingstor/go-mime v0.1.0/go.mod h1:EDwWgaMufg74m7futsF0ZGkdA52ajjAycY+XDeV8M88=
 github.com/qingstor/qingstor-sdk-go/v4 v4.4.0 h1:tbItWtGB1TDfYzqK8dtm6tV+xWU5iYMwL37C6AL5dDs=
 github.com/qingstor/qingstor-sdk-go/v4 v4.4.0/go.mod h1:mDVFtA7+bXQ5xoELTWkoFy1Ad13wtp8jtlnl/RU+zzM=
-github.com/qiniu/go-sdk/v7 v7.9.7 h1:sVt6cHzG52nGGULeZkcAVpwj5eyQcgJsbSbTPkPAkLo=
-github.com/qiniu/go-sdk/v7 v7.9.7/go.mod h1:Eeqk1/Km3f1MuLUUkg2JCSg/dVkydKbBvEdJJqFgn9g=
+github.com/qiniu/go-sdk/v7 v7.9.8 h1:QE3Nj+bj+ZHGWed2L+nuOKGhtJgXqdMbSaC69YZ05L8=
+github.com/qiniu/go-sdk/v7 v7.9.8/go.mod h1:Eeqk1/Km3f1MuLUUkg2JCSg/dVkydKbBvEdJJqFgn9g=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/rs/cors v1.7.0/go.mod h1:gFx+x8UowdsKA9AchylcLynDq+nNFfI8FkUZdN/jGCU=
 github.com/rs/xid v1.2.1 h1:mhH9Nq+C1fY2l1XIpgxIiUOfNpRBYH1kKcr+qfKgjRc=
