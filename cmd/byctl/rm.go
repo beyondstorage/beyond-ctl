@@ -29,7 +29,7 @@ var rmFlags = []cli.Flag{
 var rmCmd = &cli.Command{
 	Name:      "rm",
 	Usage:     "remove file from storager",
-	UsageText: "beyondctl rm [command options] [source]",
+	UsageText: "byctl rm [command options] [source]",
 	Flags:     mergeFlags(globalFlags, rmFlags),
 	Before: func(c *cli.Context) error {
 		if args := c.Args().Len(); args < 1 {

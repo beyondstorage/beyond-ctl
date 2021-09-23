@@ -14,7 +14,7 @@ var (
 )
 
 var app = cli.App{
-	Name:        "beyondctl",
+	Name:        "byctl",
 	Description: "the command-line tool for all storage services",
 	Version:     Version,
 	Flags:       mergeFlags(globalFlags),
