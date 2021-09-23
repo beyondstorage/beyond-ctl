@@ -105,8 +105,8 @@ github.com/beyondstorage/go-service-memory v0.3.0 h1:T5d+oJXs4WPp5qTDwbNk23SZfsN
 github.com/beyondstorage/go-service-memory v0.3.0/go.mod h1:m5vYYzOQNflKJNGkzxi+LHy6mvIN/zSyUSovCn+9tCk=
 github.com/beyondstorage/go-service-minio v0.2.0 h1:Crr17mYPRH42AVw56Esbd1Jo2knik2PU08VGraQVLKU=
 github.com/beyondstorage/go-service-minio v0.2.0/go.mod h1:TZn3YpYgVuzNybP8BdG+20w3U/b9T65tmOG54Gveaec=
-github.com/beyondstorage/go-service-oss/v2 v2.3.0 h1:et/4yrgE/32eMvDfoeyI38O2C7UrpzcNoxILC5BqeC4=
-github.com/beyondstorage/go-service-oss/v2 v2.3.0/go.mod h1:1QIf33rz6AJg6KImx6v7n+zEkdUWQSquUFoT0De7ngc=
+github.com/beyondstorage/go-service-oss/v2 v2.4.0 h1:Gu1P9HnG9UnT6Opbk7BQxRUwtRHOT1jwfwPJhj2dW8Q=
+github.com/beyondstorage/go-service-oss/v2 v2.4.0/go.mod h1:88a1zCDG5d3FsaljSUwFuJXoaQ+Sub8pI3ZjXxgvdco=
 github.com/beyondstorage/go-service-qingstor/v3 v3.3.0 h1:jqs/dmtk1a3Gd+pDkStzNSejF90TKcWdDmxNbPEw6zw=
 github.com/beyondstorage/go-service-qingstor/v3 v3.3.0/go.mod h1:j1K8groYfSjiSkuH8KD7fKoUdmIrVa2JEHS0KqOzMgw=
 github.com/beyondstorage/go-service-s3/v2 v2.4.0 h1:3Q3qvT4GIOf6sGka7qcKlTlFqrPyUZFe72GOOAoOKAs=
