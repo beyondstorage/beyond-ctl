@@ -88,8 +88,8 @@ github.com/beyondstorage/go-integration-test/v4 v4.3.0/go.mod h1:HKgzemQZpxoHBL4
 github.com/beyondstorage/go-integration-test/v4 v4.4.0/go.mod h1:o0pHhyaRR/OO6QxnRqWW3aFjTycBZjoKSdHKN/JZRjo=
 github.com/beyondstorage/go-service-azblob/v2 v2.3.0 h1:KwydDk12+bgmFuJtxXisoyoiSajs+l4f2qdgMK5e9+k=
 github.com/beyondstorage/go-service-azblob/v2 v2.3.0/go.mod h1:ZkGE/iNWVbNNBkIL7otm/7DNzEgOWP0/Uj4okUAuqM4=
-github.com/beyondstorage/go-service-cos/v2 v2.2.0 h1:MSoswF7t6t5XQ3GM+eVP0rQD8/cNUW71uqO73WFV5ro=
-github.com/beyondstorage/go-service-cos/v2 v2.2.0/go.mod h1:r5RZAj9JzYqg9ZuRxJCgYs1Dngmpm1oBqFhEB/aQPHk=
+github.com/beyondstorage/go-service-cos/v2 v2.3.0 h1:wgZWo/QUqc3Akfbems8uEOih2NFntynhrEEg4PnRY90=
+github.com/beyondstorage/go-service-cos/v2 v2.3.0/go.mod h1:Lrig+Sma+2XYUqnpHF/9cg8ORNt2ugNgR2Gw0FHu1Wg=
 github.com/beyondstorage/go-service-dropbox/v2 v2.2.0 h1:k8Jd3Jg+5D9HfVofQhBTjaKLmvFHIpCMwf8Rapd7hZs=
 github.com/beyondstorage/go-service-dropbox/v2 v2.2.0/go.mod h1:r6XggkJQvdSgxo2dCrHhR8dA6DGJWm/W7YvNfISBVek=
 github.com/beyondstorage/go-service-fs/v3 v3.4.0 h1:stf8D8I/YZTIlzG7yHmm9Vc89pmS5nX4FzoCZE14pOI=
@@ -414,8 +414,8 @@ github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5Cc
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.194/go.mod h1:7sCQWVkxcsR38nffDW057DRGk8mUjK1Ing/EFOK8s8Y=
 github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/kms v1.0.194/go.mod h1:yrBKWhChnDqNz1xuXdSbWXG56XawEq0G5j1lg4VwBD4=
-github.com/tencentyun/cos-go-sdk-v5 v0.7.27 h1:rLlBZyC13xvDcaW/uNK68aSqtMktlFlXqAq2qNULg7E=
-github.com/tencentyun/cos-go-sdk-v5 v0.7.27/go.mod h1:4E4+bQ2gBVJcgEC9Cufwylio4mXOct2iu05WjgEBx1o=
+github.com/tencentyun/cos-go-sdk-v5 v0.7.31 h1:NujkkOKMJ3IFs1+trCwXOKRCIPQ8qI5Lxul9JkhTg6M=
+github.com/tencentyun/cos-go-sdk-v5 v0.7.31/go.mod h1:4E4+bQ2gBVJcgEC9Cufwylio4mXOct2iu05WjgEBx1o=
 github.com/texttheater/golang-levenshtein v0.0.0-20180516184445-d188e65d659e/go.mod h1:XDKHRm5ThF8YJjx001LtgelzsoaEcvnA7lVWz9EeX3g=
 github.com/upyun/go-sdk/v3 v3.0.2 h1:Ke+iOipK5CT0xzMwsgJsi7faJV7ID4lAs+wrH1RH0dA=
 github.com/upyun/go-sdk/v3 v3.0.2/go.mod h1:P/SnuuwhrIgAVRd/ZpzDWqCsBAf/oHg7UggbAxyZa0E=
