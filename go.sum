@@ -80,7 +80,6 @@ github.com/benbjohnson/clock v1.1.0 h1:Q92kusRqC1XV2MjkWETPvjJVqKetz1OzxZB7mHJLj
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
 github.com/beyondstorage/go-credential v0.0.0-20210804082910-7c63d94f2826 h1:9cHyxD1JKUHWzWtDgaoLvzsR1JeEwguuL9IYSN7tk3k=
 github.com/beyondstorage/go-credential v0.0.0-20210804082910-7c63d94f2826/go.mod h1:A7WYzKKk479gERCs5/5jWi0kNN24bqeMjD8IJik4JBA=
-github.com/beyondstorage/go-endpoint v1.0.1/go.mod h1:P2hknaGrziOJJKySv/XnAiVw/d3v12/LZu2gSxEx4nM=
 github.com/beyondstorage/go-endpoint v1.1.0 h1:cpjmQdrAMyaLoT161NIFU/eXcsuMI3xViycid5/mBZg=
 github.com/beyondstorage/go-endpoint v1.1.0/go.mod h1:P2hknaGrziOJJKySv/XnAiVw/d3v12/LZu2gSxEx4nM=
 github.com/beyondstorage/go-integration-test/v4 v4.2.0/go.mod h1:jLyYWSGUjQRH7U1HdaLbXE5sxBgqrtK73q+Q7PGIuSs=
@@ -104,8 +103,8 @@ github.com/beyondstorage/go-service-kodo/v2 v2.3.0 h1:otIu904eD/m6cLa1PW+DNKXEea
 github.com/beyondstorage/go-service-kodo/v2 v2.3.0/go.mod h1:7bfAb9qjeCtQdnW12VOOHnSU9PFWnxMB4aGR7P8zKh8=
 github.com/beyondstorage/go-service-memory v0.3.0 h1:T5d+oJXs4WPp5qTDwbNk23SZfsNURPONJUvp9W0r9+Y=
 github.com/beyondstorage/go-service-memory v0.3.0/go.mod h1:m5vYYzOQNflKJNGkzxi+LHy6mvIN/zSyUSovCn+9tCk=
-github.com/beyondstorage/go-service-minio v0.1.0 h1:v5V2G0qtYidudkm9DGtacCYDZEJsTUJoH6zwERR8kEU=
-github.com/beyondstorage/go-service-minio v0.1.0/go.mod h1:IYGsmM2AQwN1se7hjh6dJuaZHMAPWlXuXJIMkrncJck=
+github.com/beyondstorage/go-service-minio v0.2.0 h1:Crr17mYPRH42AVw56Esbd1Jo2knik2PU08VGraQVLKU=
+github.com/beyondstorage/go-service-minio v0.2.0/go.mod h1:TZn3YpYgVuzNybP8BdG+20w3U/b9T65tmOG54Gveaec=
 github.com/beyondstorage/go-service-oss/v2 v2.3.0 h1:et/4yrgE/32eMvDfoeyI38O2C7UrpzcNoxILC5BqeC4=
 github.com/beyondstorage/go-service-oss/v2 v2.3.0/go.mod h1:1QIf33rz6AJg6KImx6v7n+zEkdUWQSquUFoT0De7ngc=
 github.com/beyondstorage/go-service-qingstor/v3 v3.3.0 h1:jqs/dmtk1a3Gd+pDkStzNSejF90TKcWdDmxNbPEw6zw=
@@ -322,8 +321,8 @@ github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1 h1:lYpkrQH5ajf0
 github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1/go.mod h1:pD8RvIylQ358TN4wwqatJ8rNavkEINozVn9DtGI3dfQ=
 github.com/minio/md5-simd v1.1.0 h1:QPfiOqlZH+Cj9teu0t9b1nTBfPbyTl16Of5MeuShdK4=
 github.com/minio/md5-simd v1.1.0/go.mod h1:XpBqgZULrMYD3R+M28PcmP0CkI7PEMzB3U77ZrKZ0Gw=
-github.com/minio/minio-go/v7 v7.0.12 h1:/4pxUdwn9w0QEryNkrrWaodIESPRX+NxpO0Q6hVdaAA=
-github.com/minio/minio-go/v7 v7.0.12/go.mod h1:S23iSP5/gbMwtxeY5FM71R+TkAYyzEdoNEDDwpt8yWs=
+github.com/minio/minio-go/v7 v7.0.13 h1:rYCca0+8ciW4wFY/vsO5CEMBVL0iabA2D0iq9gOWDjM=
+github.com/minio/minio-go/v7 v7.0.13/go.mod h1:S23iSP5/gbMwtxeY5FM71R+TkAYyzEdoNEDDwpt8yWs=
 github.com/minio/sha256-simd v0.1.1-0.20190913151208-6de447530771/go.mod h1:B5e1o+1/KgNmWrSQK08Y6Z1Vb5pwIktudl0J58iy0KM=
 github.com/minio/sha256-simd v0.1.1 h1:5QHSlgo3nt5yKOJrC7W8w7X+NFl8cMPZm96iu8kKUJU=
 github.com/minio/sha256-simd v0.1.1/go.mod h1:B5e1o+1/KgNmWrSQK08Y6Z1Vb5pwIktudl0J58iy0KM=
