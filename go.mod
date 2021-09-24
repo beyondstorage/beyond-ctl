@@ -10,7 +10,7 @@ require (
 	github.com/beyondstorage/go-service-dropbox/v2 v2.3.0
 	github.com/beyondstorage/go-service-fs/v3 v3.5.0
 	github.com/beyondstorage/go-service-ftp v0.2.0
-	github.com/beyondstorage/go-service-gcs/v2 v2.2.0
+	github.com/beyondstorage/go-service-gcs/v2 v2.3.0
 	github.com/beyondstorage/go-service-ipfs v0.2.0
 	github.com/beyondstorage/go-service-kodo/v2 v2.3.0
 	github.com/beyondstorage/go-service-memory v0.3.0
