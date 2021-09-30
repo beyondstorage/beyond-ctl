@@ -19,7 +19,7 @@ require (
 	github.com/beyondstorage/go-service-qingstor/v3 v3.3.0
 	github.com/beyondstorage/go-service-s3/v2 v2.4.0
 	github.com/beyondstorage/go-service-uss/v2 v2.2.0
-	github.com/beyondstorage/go-storage/v4 v4.7.0
+	github.com/beyondstorage/go-storage/v4 v4.8.0
 	github.com/docker/go-units v0.4.0
 	github.com/google/uuid v1.3.0
 	github.com/panjf2000/ants/v2 v2.4.6
