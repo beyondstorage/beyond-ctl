@@ -3,9 +3,10 @@ package operations
 import (
 	"fmt"
 
-	"github.com/beyondstorage/go-storage/v4/types"
 	"github.com/panjf2000/ants/v2"
 	"go.uber.org/zap"
+
+	"github.com/beyondstorage/go-storage/v4/types"
 )
 
 type SingleOperator struct {

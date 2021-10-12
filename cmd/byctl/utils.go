@@ -2,16 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/Xuanwo/go-bufferpool"
 	"time"
 
-	"github.com/beyondstorage/go-storage/v4/pairs"
-	"github.com/beyondstorage/go-storage/v4/types"
+	"github.com/Xuanwo/go-bufferpool"
 	"github.com/docker/go-units"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/time/rate"
 
 	"github.com/beyondstorage/beyond-ctl/config"
+	"github.com/beyondstorage/go-storage/v4/pairs"
+	"github.com/beyondstorage/go-storage/v4/types"
 )
 
 var pool = bufferpool.New(128)
