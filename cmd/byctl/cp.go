@@ -15,7 +15,7 @@ import (
 
 const (
 	cpFlagMultipartThresholdName = "multipart-threshold"
-	cpFlagDirName                = "dir"
+	cpFlagRecursive              = "recursive"
 )
 
 var cpFlags = []cli.Flag{
@@ -28,12 +28,12 @@ var cpFlags = []cli.Flag{
 		Value: "1GiB", // Use 1 GiB as the default value.
 	},
 	&cli.BoolFlag{
-		Name: cpFlagDirName,
+		Name: cpFlagRecursive,
 		Aliases: []string{
-			"d",
-			"D",
+			"r",
+			"R",
 		},
-		Usage: "Used to copy a directory",
+		Usage: "copy directories recursively",
 	},
 }
 
@@ -68,7 +68,7 @@ var cpCmd = &cli.Command{
 			return err
 		}
 
-		if c.Bool(cpFlagDirName) && !strings.HasSuffix(srcKey, "/") {
+		if c.Bool(cpFlagRecursive) && !strings.HasSuffix(srcKey, "/") {
 			srcKey += "/"
 		}
 
@@ -143,8 +143,8 @@ var cpCmd = &cli.Command{
 		}
 
 		var ch chan *operations.EmptyResult
-		if c.Bool(cpFlagDirName) {
-			ch, err = do.CopyDir(srcKey, dstKey, multipartThreshold)
+		if c.Bool(cpFlagRecursive) {
+			ch, err = do.CopyRecursively(srcKey, dstKey, multipartThreshold)
 		} else if size < multipartThreshold {
 			ch, err = do.CopyFileViaWrite(srcKey, dstKey, size)
 		} else {

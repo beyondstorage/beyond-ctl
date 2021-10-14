@@ -192,8 +192,8 @@ func (do *DualOperator) copyMultipart(
 	ch <- &PartResult{Part: p}
 }
 
-// CopyDir will copy a directory.
-func (do *DualOperator) CopyDir(src, dst string, multipartThreshold int64) (errch chan *EmptyResult, err error) {
+// CopyRecursively will copy directories recursively.
+func (do *DualOperator) CopyRecursively(src, dst string, multipartThreshold int64) (errch chan *EmptyResult, err error) {
 	errch = make(chan *EmptyResult, 4)
 
 	so := NewSingleOperator(do.src)
