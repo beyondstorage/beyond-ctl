@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"io"
 	"sort"
+	"strings"
 	"sync"
+
+	"go.uber.org/zap"
 
 	"github.com/beyondstorage/go-storage/v4/pairs"
 	"github.com/beyondstorage/go-storage/v4/types"
-	"go.uber.org/zap"
 )
 
 // CopyFileViaWrite will copy a file via Write operation.
@@ -188,4 +190,75 @@ func (do *DualOperator) copyMultipart(
 		return
 	}
 	ch <- &PartResult{Part: p}
+}
+
+// CopyRecursively will copy directories recursively.
+func (do *DualOperator) CopyRecursively(src, dst string, multipartThreshold int64) (errch chan *EmptyResult, err error) {
+	errch = make(chan *EmptyResult, 4)
+
+	so := NewSingleOperator(do.src)
+	och, err := so.ListRecursively(src)
+	if err != nil {
+		errch <- &EmptyResult{Error: err}
+	}
+
+	if !strings.HasSuffix(dst, "/") {
+		dst += "/"
+	}
+
+	go func() {
+		defer close(errch)
+
+		wg := &sync.WaitGroup{}
+
+		for or := range och {
+			if or.Error != nil {
+				errch <- &EmptyResult{Error: err}
+				break
+			}
+			object := or.Object
+
+			if object.Mode.IsDir() {
+				continue
+			}
+
+			path := dst + strings.TrimPrefix(object.Path, src)
+			size := object.MustGetContentLength()
+
+			wg.Add(1)
+			err = so.pool.Submit(func() {
+				defer wg.Done()
+
+				if size < multipartThreshold {
+					ch, err := do.CopyFileViaWrite(object.Path, path, size)
+					if err != nil {
+						errch <- &EmptyResult{Error: err}
+					}
+					for er := range ch {
+						if er.Error != nil {
+							errch <- &EmptyResult{Error: err}
+						}
+					}
+				} else {
+					ch, err := do.CopyFileViaMultipart(object.Path, path, size)
+					if err != nil {
+						errch <- &EmptyResult{Error: err}
+					}
+					for er := range ch {
+						if er.Error != nil {
+							errch <- &EmptyResult{Error: err}
+						}
+					}
+				}
+			})
+			if err != nil {
+				errch <- &EmptyResult{Error: err}
+				break
+			}
+		}
+
+		wg.Wait()
+	}()
+
+	return errch, nil
 }

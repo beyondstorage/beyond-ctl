@@ -2,18 +2,20 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
-	"github.com/beyondstorage/go-storage/v4/services"
-	"github.com/beyondstorage/go-storage/v4/types"
 	"github.com/docker/go-units"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 
 	"github.com/beyondstorage/beyond-ctl/operations"
+	"github.com/beyondstorage/go-storage/v4/services"
+	"github.com/beyondstorage/go-storage/v4/types"
 )
 
 const (
 	cpFlagMultipartThresholdName = "multipart-threshold"
+	cpFlagRecursive              = "recursive"
 )
 
 var cpFlags = []cli.Flag{
@@ -24,6 +26,14 @@ var cpFlags = []cli.Flag{
 			"BEYOND_CTL_MULTIPART_THRESHOLD",
 		},
 		Value: "1GiB", // Use 1 GiB as the default value.
+	},
+	&cli.BoolFlag{
+		Name: cpFlagRecursive,
+		Aliases: []string{
+			"r",
+			"R",
+		},
+		Usage: "copy directories recursively",
 	},
 }
 
@@ -58,6 +68,10 @@ var cpCmd = &cli.Command{
 			return err
 		}
 
+		if c.Bool(cpFlagRecursive) && !strings.HasSuffix(srcKey, "/") {
+			srcKey += "/"
+		}
+
 		src, err := services.NewStoragerFromString(srcConn)
 		if err != nil {
 			logger.Error("init src storager", zap.Error(err), zap.String("conn string", srcConn))
@@ -76,11 +90,6 @@ var cpCmd = &cli.Command{
 		if err != nil {
 			logger.Error("stat", zap.String("path", srcKey), zap.Error(err))
 			return err
-		}
-
-		if srcObject.Mode.IsDir() {
-			logger.Error("copy dir is not supported for now")
-			return fmt.Errorf("copy dir not supported")
 		}
 
 		size, ok := srcObject.GetContentLength()
@@ -134,7 +143,9 @@ var cpCmd = &cli.Command{
 		}
 
 		var ch chan *operations.EmptyResult
-		if size < multipartThreshold {
+		if c.Bool(cpFlagRecursive) {
+			ch, err = do.CopyRecursively(srcKey, dstKey, multipartThreshold)
+		} else if size < multipartThreshold {
 			ch, err = do.CopyFileViaWrite(srcKey, dstKey, size)
 		} else {
 			// TODO: we will support other copy method later.

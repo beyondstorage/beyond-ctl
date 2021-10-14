@@ -4,11 +4,11 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/beyondstorage/go-storage/v4/services"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 
 	"github.com/beyondstorage/beyond-ctl/operations"
+	"github.com/beyondstorage/go-storage/v4/services"
 )
 
 const (

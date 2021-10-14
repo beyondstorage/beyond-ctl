@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"go.uber.org/zap"
-
 	"github.com/BurntSushi/toml"
 	"github.com/urfave/cli/v2"
+	"go.uber.org/zap"
 
 	"github.com/beyondstorage/beyond-ctl/config"
 )
