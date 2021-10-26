@@ -1,7 +1,7 @@
 - Author: abyss-w <mad.hatter@foxmail.com>
 - Start Date: 2021-10-19
 - RFC PR: [beyondstorage/beyond-ctl#75](https://github.com/beyondstorage/beyond-ctl/pull/75)
-- Tracking Issue: [beyondstorage/beyond-ctl#55](https://github.com/beyondstorage/beyond-ctl/issues/55)
+- Tracking Issue: [beyondstorage/beyond-ctl#78](https://github.com/beyondstorage/beyond-ctl/issues/78)
 
 # BCP-75: Add Stat Support
 
