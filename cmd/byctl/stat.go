@@ -142,7 +142,7 @@ func (fm *fileMessage) normalFileFormat() (string, error) {
 	buf.AppendString(fmt.Sprintf("Etag: %s\n", fm.Etag))
 	buf.AppendString(fmt.Sprintf("ContentType: %s\n", fm.ContentType))
 
-	buf.AppendString(fmt.Sprintln("\nSystemMetadata:"))
+	buf.AppendString(fmt.Sprint("\nSystemMetadata:"))
 	// Convert system metadata into a map, so that all the data in it can be retrieved.
 	sysMeta, err := json.Marshal(fm.SystemMetadata)
 	if err != nil {
@@ -154,16 +154,14 @@ func (fm *fileMessage) normalFileFormat() (string, error) {
 		return "", err
 	}
 	for k, v := range m {
-		buf.AppendString(fmt.Sprintf("%s: \"%s\"\n", k, v))
+		buf.AppendString(fmt.Sprintf("\n%s: \"%s\"", k, v))
 	}
 
-	buf.AppendString(fmt.Sprint("\nUserMetadata: "))
-	if fm.UserMetadata == nil {
-		buf.AppendString("null\n")
-		return buf.String(), nil
-	}
-	for k, v := range fm.UserMetadata {
-		buf.AppendString(fmt.Sprintf("%s: \"%s\"\n", k, v))
+	if fm.UserMetadata != nil {
+		buf.AppendString(fmt.Sprint("\n\nUserMetadata:"))
+		for k, v := range fm.UserMetadata {
+			buf.AppendString(fmt.Sprintf("\n%s: \"%s\"", k, v))
+		}
 	}
 
 	return buf.String(), nil
@@ -275,6 +273,8 @@ func parseStorager(meta *types.StorageMeta, conn string) *storageMessage {
 	// Get service name by conn.
 	// For example: conn = s3://bucketname/workdir?credential=xxx&endpoint=xxx&location=xxx
 	// We can get "s3".
+	// TODO: Modify this when go-storage adds the meta that holds the service name.
+	// issue: https://github.com/beyondstorage/go-storage/issues/977
 	index := strings.Index(conn, ":")
 	serviceName := conn[:index]
 	sm.Service = serviceName
