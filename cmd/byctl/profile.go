@@ -9,7 +9,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 
-	"github.com/beyondstorage/beyond-ctl/config"
+	"go.beyondstorage.io/beyond-ctl/config"
 )
 
 var profileCmd = &cli.Command{
