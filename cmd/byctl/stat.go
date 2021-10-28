@@ -108,15 +108,15 @@ const (
 )
 
 type fileMessage struct {
-	ID             string                 // file absolute path
-	Path           string                 // file relative path
-	Mode           string                 // mode
-	LastModified   time.Time              // lastModified
-	ContentLength  int64                  // ContentLength
-	Etag           string                 // Etag
-	ContentType    string                 // ContentType
-	SystemMetadata map[string]interface{} // system metadata
-	UserMetadata   map[string]string      // user metadata
+	ID             string                 `json:"id"`             // file absolute path
+	Path           string                 `json:"path"`           // file relative path
+	Mode           string                 `json:"mode"`           // mode
+	LastModified   time.Time              `json:"lastModified"`   // lastModified
+	ContentLength  int64                  `json:"contentLength"`  // ContentLength
+	Etag           string                 `json:"etag"`           // Etag
+	ContentType    string                 `json:"contentType"`    // ContentType
+	SystemMetadata map[string]interface{} `json:"systemMetadata"` // system metadata
+	UserMetadata   map[string]string      `json:"userMetadata"`   // user metadata
 }
 
 func (fm *fileMessage) FormatFile(layout int) (string, error) {
@@ -175,10 +175,10 @@ func (fm *fileMessage) jsonFileFormat() (string, error) {
 }
 
 type storageMessage struct {
-	Service    string // service name
-	BucketName string // bucket name
-	WorkDir    string // work dir
-	Location   string // bucket location
+	Service    string `json:"service"`    // service name
+	BucketName string `json:"bucketName"` // bucket name
+	WorkDir    string `json:"workDir"`    // work dir
+	Location   string `json:"location"`   // bucket location
 }
 
 func (sm *storageMessage) FormatStorager(layout int) (string, error) {
