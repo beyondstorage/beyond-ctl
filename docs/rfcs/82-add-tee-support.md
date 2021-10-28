@@ -1,9 +1,9 @@
 - Author: abyss-w <mad.hatter@foxmail.com>
 - Start Date: 2021-10-28
-- RFC PR: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/issues/0)
+- RFC PR: [beyondstorage/beyond-ctl#82](https://github.com/beyondstorage/beyond-ctl/pull/82)
 - Tracking Issue: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/issues/0)
 
-# BCP-0: Add Tee Support
+# BCP-82: Add Tee Support
 
 ## Background
 
