@@ -6,7 +6,7 @@ import (
 	"github.com/panjf2000/ants/v2"
 	"go.uber.org/zap"
 
-	"github.com/beyondstorage/go-storage/v4/types"
+	"go.beyondstorage.io/v5/types"
 )
 
 type SingleOperator struct {

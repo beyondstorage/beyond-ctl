@@ -8,9 +8,9 @@ import (
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 
-	"github.com/beyondstorage/beyond-ctl/operations"
-	"github.com/beyondstorage/go-storage/v4/services"
-	"github.com/beyondstorage/go-storage/v4/types"
+	"go.beyondstorage.io/beyond-ctl/operations"
+	"go.beyondstorage.io/v5/services"
+	"go.beyondstorage.io/v5/types"
 )
 
 const (

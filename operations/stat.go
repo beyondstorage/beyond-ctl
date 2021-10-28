@@ -1,7 +1,7 @@
 package operations
 
 import (
-	"github.com/beyondstorage/go-storage/v4/types"
+	"go.beyondstorage.io/v5/types"
 )
 
 func (so *SingleOperator) Stat(path string) (o *types.Object, err error) {

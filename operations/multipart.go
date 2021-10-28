@@ -3,7 +3,7 @@ package operations
 import (
 	"fmt"
 
-	"github.com/beyondstorage/go-storage/v4/types"
+	"go.beyondstorage.io/v5/types"
 )
 
 const (
