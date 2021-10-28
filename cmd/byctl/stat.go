@@ -108,15 +108,15 @@ const (
 )
 
 type fileMessage struct {
-	ID             string                 `json:"id"`             // file absolute path
-	Path           string                 `json:"path"`           // file relative path
-	Mode           string                 `json:"mode"`           // mode
-	LastModified   time.Time              `json:"lastModified"`   // lastModified
-	ContentLength  int64                  `json:"contentLength"`  // ContentLength
-	Etag           string                 `json:"etag"`           // Etag
-	ContentType    string                 `json:"contentType"`    // ContentType
-	SystemMetadata map[string]interface{} `json:"systemMetadata"` // system metadata
-	UserMetadata   map[string]string      `json:"userMetadata"`   // user metadata
+	ID             string            // file absolute path
+	Path           string            // file relative path
+	Mode           string            // mode
+	LastModified   time.Time         // lastModified
+	ContentLength  int64             // ContentLength
+	Etag           string            // Etag
+	ContentType    string            // ContentType
+	SystemMetadata interface{}       // system metadata
+	UserMetadata   map[string]string // user metadata
 }
 
 func (fm *fileMessage) FormatFile(layout int) (string, error) {
@@ -143,7 +143,17 @@ func (fm *fileMessage) normalFileFormat() (string, error) {
 	buf.AppendString(fmt.Sprintf("ContentType: %s\n", fm.ContentType))
 
 	buf.AppendString(fmt.Sprintln("\nSystemMetadata:"))
-	for k, v := range fm.SystemMetadata {
+	// Convert system metadata into a map, so that all the data in it can be retrieved.
+	sysMeta, err := json.Marshal(fm.SystemMetadata)
+	if err != nil {
+		return "", err
+	}
+	var m map[string]interface{}
+	err = json.Unmarshal(sysMeta, &m)
+	if err != nil {
+		return "", err
+	}
+	for k, v := range m {
 		buf.AppendString(fmt.Sprintf("%s: \"%s\"\n", k, v))
 	}
 
@@ -175,10 +185,10 @@ func (fm *fileMessage) jsonFileFormat() (string, error) {
 }
 
 type storageMessage struct {
-	Service    string `json:"service"`    // service name
-	BucketName string `json:"bucketName"` // bucket name
-	WorkDir    string `json:"workDir"`    // work dir
-	Location   string `json:"location"`   // bucket location
+	Service  string // service name
+	Name     string // bucket name
+	WorkDir  string // work dir
+	Location string // bucket location
 }
 
 func (sm *storageMessage) FormatStorager(layout int) (string, error) {
@@ -197,13 +207,11 @@ func (sm *storageMessage) normalStoragerFormat() (string, error) {
 	defer buf.Free()
 
 	buf.AppendString(fmt.Sprintf("Service: %s\n", sm.Service))
-	buf.AppendString(fmt.Sprintf("BucketName: %s\n", sm.BucketName))
-	buf.AppendString(fmt.Sprintf("WorkDir: %s\n", sm.WorkDir))
+	buf.AppendString(fmt.Sprintf("Name: %s\n", sm.Name))
+	buf.AppendString(fmt.Sprintf("WorkDir: %s", sm.WorkDir))
 
 	if sm.Location != "" {
-		buf.AppendString(fmt.Sprintf("Location: %s", sm.Location))
-	} else {
-		buf.AppendString(fmt.Sprintf("Location: null"))
+		buf.AppendString(fmt.Sprintf("\nLocation: %s", sm.Location))
 	}
 
 	return buf.String(), nil
@@ -230,34 +238,7 @@ func parseFileObject(o *types.Object) (*fileMessage, error) {
 		Path: o.Path,
 	}
 
-	var modes string
-
-	// An object may have more than one mode.
-	if o.Mode.IsDir() {
-		modes += "Dir|"
-	}
-	if o.Mode.IsRead() {
-		modes += "Read|"
-	}
-	if o.Mode.IsLink() {
-		modes += "Link|"
-	}
-	if o.Mode.IsAppend() {
-		modes += "Append|"
-	}
-	if o.Mode.IsBlock() {
-		modes += "Block|"
-	}
-	if o.Mode.IsPage() {
-		modes += "Page"
-	}
-	if o.Mode.IsPart() {
-		modes += "Part|"
-	}
-
-	// Remove the `|` at the end of modes.
-	mode := strings.TrimSuffix(modes, "|")
-	fm.Mode = mode
+	fm.Mode = o.Mode.String()
 
 	if v, ok := o.GetLastModified(); ok {
 		fm.LastModified = v
@@ -271,21 +252,8 @@ func parseFileObject(o *types.Object) (*fileMessage, error) {
 	if v, ok := o.GetContentType(); ok {
 		fm.ContentType = v
 	}
-	// Convert system metadata into a map, so that all the data in it can be retrieved.
 	if v, ok := o.GetSystemMetadata(); ok {
-		sysMeta, err := json.Marshal(v)
-		if err != nil {
-			return nil, err
-		}
-
-		var m map[string]interface{}
-
-		err = json.Unmarshal(sysMeta, &m)
-		if err != nil {
-			return nil, err
-		}
-
-		fm.SystemMetadata = m
+		fm.SystemMetadata = v
 	}
 	if v, ok := o.GetUserMetadata(); ok {
 		fm.UserMetadata = v
@@ -296,8 +264,8 @@ func parseFileObject(o *types.Object) (*fileMessage, error) {
 
 func parseStorager(meta *types.StorageMeta, conn string) *storageMessage {
 	sm := &storageMessage{
-		BucketName: meta.Name,
-		WorkDir:    meta.WorkDir,
+		Name:    meta.Name,
+		WorkDir: meta.WorkDir,
 	}
 
 	if v, ok := meta.GetLocation(); ok {
