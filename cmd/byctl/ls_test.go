@@ -11,9 +11,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/beyondstorage/go-storage/v4/pkg/randbytes"
-	"github.com/beyondstorage/go-storage/v4/services"
-	"github.com/beyondstorage/go-storage/v4/types"
+	"go.beyondstorage.io/v5/pkg/randbytes"
+	"go.beyondstorage.io/v5/services"
+	"go.beyondstorage.io/v5/types"
 )
 
 func getTestService(s string) string {

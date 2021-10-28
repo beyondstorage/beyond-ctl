@@ -1,6 +1,6 @@
 package operations
 
-import "github.com/beyondstorage/go-storage/v4/types"
+import "go.beyondstorage.io/v5/types"
 
 // The idea of XXXResult is borrowed from rust Result<Object>
 // An empty result in rust would be Result<()>

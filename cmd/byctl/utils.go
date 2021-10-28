@@ -9,9 +9,9 @@ import (
 	"github.com/urfave/cli/v2"
 	"golang.org/x/time/rate"
 
-	"github.com/beyondstorage/beyond-ctl/config"
-	"github.com/beyondstorage/go-storage/v4/pairs"
-	"github.com/beyondstorage/go-storage/v4/types"
+	"go.beyondstorage.io/beyond-ctl/config"
+	"go.beyondstorage.io/v5/pairs"
+	"go.beyondstorage.io/v5/types"
 )
 
 var pool = bufferpool.New(128)
