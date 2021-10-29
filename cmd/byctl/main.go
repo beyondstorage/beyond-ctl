@@ -23,6 +23,7 @@ var app = cli.App{
 		lsCmd,
 		profileCmd,
 		rmCmd,
+		statCmd,
 	},
 }
 
