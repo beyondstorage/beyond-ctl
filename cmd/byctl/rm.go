@@ -13,6 +13,7 @@ import (
 
 const (
 	rmFlagRecursive = "recursive"
+	rmFlagMultipart = "multipart"
 )
 
 var rmFlags = []cli.Flag{
@@ -23,6 +24,10 @@ var rmFlags = []cli.Flag{
 			"R",
 		},
 		Usage: "remove directories and their contents recursively\n",
+	},
+	&cli.BoolFlag{
+		Name:  rmFlagMultipart,
+		Usage: "remove multipart object",
 	},
 }
 
@@ -60,8 +65,36 @@ var rmCmd = &cli.Command{
 
 		so := operations.NewSingleOperator(store)
 
-		// remove single file
-		if !c.Bool(rmFlagRecursive) {
+		var ch chan *operations.EmptyResult
+		if c.Bool(rmFlagMultipart) && !c.Bool(rmFlagRecursive) {
+			// Remove all multipart objects whose path is `key`
+			ch, err = so.DeleteMultipart(key)
+			if err != nil {
+				logger.Error("delete multipart",
+					zap.String("path", key),
+					zap.Error(err))
+				return err
+			}
+		} else if c.Bool(rmFlagMultipart) && c.Bool(rmFlagRecursive) {
+			// Remove all multipart objects prefixed with `key`.
+			ch, err = so.DeleteMultipartViaRecursively(key)
+			if err != nil {
+				logger.Error("delete multipart recursively",
+					zap.String("path", key),
+					zap.Error(err))
+				return err
+			}
+		} else if !c.Bool(rmFlagMultipart) && c.Bool(rmFlagRecursive) {
+			// recursive remove a dir.
+			ch, err = so.DeleteRecursively(key)
+			if err != nil {
+				logger.Error("delete recursively",
+					zap.String("path", key),
+					zap.Error(err))
+				return err
+			}
+		} else {
+			// remove single file
 			_, err = so.Stat(key)
 			if err != nil && errors.Is(err, services.ErrObjectNotExist) {
 				fmt.Printf("rm: cannot remove '%s': No such file or directory\n", key)
@@ -77,15 +110,6 @@ var rmCmd = &cli.Command{
 				logger.Error("delete", zap.String("path", key), zap.Error(err))
 				return err
 			}
-		}
-
-		// recursive remove a dir.
-		ch, err := so.DeleteRecursively(key)
-		if err != nil {
-			logger.Error("delete recursively",
-				zap.String("path", key),
-				zap.Error(err))
-			return err
 		}
 
 		for v := range ch {
