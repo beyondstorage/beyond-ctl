@@ -19,9 +19,25 @@ I propose to add support for `tee` command to `BeyondCTL`. `BeyondCTL` will tee 
 byctl tee [command options] [target]
 ```
 
-This command will be terminated by typing `Ctrl C`, after which the user will be prompted that the input was saved successfully.
-
 ### Example
+
+#### Use with the cat command
+
+The `tee` command can also be used with the `cat` command, for example:
+
+```
+cat exampleTee | byctl tee example:testTee
+```
+
+This command will write the contents of the local file `exampleTee` to the file with the path `testTee` in the specified service `example` via the Linux pipeline `|` connection `tee` command.
+
+Once the upload is complete, the user will be prompted to save the file successfully.
+
+```
+Stdin is saved to </testTee>
+```
+
+#### Type in the command line
 
 Use the command `tee` to save the data entered by the user to a file with the path `testTee` in the service `example`, enter the following command:
 
@@ -46,6 +62,16 @@ In this case, you can open the file `testTee` and check if the content is the in
 
 ## Rationale
 
+### What is a pipe character in Linux
+
+Linux pipes use the vertical line `|` to connect multiple commands, which is called a pipe character. The specific syntax format of a Linux pipe is as follows:
+
+```
+command1 | command2
+```
+
+When a pipe is set up between two commands, the output of the left command of the pipe character `|` becomes the input of the right command. As long as the first command writes to the standard output and the second command reads from the standard input, then the two commands can form a pipe.
+
 ### How to capture the `Ctrl C`?
 
 We use `golang's` `signal` library and the `syscall.SIGINT` and `syscall.SIGTERM` parameters to capture the terminal triggered by typing `Ctrl C`.
@@ -54,6 +80,10 @@ We use `golang's` `signal` library and the `syscall.SIGINT` and `syscall.SIGTERM
 | :-----: | :-------------------------------------------------: |
 | SIGINT  |    User sends INTR character (Ctrl+C) to trigger    |
 | SIGTERM | End the program (can be caught, blocked or ignored) |
+
+### If we don't want to continue with the current command, how do we interrupt?
+
+Since we use `Ctrl C` to determine if the user has finished typing, we can no longer use `Ctrl C` to interrupt the program. In this case, we can just use `Ctrl Z` to achieve our goal.
 
 ### What do we use to upload the content to the specified service?
 
@@ -70,4 +100,3 @@ N/A
 ## Implementation
 
 - Implement tee support
-
