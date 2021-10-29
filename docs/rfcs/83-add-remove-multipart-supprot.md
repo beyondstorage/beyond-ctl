@@ -7,7 +7,7 @@
 
 ## Background
 
-We have already implemented the remove files and directories operation, but the remove `multipart` operation is not yet implemented. 
+We have already implemented the remove files and directories operation, but the remove `multipart` operation is not yet implemented.
 
 Therefore, the user cannot use the remove `multipart` operation, which is extremely inconvenient for the user. And this may cause the user service to have a lot of incomplete multipart objects left.
 
@@ -16,13 +16,9 @@ Therefore, the user cannot use the remove `multipart` operation, which is extrem
 So I propose to add the remove multipart operation. For this case, I suggest adding a string flag `multipart` to `rm`.
 
 ```go
-&cli.StringFlag{
-    Name: "multipart",
-    Aliases: []string{
-        "m",
-        "M",
-    },
-    Usage: "remove multipart object, the value is multipartID",
+&cli.BoolFlag{
+Name: "multipart",
+Usage: "remove multipart object",
 }
 ```
 
@@ -31,16 +27,24 @@ So I propose to add the remove multipart operation. For this case, I suggest add
 The command will be like:
 
 ```
-byctl rm --multipart=<multipartID> <source>
+byctl rm --multipart <source>
 ```
 
 For example:
 
 ```
-byctl rm --multipart=93B75FF42AF64558A6D440FB12511287 example:testMultipart
+byctl rm --multipart example:testMultipart
 ```
 
-This command will delete the multipart object in service `example` with path `testMultipart` and `multipartID` of `93B75FF42AF64558A6D440FB12511287`. Where the service `example` is a service added using command `byctl profile add`.
+This command will delete all multipart objects in service `example` with path `testMultipart`. Where service `example` is a service added with the `byctl profile add` command.
+
+We can also use it with the flag `-r` in rm, for example:
+
+```
+byctl rm --multipart -r example:testMultipart
+```
+
+This command will delete all multipart objects in the service `example` with the prefix `multipart`.
 
 ### When the path or multipartID does not exist
 
@@ -48,13 +52,11 @@ In this case the command will not report an error. According to [GSP-46](https:/
 
 ## Rationale
 
-### Why use StringFlag?
+### Why use BoolFlag?
 
-We need to pass in the `multipartID`, but if we pass in two parameters directly, the original `rm` operation will be affected and not very readable.
+For users, it is very difficult to get the multipartID. So we use `BoolFlag` to remove all multipart objects with path `<source>`. We can also use it better with flag `-r`, which allows users to delete all multipart objects prefixed with `<source>`.
 
-Using `StringFlag` makes it easier to understand and smoother for users to use. And it doesn't add too much to the length of the command.
-
-It is also faster to get the multipartID entered by the user, and easier to determine whether the user has entered a multipartID or not.
+Also, for the user, they are supposed to care about the multipart object with path `<source>`, not the `multipartID`.
 
 ## Compatibility
 
@@ -63,4 +65,3 @@ N/A
 ## Implementation
 
 - Implement rm multipart support
-
