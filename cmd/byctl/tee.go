@@ -31,7 +31,7 @@ var teeCmd = &cli.Command{
 	Flags:     mergeFlags(globalFlags, teeFlags),
 	Before: func(c *cli.Context) error {
 		if args := c.Args().Len(); args < 1 {
-			return fmt.Errorf("rm command wants one args, but got %d", args)
+			return fmt.Errorf("tee command wants one args, but got %d", args)
 		}
 		return nil
 	},
