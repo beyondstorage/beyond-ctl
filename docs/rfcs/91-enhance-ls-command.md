@@ -1,9 +1,9 @@
 - Author: JinnyYi <github.com/JinnyYi>
 - Start Date: 2021-11-02
-- RFC PR: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/issues/0)
+- RFC PR: [beyondstorage/beyond-ctl#91](https://github.com/beyondstorage/beyond-ctl/issues/91)
 - Tracking Issue: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/issues/0)
 
-# Proposal: Enhance ls Command
+# BCP-91: Enhance ls Command
 
 ## Background
 
@@ -42,23 +42,23 @@ byctl ls [command options] [arguments...]
 - all type
   - -a, --all option will show files or objects and multipart upload tasks, whose file or object name starts with the specified prefix.
   - It returns top-level subdirectory names instead of contents of the subdirectory, which in default show by short format (output only the file name).
-  - The usage also support -l, -R and --summarize options.
+  - The usage also supports -l, -R and --summarize options.
     
 - long format
   - -l option will show the file or object with object mode, size, last modified time and name.
-  - The usage also support -a or --multipart and -R, --summarize options.
+  - The usage also supports -a or --multipart and -R, --summarize options.
 
 - multipart option
   - --multipart option will show the in-progress multipart upload tasks, whose object name starts with the specified prefix. byctl will show the init time and uploadId meanwhile.
-  - The usage also support -l and --summarize options.
+  - The usage also supports -l and --summarize options.
 
 - recursive option
   - -R, --recursive option means list command will be performed on all files or objects under the specified directory or prefix.
-  - The usage also support -l and --summarize options.
+  - The usage also supports -l and --summarize options.
 
 - summarize option
   - --summarize will display summary information, including number of files and total size.
-  - The usage also support -a or --multipart, and -l, -R options.
+  - The usage also supports -a or --multipart, and -l, -R options.
 
 ### Examples
 
