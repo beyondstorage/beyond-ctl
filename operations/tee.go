@@ -3,6 +3,7 @@ package operations
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -16,50 +17,26 @@ import (
 	"go.beyondstorage.io/v5/types"
 )
 
-func (so *SingleOperator) TeeRunViaPipe(key string, multipartThreshold int64) (errch chan *EmptyResult, err error) {
-	errch = make(chan *EmptyResult, 4)
-	defer close(errch)
-
-	var inputs []byte
-
-	s := bufio.NewScanner(os.Stdin)
-
-	for s.Scan() {
-		b := s.Bytes()
-		b = append(b, '\n')
-		inputs = append(inputs, b...)
+func (so *SingleOperator) TeeRunViaPipe(path string, expectSize int64) (err error) {
+	ch, err := so.teeViaMultipart(path, expectSize)
+	if err != nil {
+		return err
+	}
+	for v := range ch {
+		if v.Error != nil {
+			return v.Error
+		}
 	}
 
-	if int64(len(inputs)) < multipartThreshold {
-		r := bytes.NewReader(inputs)
-		_, err = so.store.Write(key, r, r.Size())
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		ch, err := so.teeViaMultipart(key, inputs)
-		if err != nil {
-			return nil, err
-		}
-
-		for v := range ch {
-			if v.Error != nil {
-				errch <- &EmptyResult{Error: v.Error}
-			}
-		}
-	}
-	fmt.Printf("Stdin is saved to <%s>", key)
-	fmt.Print("\n")
+	fmt.Printf("Stdin is saved to <%s>\n", path)
 	os.Exit(0)
 
-	return
+	return err
 }
 
-func (so *SingleOperator) teeViaMultipart(path string, inputs []byte) (errch chan *EmptyResult, err error) {
+func (so *SingleOperator) teeViaMultipart(path string, expectSize int64) (errch chan *EmptyResult, err error) {
 	errch = make(chan *EmptyResult, 4)
 	partch := make(chan *PartResult, 4)
-
-	size := int64(len(inputs))
 
 	multiparter, ok := so.store.(types.Multiparter)
 	if !ok {
@@ -71,7 +48,7 @@ func (so *SingleOperator) teeViaMultipart(path string, inputs []byte) (errch cha
 		return nil, err
 	}
 
-	partSize, err := calculatePartSize(so.store, size)
+	partSize, err := calculatePartSize(so.store, expectSize)
 	if err != nil {
 		return nil, err
 	}
@@ -81,23 +58,34 @@ func (so *SingleOperator) teeViaMultipart(path string, inputs []byte) (errch cha
 		defer close(partch)
 
 		wg := &sync.WaitGroup{}
-		var offset int64
 		var index int
+
+		r := bufio.NewReader(os.Stdin)
+		b := make([]byte, partSize)
 
 		for {
 			wg.Add(1)
 
-			// Reallocate var here to prevent closure catch.
-			taskSize := partSize
 			taskIndex := index
-			taskOffset := offset
+
+			n, err := io.ReadFull(r, b)
+			if err == io.EOF {
+				wg.Done()
+				break
+			}
+			if err != nil && n != 0 {
+				err = nil
+			}
+			if err != nil {
+				partch <- &PartResult{Error: err}
+				return
+			}
+			rd := bytes.NewReader(b[:n])
 
 			err = so.pool.Submit(func() {
 				defer wg.Done()
 
-				input := inputs[taskOffset : taskSize+taskOffset-1]
-				r := bytes.NewReader(input)
-				_, part, err := multiparter.WriteMultipart(mo, r, r.Size(), taskIndex)
+				_, part, err := multiparter.WriteMultipart(mo, rd, rd.Size(), taskIndex)
 				if err != nil {
 					partch <- &PartResult{Error: err}
 					return
@@ -106,19 +94,10 @@ func (so *SingleOperator) teeViaMultipart(path string, inputs []byte) (errch cha
 			})
 			if err != nil {
 				so.logger.Error("submit task", zap.Error(err))
-				break
+				return
 			}
 
 			index++
-			offset += partSize
-			// Offset >= totalSize means we have read all content
-			if offset >= size {
-				break
-			}
-			// Handle the last part
-			if offset+partSize > size {
-				partSize = size - offset
-			}
 		}
 
 		wg.Wait()
@@ -150,65 +129,49 @@ func (so *SingleOperator) teeViaMultipart(path string, inputs []byte) (errch cha
 	return errch, nil
 }
 
-func (so *SingleOperator) TeeRun(key string) (errch chan *EmptyResult, err error) {
+func (so *SingleOperator) TeeRun(path string) (errch chan *EmptyResult, err error) {
 	errch = make(chan *EmptyResult, 4)
 	ch := make(chan os.Signal, 1)
 
 	var inputs []byte
+	flag := false
 
 	go func() {
 		defer close(errch)
-
-		wg := &sync.WaitGroup{}
 		r := bufio.NewReader(os.Stdin)
 
 		for {
-			flag := false
-			wg.Add(1)
-
-			err = so.pool.Submit(func() {
-				defer wg.Done()
-
-				line, err := r.ReadBytes('\n')
-				if err != nil {
-					if err == io.EOF {
-						flag = true
-						return
-					} else {
-						errch <- &EmptyResult{Error: err}
-						return
-					}
-				}
-
-				input := string(line)
-				fmt.Print(input)
-
-				inputs = append(inputs, line...)
-			})
+			line, err := r.ReadBytes('\n')
+			if err != nil && errors.Is(err, io.EOF) {
+				break
+			}
 			if err != nil {
-				so.logger.Error("submit task", zap.Error(err))
-				break
+				errch <- &EmptyResult{Error: err}
+				flag = true
+				return
 			}
-			if flag {
-				break
-			}
-		}
 
-		wg.Wait()
+			output := string(line)
+			fmt.Print(output)
+
+			inputs = append(inputs, line...)
+		}
 	}()
 
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 	select {
 	case <-ch:
-		r := bytes.NewReader(inputs)
-		_, err = so.store.Write(key, r, r.Size())
-		if err != nil {
-			return nil, err
+		if !flag {
+			r := bytes.NewReader(inputs)
+			_, err = so.store.Write(path, r, r.Size())
+			if err != nil {
+				return nil, err
+			}
+			fmt.Printf("\nStdin is saved to <%s>\n", path)
+			os.Exit(0)
+		} else {
+			return errch, err
 		}
-		fmt.Print("\n")
-		fmt.Printf("Stdin is saved to <%s>", key)
-		fmt.Print("\n")
-		os.Exit(0)
 	}
 
 	return

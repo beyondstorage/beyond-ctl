@@ -12,17 +12,14 @@ import (
 )
 
 const (
-	teeFlagMultipartThresholdName = "multipart-threshold"
+	teeFlagExpectSize = "expect-size"
 )
 
 var teeFlags = []cli.Flag{
 	&cli.StringFlag{
-		Name:  teeFlagMultipartThresholdName,
-		Usage: "Specify multipart threshold. If source file size is larger than this value, byctl will use multipart method to copy file.",
-		EnvVars: []string{
-			"BEYOND_CTL_MULTIPART_THRESHOLD",
-		},
-		Value: "1GiB", // Use 1 GiB as the default value.
+		Name:  teeFlagExpectSize,
+		Usage: "",
+		Value: "128MiB",
 	},
 }
 
@@ -54,12 +51,9 @@ var teeCmd = &cli.Command{
 
 		so := operations.NewSingleOperator(store)
 
-		// parse flag multipart-threshold, 1GB is the default value
-		multipartThreshold, err := units.FromHumanSize(c.String(cpFlagMultipartThresholdName))
+		expectSize, err := units.RAMInBytes(c.String(teeFlagExpectSize))
 		if err != nil {
-			logger.Error("multipart-threshold is invalid",
-				zap.String("input", c.String(cpFlagMultipartThresholdName)),
-				zap.Error(err))
+			logger.Error("expect-size is invalid", zap.String("input", c.String(teeFlagExpectSize)), zap.Error(err))
 			return err
 		}
 
@@ -73,7 +67,7 @@ var teeCmd = &cli.Command{
 		if (status.Mode() & os.ModeNamedPipe) != os.ModeNamedPipe {
 			ch, err = so.TeeRun(key)
 		} else {
-			ch, err = so.TeeRunViaPipe(key, multipartThreshold)
+			err = so.TeeRunViaPipe(key, expectSize)
 		}
 		if err != nil {
 			logger.Error("run tee", zap.Error(err))
