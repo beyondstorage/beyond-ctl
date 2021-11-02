@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/docker/go-units"
@@ -29,6 +30,12 @@ var teeCmd = &cli.Command{
 	UsageText: "byctl tee [command options] [target]",
 	Flags:     mergeFlags(globalFlags, teeFlags),
 	Before: func(c *cli.Context) error {
+		if args := c.Args().Len(); args < 1 {
+			return fmt.Errorf("rm command wants one args, but got %d", args)
+		}
+		return nil
+	},
+	Action: func(c *cli.Context) error {
 		logger, _ := zap.NewDevelopment()
 
 		cfg, err := loadConfig(c, true)
