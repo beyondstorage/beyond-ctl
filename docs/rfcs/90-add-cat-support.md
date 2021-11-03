@@ -1,6 +1,6 @@
 - Author: abyss-w <mad.hatter@foxmail.com>
 - Start Date: 2021-11-02
-- RFC PR: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/issues/0)
+- RFC PR: [beyondstorage/beyond-ctl#90](https://github.com/beyondstorage/beyond-ctl/pull/90)
 - Tracking Issue: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/issues/0)
 
 # BCP-90: Add Cat Support
@@ -52,17 +52,6 @@ byctl cat example:testCat | byctl tee another:testCat
 ```
 
 Executing the above command will upload the contents of the file `testCat` in service `example` to the file `testCat` in service `another`.
-
-#### Other
-
-```
-byctl cat example:testCat > localfile
-byctl cat example:testCat >> localfile
-```
-
-The first command will input the contents of the file `testCat` in the service `example` into the local file `localfile`. If the file `localfile` does not exist, a new one will be created, and if it exists, it will be overwritten.
-
-The second command appends the contents of the file `testCat` in the service `example` to the local file `localfile`.
 
 ## Rationale
 
