@@ -19,7 +19,7 @@ const (
 var teeFlags = []cli.Flag{
 	&cli.StringFlag{
 		Name:  teeFlagExpectSize,
-		Usage: "",
+		Usage: "expected size of the input file",
 		Value: "128MiB",
 	},
 }
@@ -70,9 +70,8 @@ var teeCmd = &cli.Command{
 			return err
 		}
 
-		var ch chan *operations.EmptyResult
 		if (status.Mode() & os.ModeNamedPipe) != os.ModeNamedPipe {
-			ch, err = so.TeeRun(key)
+			err = so.TeeRun(key)
 		} else {
 			err = so.TeeRunViaPipe(key, expectSize)
 		}
@@ -81,12 +80,7 @@ var teeCmd = &cli.Command{
 			return err
 		}
 
-		for v := range ch {
-			if v.Error != nil {
-				logger.Error("tee", zap.Error(err))
-				return v.Error
-			}
-		}
+		fmt.Printf("Stdin is saved to <%s>\n", key)
 
 		return nil
 	},

@@ -3,18 +3,13 @@ package operations
 import (
 	"bufio"
 	"bytes"
-	"errors"
 	"fmt"
+	"go.beyondstorage.io/v5/types"
+	"go.uber.org/zap"
 	"io"
 	"os"
-	"os/signal"
 	"sort"
 	"sync"
-	"syscall"
-
-	"go.uber.org/zap"
-
-	"go.beyondstorage.io/v5/types"
 )
 
 func (so *SingleOperator) TeeRunViaPipe(path string, expectSize int64) (err error) {
@@ -27,9 +22,6 @@ func (so *SingleOperator) TeeRunViaPipe(path string, expectSize int64) (err erro
 			return v.Error
 		}
 	}
-
-	fmt.Printf("Stdin is saved to <%s>\n", path)
-	os.Exit(0)
 
 	return err
 }
@@ -129,49 +121,25 @@ func (so *SingleOperator) teeViaMultipart(path string, expectSize int64) (errch 
 	return errch, nil
 }
 
-func (so *SingleOperator) TeeRun(path string) (errch chan *EmptyResult, err error) {
-	errch = make(chan *EmptyResult, 4)
-	ch := make(chan os.Signal, 1)
-
+func (so *SingleOperator) TeeRun(path string) (err error) {
 	var inputs []byte
-	flag := false
 
-	go func() {
-		defer close(errch)
-		r := bufio.NewReader(os.Stdin)
+	r := bufio.NewScanner(os.Stdin)
 
-		for {
-			line, err := r.ReadBytes('\n')
-			if err != nil && errors.Is(err, io.EOF) {
-				break
-			}
-			if err != nil {
-				errch <- &EmptyResult{Error: err}
-				flag = true
-				return
-			}
+	for r.Scan() {
+		input := r.Bytes()
+		input = append(input, '\n')
 
-			output := string(line)
-			fmt.Print(output)
+		output := string(input)
+		fmt.Print(output)
 
-			inputs = append(inputs, line...)
-		}
-	}()
+		inputs = append(inputs, input...)
+	}
 
-	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
-	select {
-	case <-ch:
-		if !flag {
-			r := bytes.NewReader(inputs)
-			_, err = so.store.Write(path, r, r.Size())
-			if err != nil {
-				return nil, err
-			}
-			fmt.Printf("\nStdin is saved to <%s>\n", path)
-			os.Exit(0)
-		} else {
-			return errch, err
-		}
+	rd := bytes.NewReader(inputs)
+	_, err = so.store.Write(path, rd, rd.Size())
+	if err != nil {
+		return err
 	}
 
 	return
