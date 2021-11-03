@@ -1,7 +1,7 @@
 - Author: abyss-w <mad.hatter@foxmail.com>
 - Start Date: 2021-11-02
 - RFC PR: [beyondstorage/beyond-ctl#90](https://github.com/beyondstorage/beyond-ctl/pull/90)
-- Tracking Issue: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/issues/0)
+- Tracking Issue: [beyondstorage/beyond-ctl#92](https://github.com/beyondstorage/beyond-ctl/issues/92)
 
 # BCP-90: Add Cat Support
 
