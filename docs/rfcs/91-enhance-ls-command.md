@@ -25,70 +25,83 @@ byctl ls [command options] [arguments...]
 
 ```
 -a, --all
-    list all files
+    list all files or objects, and in-progress multipart uploads
 --format
-    long -l
--l  use a long list format
+    short --short
 --multipart
     list in-progress multipart uploads
 -R, --recursive
     list subdirectories recursively
+--short
+    show by short format
 --summarize
     display summary information (number of files, total size in human readable format)
 ```
 
 ### Usage
 
+The command list files or objects, with simple additional information (long format) by default, including object mode, size, last modified time and name. If --short option is specified, byctl will show by short format.
+
 - all type
   - -a, --all option will show files or objects and multipart upload tasks, whose file or object name starts with the specified prefix.
-  - It returns top-level subdirectory names instead of contents of the subdirectory, which in default show by short format (output only the file name).
-  - The usage also supports -l, -R and --summarize options.
-    
-- long format
-  - -l option will show the file or object with object mode, size, last modified time and name.
-  - The usage also supports -a or --multipart and -R, --summarize options.
+  - It returns top-level subdirectory names instead of contents of the subdirectory, which in default show by long format.
+  - The usage also supports --short, -R and --summarize options.
 
 - multipart option
-  - --multipart option will show the in-progress multipart upload tasks, whose object name starts with the specified prefix. byctl will show the init time and uploadId meanwhile.
-  - The usage also supports -l and --summarize options.
+  - --multipart option will show the in-progress multipart upload tasks, whose object name starts with the specified prefix. byctl will show the init time and upload id meanwhile.
+  - The usage also supports --short and --summarize options.
 
 - recursive option
   - -R, --recursive option means list command will be performed on all files or objects under the specified directory or prefix.
-  - The usage also supports -l and --summarize options.
+  - The usage also supports -a, --short and --summarize options.
+  
+- short format
+  - --short option ignores all additional information, which means that only the file or object name and upload id for multipart upload task are displayed.
+  - The usage also supports -a, --multipart, and -R options.
 
 - summarize option
   - --summarize will display summary information, including number of files and total size.
-  - The usage also supports -a or --multipart, and -l, -R options.
+  - The usage also supports -a or --multipart, and -R options.
 
 ### Examples
 
 ```
 1)  byctl ls s3:
-    dir1 obj1 obj2
-   
-2)  byctl ls -l s3:
     dir            0 Nov 02 06:53 dir1
     read      903899 Nov 02 06:53 obj1
     read          18 Nov 02 01:51 obj2
+    
+2)  byctl ls --short s3:
+    dir1 obj1 obj2
    
 3)  byctl ls --multipart s3:
-    obj3 obj4
+    part 15754AF7980C4DFB8193F190837520BB      0 Nov 02 06:54 obj3
+    part 3998971ACAF94AD9AC48EAC1988BE863      0 Nov 02 01:55 obj4
+    
+4)  byctl ls --multipart --short s3:
+    15754AF7980C4DFB8193F190837520BB obj3
+    3998971ACAF94AD9AC48EAC1988BE863 obj4
 
-4)  byctl ls -a s3:
-    dir1 obj1 obj2 obj3 obj4
-
-5)  byctl ls -a -l s3:
+5)  byctl ls -a s3:
     dir                                        0 Nov 02 06:53 dir1
     read                                  903899 Nov 02 06:53 obj1
     read                                      18 Nov 02 01:51 obj2
     part 15754AF7980C4DFB8193F190837520BB      0 Nov 02 06:54 obj3
     part 3998971ACAF94AD9AC48EAC1988BE863      0 Nov 02 01:55 obj4
+    
+6)  byctl ls -a --short s3:
+    dir1 obj1 obj2 
+    15754AF7980C4DFB8193F190837520BB obj3
+    3998971ACAF94AD9AC48EAC1988BE863 obj4
    
-6)  byctl ls --summarize s3:
+7)  byctl ls --summarize s3:
+    dir                                        0 Nov 02 06:53 dir1
+    read                                  903899 Nov 02 06:53 obj1
+    read                                      18 Nov 02 01:51 obj2
     Total Objects: 3
        Total Size: 882.7 KiB
    
-7)  byctl ls -a -l --summarize s3:
+8)  byctl ls -a --summarize s3:
     dir                                        0 Nov 02 06:53 dir1
     read                                  903899 Nov 02 06:53 obj1
     read                                      18 Nov 02 01:51 obj2
@@ -98,10 +111,13 @@ byctl ls [command options] [arguments...]
     Total Objects: 5
        Total Size: 882.7 KiB
    
-8)  byctl ls -R file:test
-    dir1 dir1/test test1 test2
+9)  byctl ls -R file:test
+    dir            0 Nov 02 06:53 dir1
+    read           9 Nov 02 07:11 dir1/test
+    read      903899 Nov 02 06:53 obj1
+    read          18 Nov 02 01:51 obj2
     
-9)  byctl ls -R -l --summarize file:test
+10)  byctl ls -R --summarize file:test
     dir            0 Nov 02 06:53 dir1
     read           9 Nov 02 07:11 dir1/test
     read      903899 Nov 02 06:53 test1
@@ -110,7 +126,7 @@ byctl ls [command options] [arguments...]
     Total Objects: 4
        Total Size: 882.7 KiB
        
-10) byctl ls -a -R -l --summarize file:test
+11) byctl ls -a -R --summarize file:test
     dir                                        0 Nov 02 06:53 dir1
     read                                       9 Nov 02 07:11 dir1/test
     read                                  903899 Nov 02 06:53 obj1
@@ -119,8 +135,7 @@ byctl ls [command options] [arguments...]
     part 3998971ACAF94AD9AC48EAC1988BE863      0 Nov 02 01:55 obj4
    
     Total Objects: 6
-       Total Size: 882.7 KiB
-    
+       Total Size: 882.7 KiB 
 ```
 
 ## Rationale
@@ -163,12 +178,40 @@ Total Objects: 10
 
 #### [Aliyun CLI]
 
+syntaxText:
+
 ```go
 var specEnglishList = SpecText{
 	synopsisText: "List Buckets or Objects", 
 	paramText: "[cloud_url] [options]", 
 	syntaxText: `ossutil ls [oss://bucket[/prefix]] [-s] [-d] [-m] [--limited-num num] [--marker marker] [--upload-id-marker umarker] [--payer requester] [--include include-pattern] [--exclude exclude-pattern]  [--version-id-marker id_marker] [--all-versions]  [-c file]`,
 }
+```
+
+sampleText:
+
+```
+1) ossutil ls oss://bucket1 -a 
+   LastModifiedTime              Size(B)  StorageClass   ETAG                              ObjectName
+   2015-06-05 14:06:29 +0000 CST  201933      Standard   7E2F4A7F1AC9D2F0996E8332D5EA5B41  oss://bucket1/dir1/obj11
+   2015-06-05 14:36:21 +0000 CST  201933      Standard   6185CA2E8EB8510A61B3A845EAFE4174  oss://bucket1/obj1
+   2016-04-08 14:50:47 +0000 CST 6476984      Standard   4F16FDAE7AC404CEC8B727FCC67779D6  oss://bucket1/sample.txt
+   Object Number is: 3
+   InitiatedTime                  UploadID                          ObjectName
+   2017-01-13 03:45:26 +0000 CST  15754AF7980C4DFB8193F190837520BB  oss://bucket1/obj1
+   2017-01-13 03:43:13 +0000 CST  2A1F9B4A95E341BD9285CC42BB950EE0  oss://bucket1/obj1
+   2017-01-13 03:45:25 +0000 CST  3998971ACAF94AD9AC48EAC1988BE863  oss://bucket1/obj2
+   2017-01-20 11:16:21 +0800 CST  A20157A7B2FEC4670626DAE0F4C0073C  oss://bucket1/tobj
+   UploadID Number is: 4
+   
+2) ossutil ls oss://bucket1/obj -a -s 
+   oss://bucket1/obj1
+   bject Number is: 1
+   UploadID                          ObjectName
+   15754AF7980C4DFB8193F190837520BB  oss://bucket1/obj1
+   2A1F9B4A95E341BD9285CC42BB950EE0  oss://bucket1/obj1
+   3998971ACAF94AD9AC48EAC1988BE863  oss://bucket1/obj2
+   UploadID Number is: 3
 ```
 
 #### More possible command options
