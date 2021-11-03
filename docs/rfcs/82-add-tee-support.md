@@ -13,7 +13,7 @@ We will refer to the `Linux` `tee` command to implement support for the `BeyondC
 
 ## Proposal
 
-I propose to add support for `tee` command to `BeyondCTL`. `BeyondCTL` will tee the content to stdout like `Linux` `tee` command does.
+I propose to add support for `tee` command to `BeyondCTL`.
 
 ```
 byctl tee [command options] [target]
@@ -24,7 +24,8 @@ byctl tee [command options] [target]
 ```
 --expect-size  expected size of the input file (default: "128MiB")
 ```
-- `--expect-size` 
+- `--expect-size` is 128MiB in size by default.
+  - If set, we will set the part size for multipart uploads based on `--expect-size` size (By default partSize is 128MiB).
 
 ### Example
 
@@ -62,7 +63,6 @@ After the above command is executed, the user will be prompted to enter the data
 
 ```
 test tee command    #Prompt the user to enter data 
-test tee command    #Output data for feedback output
 ```
 
 After the user enters `Ctrl D`, the user will be prompted that the data entered by the user has been saved to the path entered by the user.
@@ -87,9 +87,7 @@ When a pipe is set up between two commands, the output of the left command of th
 
 ### What do we use to upload the content to the specified service?
 
-For commands that use pipeline character(`|`), we use `multipart` uploads where the user can enter `--expect-size=xxx` to upload the approximate size of the file (128MiB by default).
-
-For terminal input, we use `Write` to upload.
+We use `multipart` uploads where the user can enter `--expect-size=xxx` to upload the approximate size of the file (128MiB by default).
 
 ## Compatibility
 

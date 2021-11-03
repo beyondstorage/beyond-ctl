@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/docker/go-units"
 	"github.com/urfave/cli/v2"
@@ -64,20 +63,17 @@ var teeCmd = &cli.Command{
 			return err
 		}
 
-		status, err := os.Stdin.Stat()
-		if err != nil {
-			logger.Error("stat stdin", zap.Error(err))
-			return err
-		}
-
-		if (status.Mode() & os.ModeNamedPipe) != os.ModeNamedPipe {
-			err = so.TeeRun(key)
-		} else {
-			err = so.TeeRunViaPipe(key, expectSize)
-		}
+		ch, err := so.TeeRun(key, expectSize)
 		if err != nil {
 			logger.Error("run tee", zap.Error(err))
 			return err
+		}
+
+		for v := range ch {
+			if v.Error != nil {
+				logger.Error("tee", zap.Error(err))
+				return v.Error
+			}
 		}
 
 		fmt.Printf("Stdin is saved to <%s>\n", key)
