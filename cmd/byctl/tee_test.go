@@ -2,15 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/docker/go-units"
-	"github.com/google/uuid"
-	"go.beyondstorage.io/v5/services"
 	"io"
 	"math/rand"
 	"os"
 	"testing"
 
+	"github.com/docker/go-units"
+	"github.com/google/uuid"
+
 	"go.beyondstorage.io/v5/pkg/randbytes"
+	"go.beyondstorage.io/v5/services"
 )
 
 func getTeeTestService(s string) string {
