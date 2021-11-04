@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/docker/go-units"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 
@@ -101,7 +102,7 @@ var lsCmd = &cli.Command{
 		// display summary information
 		if c.Bool(lsFlagSummarize) {
 			fmt.Printf("\n%14s %d\n", "Total Objects:", totalNum)
-			fmt.Printf("%14s %s\n", "Total Size:", ByteSize(uint64(totalSize)))
+			fmt.Printf("%14s %s\n", "Total Size:", units.BytesSize(float64(totalSize)))
 		}
 		return
 	},
