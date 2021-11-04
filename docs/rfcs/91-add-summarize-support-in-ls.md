@@ -1,7 +1,7 @@
 - Author: JinnyYi <github.com/JinnyYi>
 - Start Date: 2021-11-02
 - RFC PR: [beyondstorage/beyond-ctl#91](https://github.com/beyondstorage/beyond-ctl/issues/91)
-- Tracking Issue: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/issues/0)
+- Tracking Issue: [beyondstorage/beyond-ctl#94](https://github.com/beyondstorage/beyond-ctl/issues/94)
 
 # BCP-91: Add Summarize Support in ls
 
@@ -11,7 +11,7 @@ The `ls` command is used to list files or directories in Linux and other Unix-ba
 
 Currently, byctl already supports the `ls` command to list files or objects with simple additional information (long format):
 
-```go
+```shell
 > ./byctl ls -l s3:
 read      903899 Nov 02 06:53 obj1
 read          18 Nov 02 01:51 obj2
@@ -49,12 +49,12 @@ Options:
 ### Examples
 
 ```
-1)  byctl ls s3:
+1)  byctl ls -l s3:
     dir            0 Nov 02 06:53 dir1
     read      903899 Nov 02 06:53 obj1
     read          18 Nov 02 01:51 obj2
    
-2)  byctl ls --summarize s3:
+2)  byctl ls -l --summarize s3:
     dir            0 Nov 02 06:53 dir1
     read      903899 Nov 02 06:53 obj1
     read          18 Nov 02 01:51 obj2
