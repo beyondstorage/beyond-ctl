@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"os"
 	"sort"
 	"sync"
 
@@ -23,7 +22,7 @@ import (
 // We have two channels have:
 // - errch is returned to cmd and used as an error channel.
 // - partch is used internally to control the part write multipart logic.
-func (so *SingleOperator) TeeRun(path string, expectSize int64, r io.Reader) (errch chan *EmptyResult, err error) {
+func (so *SingleOperator) TeeRun(path string, expectedSize int64, r io.Reader) (errch chan *EmptyResult, err error) {
 	errch = make(chan *EmptyResult, 4)
 	partch := make(chan *PartResult, 4)
 
@@ -37,7 +36,7 @@ func (so *SingleOperator) TeeRun(path string, expectSize int64, r io.Reader) (er
 		return nil, err
 	}
 
-	partSize, err := calculatePartSize(so.store, expectSize)
+	partSize, err := calculatePartSize(so.store, expectedSize)
 	if err != nil {
 		return nil, err
 	}
@@ -48,10 +47,6 @@ func (so *SingleOperator) TeeRun(path string, expectSize int64, r io.Reader) (er
 
 		wg := &sync.WaitGroup{}
 		var index int
-
-		if r == nil {
-			r = os.Stdin
-		}
 
 		b := make([]byte, partSize)
 		// When this flag is true, it means that the data has been read and it is time to exit the read loop.

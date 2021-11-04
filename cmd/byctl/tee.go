@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	teeFlagExpectSize = "expect-size"
+	teeFlagExpectSize = "expected-size"
 )
 
 var teeFlags = []cli.Flag{
@@ -45,28 +45,25 @@ var teeCmd = &cli.Command{
 
 		conn, key, err := cfg.ParseProfileInput(c.Args().Get(0))
 		if err != nil {
-			logger.Error("parse profile input from src", zap.Error(err))
+			logger.Error("parse profile input from target", zap.Error(err))
 			return err
 		}
 
 		store, err := services.NewStoragerFromString(conn)
 		if err != nil {
-			logger.Error("init src storager", zap.Error(err), zap.String("conn string", conn))
+			logger.Error("init target storager", zap.Error(err), zap.String("conn string", conn))
 			return err
 		}
 
 		so := operations.NewSingleOperator(store)
 
-		expectSize, err := units.RAMInBytes(c.String(teeFlagExpectSize))
+		expectedSize, err := units.RAMInBytes(c.String(teeFlagExpectSize))
 		if err != nil {
-			logger.Error("expect-size is invalid", zap.String("input", c.String(teeFlagExpectSize)), zap.Error(err))
+			logger.Error("expected-size is invalid", zap.String("input", c.String(teeFlagExpectSize)), zap.Error(err))
 			return err
 		}
 
-		r := c.App.Reader
-
-		// If `App` is set to reader we will read the data directly from the reader.
-		ch, err := so.TeeRun(key, expectSize, r)
+		ch, err := so.TeeRun(key, expectedSize, c.App.Reader)
 		if err != nil {
 			logger.Error("run tee", zap.Error(err))
 			return err

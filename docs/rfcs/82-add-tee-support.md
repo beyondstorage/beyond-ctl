@@ -22,10 +22,10 @@ byctl tee [command options] [target]
 ### Command options
 
 ```
---expect-size  expected size of the input file (default: "128MiB")
+--expected-size  expected size of the input file (default: "128MiB")
 ```
-- `--expect-size` is 128MiB in size by default.
-  - If set, we will set the part size for multipart uploads based on `--expect-size` size (By default partSize is 128MiB).
+- `--expected-size` is 128MiB in size by default.
+  - If set, we will set the part size for multipart uploads based on `--expected-size` size (By default partSize is 128MiB).
 
 ### Example
 
@@ -45,10 +45,10 @@ Once the upload is complete, the user will be prompted to save the file successf
 Stdin is saved to </testTee>
 ```
 
-We can also use the flag `--expect-size` to determine the size of the input file. For example, the size of the file `exampleTee` is 2MiB:
+We can also use the flag `--expected-size` to determine the size of the input file. For example, the size of the file `exampleTee` is 2MiB:
 
 ```
-cat exampleTee | byctl tee --expect-size=2MiB example:testTee
+cat exampleTee | byctl tee --expected-size=2MiB example:testTee
 ```
 
 #### Type in the command line
@@ -87,7 +87,7 @@ When a pipe is set up between two commands, the output of the left command of th
 
 ### What do we use to upload the content to the specified service?
 
-We use `multipart` uploads where the user can enter `--expect-size=xxx` to upload the approximate size of the file (128MiB by default).
+We use `multipart` uploads where the user can enter `--expected-size=xxx` to upload the approximate size of the file (128MiB by default).
 
 ## Compatibility
 

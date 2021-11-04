@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/docker/go-units"
 	"github.com/google/uuid"
 	"go.beyondstorage.io/v5/services"
 	"io"
@@ -64,6 +65,28 @@ func TestTee(t *testing.T) {
 
 	err := app.Run([]string{
 		"byctl", "tee",
+		fmt.Sprintf("%s:%s", path, path),
+	})
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestTeeViaExpectedSize(t *testing.T) {
+	if os.Getenv("BEYOND_CTL_INTEGRATION_TEST") != "on" {
+		t.Skipf("BEYOND_CTL_INTEGRATION_TEST is not 'on', skipped")
+	}
+
+	path := setupTee(t)
+	defer tearDownTee(t, path)
+
+	// Limit the content under 1MB.
+	size := rand.Intn(1024 * 1024)
+	app.Reader = io.LimitReader(randbytes.NewRand(), int64(size))
+
+	err := app.Run([]string{
+		"byctl", "tee",
+		fmt.Sprintf("--expected-size=%s", units.BytesSize(float64(size))),
 		fmt.Sprintf("%s:%s", path, path),
 	})
 	if err != nil {
