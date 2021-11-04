@@ -25,6 +25,7 @@ var app = cli.App{
 		rmCmd,
 		statCmd,
 		teeCmd,
+		catCmd,
 	},
 }
 
