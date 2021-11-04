@@ -22,18 +22,19 @@ func getTeeTestService(s string) string {
 	return fmt.Sprintf(os.Getenv("BEYOND_CTL_TEST_SERVICE"), s)
 }
 
-func setupTee(t *testing.T) (path string) {
-	path = uuid.NewString()
+func setupTee(t *testing.T) (base, path string) {
+	base = uuid.NewString()
+	path = base + "/" + uuid.NewString()
 
 	err := os.Setenv(
-		fmt.Sprintf("BEYOND_CTL_PROFILE_%s", path),
-		getTeeTestService(path),
+		fmt.Sprintf("BEYOND_CTL_PROFILE_%s", base),
+		getTeeTestService(base),
 	)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	return path
+	return base, path
 }
 
 func tearDownTee(t *testing.T, path string) {
@@ -73,7 +74,7 @@ func TestTee(t *testing.T) {
 		t.Skipf("BEYOND_CTL_INTEGRATION_TEST is not 'on', skipped")
 	}
 
-	path := setupTee(t)
+	base, path := setupTee(t)
 	defer tearDownTee(t, path)
 
 	// Limit the content under 1MB.
@@ -82,7 +83,7 @@ func TestTee(t *testing.T) {
 
 	err := app.Run([]string{
 		"byctl", "tee",
-		fmt.Sprintf("%s:%s", path, path),
+		fmt.Sprintf("%s:%s", base, path),
 	})
 	if err != nil {
 		t.Error(err)
@@ -99,7 +100,7 @@ func TestTeeViaExpectedSize(t *testing.T) {
 		t.Skipf("BEYOND_CTL_INTEGRATION_TEST is not 'on', skipped")
 	}
 
-	path := setupTee(t)
+	base, path := setupTee(t)
 	defer tearDownTee(t, path)
 
 	// Limit the content under 1MB.
@@ -110,7 +111,7 @@ func TestTeeViaExpectedSize(t *testing.T) {
 	err := app.Run([]string{
 		"byctl", "tee",
 		fmt.Sprintf("--expected-size=%s", units.BytesSize(floatSize)),
-		fmt.Sprintf("%s:%s", path, path),
+		fmt.Sprintf("%s:%s", base, path),
 	})
 	if err != nil {
 		t.Error(err)
