@@ -1,9 +1,9 @@
 - Author: JinnyYi <github.com/JinnyYi>
 - Start Date: 2021-11-04
-- RFC PR: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/issues/0)
+- RFC PR: [beyondstorage/beyond-ctl#96](https://github.com/beyondstorage/beyond-ctl/issues/96)
 - Tracking Issue: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/issues/0)
 
-# Proposal: Add Glob Pattern Support in cp
+# BCP-96: Add Glob Pattern Support in cp
 
 ## Background
 
@@ -44,7 +44,7 @@ Description:
   The source directory is /tmp/foo, any include/exclude filters will be evaluated with the source directory prepended.
   ```
 
-- Any number of these parameters can be passed to a command. When there are multiple filters, the rule is the filters that appear later in the command take precedence over filters that appear earlier in the command.
+- Any number of these options can be passed to a command. When there are multiple filters, the rule is the filters that appear later in the command take precedence over filters that appear earlier in the command.
   ```txt
   --exclude "*" --include "*.txt"
   All files will be excluded from the command except for files ending with ".txt"
