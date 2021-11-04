@@ -14,8 +14,9 @@ import (
 )
 
 const (
-	lsFlagLongName = "l"
-	lsFlagFormat   = "format"
+	lsFlagLongName  = "l"
+	lsFlagFormat    = "format"
+	lsFlagSummarize = "summarize"
 )
 
 var lsFlags = []cli.Flag{
@@ -26,6 +27,10 @@ var lsFlags = []cli.Flag{
 	&cli.StringFlag{
 		Name:  lsFlagFormat,
 		Usage: "across long -l",
+	},
+	&cli.BoolFlag{
+		Name:  lsFlagSummarize,
+		Usage: "display summary information",
 	},
 }
 
@@ -70,6 +75,8 @@ var lsCmd = &cli.Command{
 		}
 
 		isFirst := true
+		var totalNum int
+		var totalSize int64
 
 		for v := range ch {
 			if v.Error != nil {
@@ -84,9 +91,18 @@ var lsCmd = &cli.Command{
 			if isFirst {
 				isFirst = false
 			}
+
+			totalNum += 1
+			totalSize += oa.size
 		}
 		// End of line
 		fmt.Print("\n")
+
+		// display summary information
+		if c.Bool(lsFlagSummarize) {
+			fmt.Printf("\n%14s %d\n", "Total Objects:", totalNum)
+			fmt.Printf("%14s %s\n", "Total Size:", ByteSize(uint64(totalSize)))
+		}
 		return
 	},
 }
@@ -118,7 +134,7 @@ func (oa objectAttr) shortFormat(isFirst bool) string {
 	if isFirst {
 		return oa.name
 	}
-	return oa.name + " "
+	return " " + oa.name
 }
 
 func (oa objectAttr) longFormat(isFirst bool) string {
