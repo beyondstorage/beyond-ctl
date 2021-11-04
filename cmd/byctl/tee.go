@@ -63,7 +63,10 @@ var teeCmd = &cli.Command{
 			return err
 		}
 
-		ch, err := so.TeeRun(key, expectSize)
+		r := c.App.Reader
+
+		// If `App` is set to reader we will read the data directly from the reader.
+		ch, err := so.TeeRun(key, expectSize, r)
 		if err != nil {
 			logger.Error("run tee", zap.Error(err))
 			return err

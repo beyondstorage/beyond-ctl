@@ -23,7 +23,7 @@ import (
 // We have two channels have:
 // - errch is returned to cmd and used as an error channel.
 // - partch is used internally to control the part write multipart logic.
-func (so *SingleOperator) TeeRun(path string, expectSize int64) (errch chan *EmptyResult, err error) {
+func (so *SingleOperator) TeeRun(path string, expectSize int64, r io.Reader) (errch chan *EmptyResult, err error) {
 	errch = make(chan *EmptyResult, 4)
 	partch := make(chan *PartResult, 4)
 
@@ -49,7 +49,10 @@ func (so *SingleOperator) TeeRun(path string, expectSize int64) (errch chan *Emp
 		wg := &sync.WaitGroup{}
 		var index int
 
-		r := os.Stdin
+		if r == nil {
+			r = os.Stdin
+		}
+
 		b := make([]byte, partSize)
 		// When this flag is true, it means that the data has been read and it is time to exit the read loop.
 		flag := false
@@ -64,6 +67,10 @@ func (so *SingleOperator) TeeRun(path string, expectSize int64) (errch chan *Emp
 			taskIndex := index
 
 			n, err := io.ReadFull(r, b)
+			if err == io.EOF {
+				wg.Done()
+				break
+			}
 			if err != nil && n != 0 {
 				flag = true
 				err = nil
@@ -96,28 +103,25 @@ func (so *SingleOperator) TeeRun(path string, expectSize int64) (errch chan *Emp
 		wg.Wait()
 	}()
 
-	go func() {
-		defer close(errch)
+	defer close(errch)
 
-		parts := make([]*types.Part, 0)
-		for v := range partch {
-			if v.Error != nil {
-				errch <- &EmptyResult{Error: v.Error}
-				continue
-			}
-			parts = append(parts, v.Part)
+	parts := make([]*types.Part, 0)
+	for v := range partch {
+		if v.Error != nil {
+			errch <- &EmptyResult{Error: v.Error}
+			continue
 		}
+		parts = append(parts, v.Part)
+	}
 
-		sort.SliceStable(parts, func(i, j int) bool {
-			return parts[i].Index < parts[j].Index
-		})
+	sort.SliceStable(parts, func(i, j int) bool {
+		return parts[i].Index < parts[j].Index
+	})
 
-		err = multiparter.CompleteMultipart(mo, parts)
-		if err != nil {
-			errch <- &EmptyResult{Error: err}
-			return
-		}
-	}()
+	err = multiparter.CompleteMultipart(mo, parts)
+	if err != nil {
+		return nil, err
+	}
 
-	return errch, nil
+	return
 }
