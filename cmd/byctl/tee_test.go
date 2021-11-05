@@ -24,7 +24,7 @@ func getTeeTestService(s string) string {
 
 func setupTee(t *testing.T) (base, path string) {
 	base = uuid.NewString()
-	path = base + "/" + uuid.NewString()
+	path = uuid.NewString()
 
 	err := os.Setenv(
 		fmt.Sprintf("BEYOND_CTL_PROFILE_%s", base),
@@ -37,8 +37,8 @@ func setupTee(t *testing.T) (base, path string) {
 	return base, path
 }
 
-func tearDownTee(t *testing.T, path string) {
-	store, err := services.NewStoragerFromString(os.Getenv("BEYOND_CTL_TEST_SERVICE"))
+func tearDownTee(t *testing.T, base, path string) {
+	store, err := services.NewStoragerFromString(os.Getenv(fmt.Sprintf("BEYOND_CTL_PROFILE_%s", base)))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -48,14 +48,14 @@ func tearDownTee(t *testing.T, path string) {
 		t.Fatal(err)
 	}
 
-	err = os.Unsetenv(fmt.Sprintf("BEYOND_CTL_PROFILE_%s", path))
+	err = os.Unsetenv(fmt.Sprintf("BEYOND_CTL_PROFILE_%s", base))
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
-func checkResult(t *testing.T, path string) int64 {
-	store, err := services.NewStoragerFromString(os.Getenv("BEYOND_CTL_TEST_SERVICE"))
+func checkResult(t *testing.T, base, path string) int64 {
+	store, err := services.NewStoragerFromString(os.Getenv(fmt.Sprintf("BEYOND_CTL_PROFILE_%s", base)))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -75,7 +75,7 @@ func TestTee(t *testing.T) {
 	}
 
 	base, path := setupTee(t)
-	defer tearDownTee(t, path)
+	defer tearDownTee(t, base, path)
 
 	// Limit the content under 1MB.
 	size := rand.Intn(1024 * 1024)
@@ -89,7 +89,7 @@ func TestTee(t *testing.T) {
 		t.Error(err)
 	}
 
-	n := checkResult(t, path)
+	n := checkResult(t, base, path)
 	if n != int64(size) {
 		t.Error("tee failed")
 	}
@@ -101,7 +101,7 @@ func TestTeeViaExpectedSize(t *testing.T) {
 	}
 
 	base, path := setupTee(t)
-	defer tearDownTee(t, path)
+	defer tearDownTee(t, base, path)
 
 	// Limit the content under 1MB.
 	size := rand.Intn(1024 * 1024)
@@ -117,7 +117,7 @@ func TestTeeViaExpectedSize(t *testing.T) {
 		t.Error(err)
 	}
 
-	n := checkResult(t, path)
+	n := checkResult(t, base, path)
 	if n != int64(size) {
 		t.Error("tee failed")
 	}
