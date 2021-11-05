@@ -13,11 +13,19 @@ We will refer to the `Linux` `tee` command to implement support for the `BeyondC
 
 ## Proposal
 
-I propose to add support for `tee` command to `BeyondCTL`. `BeyondCTL` will tee the content to stdout like `Linux` `tee` command does.
+I propose to add support for `tee` command to `BeyondCTL`.
 
 ```
 byctl tee [command options] [target]
 ```
+
+### Command options
+
+```
+--expected-size  expected size of the input file (default: "128MiB")
+```
+- `--expected-size` is 128MiB in size by default.
+  - If set, we will set the part size for multipart uploads based on `--expected-size` size (By default partSize is 128MiB).
 
 ### Example
 
@@ -37,6 +45,12 @@ Once the upload is complete, the user will be prompted to save the file successf
 Stdin is saved to </testTee>
 ```
 
+We can also use the flag `--expected-size` to determine the size of the input file. For example, the size of the file `exampleTee` is 2MiB:
+
+```
+cat exampleTee | byctl tee --expected-size=2MiB example:testTee
+```
+
 #### Type in the command line
 
 Use the command `tee` to save the data entered by the user to a file with the path `testTee` in the service `example`, enter the following command:
@@ -49,10 +63,9 @@ After the above command is executed, the user will be prompted to enter the data
 
 ```
 test tee command    #Prompt the user to enter data 
-test tee command    #Output data for feedback output
 ```
 
-After the user enters `Ctrl C`, the user will be prompted that the data entered by the user has been saved to the path entered by the user.
+After the user enters `Ctrl D`, the user will be prompted that the data entered by the user has been saved to the path entered by the user.
 
 ```
 Stdin is saved to </testTee>
@@ -72,26 +85,9 @@ command1 | command2
 
 When a pipe is set up between two commands, the output of the left command of the pipe character `|` becomes the input of the right command. As long as the first command writes to the standard output and the second command reads from the standard input, then the two commands can form a pipe.
 
-### How to capture the `Ctrl C`?
-
-We use `golang's` `signal` library and the `syscall.SIGINT` and `syscall.SIGTERM` parameters to capture the terminal triggered by typing `Ctrl C`.
-
-| Signal  |                     Description                     |
-| :-----: | :-------------------------------------------------: |
-| SIGINT  |    User sends INTR character (Ctrl+C) to trigger    |
-| SIGTERM | End the program (can be caught, blocked or ignored) |
-
-### If we don't want to continue with the current command, how do we interrupt?
-
-Since we use `Ctrl C` to determine if the user has finished typing, we can no longer use `Ctrl C` to interrupt the program. In this case, we can just use `Ctrl Z` to achieve our goal.
-
 ### What do we use to upload the content to the specified service?
 
-Since `multipart` uploads basically have a minimum byte limit, and the content entered through the console is usually not particularly large, we will `not` use `multipart` uploads to upload content.
-
-Then what method do we use to upload content?
-
-We will first merge the user's input line by line into a `single slice`, and then upload the slice to the specified service when the user types `Ctrl C`.
+We use `multipart` uploads where the user can enter `--expected-size=xxx` to upload the approximate size of the file (128MiB by default).
 
 ## Compatibility
 
