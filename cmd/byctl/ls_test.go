@@ -71,7 +71,7 @@ func setupLs(t *testing.T) (base string, obs []object) {
 }
 
 func tearDownLs(t *testing.T, base string) {
-	store, err := services.NewStoragerFromString(os.Getenv("BEYOND_CTL_TEST_SERVICE"))
+	store, err := services.NewStoragerFromString(getTestService(""))
 	if err != nil {
 		t.Fatal(err)
 	}
