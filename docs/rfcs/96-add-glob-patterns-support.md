@@ -1,7 +1,7 @@
 - Author: JinnyYi <github.com/JinnyYi>
 - Start Date: 2021-11-04
 - RFC PR: [beyondstorage/beyond-ctl#96](https://github.com/beyondstorage/beyond-ctl/issues/96)
-- Tracking Issue: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/issues/0)
+- Tracking Issue: [beyondstorage/beyond-ctl#98](https://github.com/beyondstorage/beyond-ctl/issues/98)
 
 # BCP-96: Add Glob Patterns Support
 
