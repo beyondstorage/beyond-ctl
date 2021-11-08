@@ -1,9 +1,9 @@
 - Author: abyss-w <mad.hatter@foxmail.com>
 - Start Date: 2021-11-08
-- RFC PR: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/issues/0)
+- RFC PR: [beyondstorage/beyond-ctl#99](https://github.com/beyondstorage/beyond-ctl/pull/99)
 - Tracking Issue: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/issues/0)
 
-# BCP-0: Add Sign Support
+# BCP-99: Add Sign Support
 
 ## Background
 
