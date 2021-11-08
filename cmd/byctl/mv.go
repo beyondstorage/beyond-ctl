@@ -21,7 +21,7 @@ const (
 var mvFlags = []cli.Flag{
 	&cli.StringFlag{
 		Name:  mvFlagMultipartThresholdName,
-		Usage: "Specify multipart threshold. If source file size is larger than this value, byctl will use multipart method to copy file.",
+		Usage: "Specify multipart threshold. If source file size is larger than this value, byctl will use multipart method to move file.",
 		EnvVars: []string{
 			"BEYOND_CTL_MULTIPART_THRESHOLD",
 		},
@@ -134,10 +134,10 @@ var mvCmd = &cli.Command{
 		do.WithWritePairs(writePairs...)
 
 		// parse flag multipart-threshold, 1GB is the default value
-		multipartThreshold, err := units.FromHumanSize(c.String(cpFlagMultipartThresholdName))
+		multipartThreshold, err := units.RAMInBytes(c.String(mvFlagMultipartThresholdName))
 		if err != nil {
 			logger.Error("multipart-threshold is invalid",
-				zap.String("input", c.String(cpFlagMultipartThresholdName)),
+				zap.String("input", c.String(mvFlagMultipartThresholdName)),
 				zap.Error(err))
 			return err
 		}
@@ -151,7 +151,7 @@ var mvCmd = &cli.Command{
 			ch, err = do.MoveFileViaMultipart(srcKey, dstKey, size)
 		}
 		if err != nil {
-			logger.Error("start copy",
+			logger.Error("start move",
 				zap.String("src", srcKey),
 				zap.String("dst", dstKey),
 				zap.Error(err))
