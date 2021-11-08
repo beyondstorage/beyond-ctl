@@ -16,11 +16,10 @@ A string can be considered a wildcard pattern if it contains one of the followin
 ```txt
 *       - (asterisk, star) matches zero or more of any characters
 ?       - (question mark) matches any one (1) character
-[list]  - (square brackets)
+[ ]     - (square brackets)
 - Matches any one (1) character in the list of characters, e.g. [abc] matches one a or one b or one c (only one of the three).
 - The list can be inverted/complemented by using ! at the start, e.g. [!abc] means "any one character not a or b or c".
-{list}  - (curly brackets)
-- Matches on any of a series of sub-patterns you specify, e.g. {abc} matches one a, one b and one c.
+{ }     - (curly brackets) matches on any of a series of sub-patterns you specify, e.g. {a,b,c} matches one a, one b and one c.
 ```
 
 ## Proposal
@@ -29,11 +28,16 @@ I propose to add glob support by using UNIX style wildcards in the path argument
 
 Each wildcard will be evaluated against the source path. The following pattern symbols are supported:
 
-- *: Matches any number of characters (including zero)
-- ?: Matches any single character
-- [...]: Match character set
-- [!...] or [^...]: Match inverse character set
-- {...}: Brace expansion
+- ?: Matches any single non-separator character.
+- *: Matches any sequence of non-separator characters.
+- **: Two asterisks, matches any sequence of characters. It works like * but crosses directory boundaries (ie complete paths) in a file system.
+- [...]: Match character set. This kind of wildcard specifies an "or" relationship.
+- [!...] or [^...]: Match inverse character set. This is a logical NOT.
+- {...}: Brace expansion, terms are separated by commas (without spaces) and each term must be the name of something or a wildcard.
+- \: Backslash, used as an "escape" character.
+
+**Notice:**
+Instead of expanding the braces before even looking for files, byctl attempts to determine whether the listed file name matches the file name pattern.
 
 Glob patterns can be used in the following commands:
 
@@ -74,13 +78,10 @@ Given the following directory:
 > ./byctl ls /tmp/foo/d[a-e]g.txt
 /tmp/foo/dag.txt /tmp/foo/deg.txt
 
-> ./byctl ls /tmp/foo/d{aeiou}g.txt
+> ./byctl ls /tmp/foo/d{a,e,i,o,u}g.txt
 /tmp/foo/dag.txt /tmp/foo/deg.txt /tmp/foo/dig.txt /tmp/foo/dog.txt /tmp/foo/dug.txt
- 
->./byctl ls /tmp/foo/d{a..e}g.txt
-ls: cannot access '/tmp/foo/dbg.txt': No such file or directory
-ls: cannot access '/tmp/foo/dcg.txt': No such file or directory
-ls: cannot access '/tmp/foo/ddg.txt': No such file or directory
+
+> ./byctl ls /tmp/foo/d{a..e}g.txt
 /tmp/foo/dag.txt /tmp/foo/deg.txt
 ```
 
@@ -129,7 +130,7 @@ Description:
 
 Drawbacks:
 
-Does not support patterns containing directory info. e.g., --include "/usr/*/test/*.jpg"
+Does not support patterns containing directory info. e.g., --include "/usr/**/test/*.jpg"
 
 ## Compatibility
 
