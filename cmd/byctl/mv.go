@@ -142,13 +142,12 @@ var mvCmd = &cli.Command{
 			return err
 		}
 
-		var ch chan *operations.EmptyResult
 		if c.Bool(mvFlagRecursive) {
-			ch, err = do.MoveRecursively(srcKey, dstKey, multipartThreshold)
+			err = do.MoveRecursively(srcKey, dstKey, multipartThreshold)
 		} else if size < multipartThreshold {
-			ch, err = do.MoveFileViaWrite(srcKey, dstKey, size)
+			err = do.MoveFileViaWrite(srcKey, dstKey, size)
 		} else {
-			ch, err = do.MoveFileViaMultipart(srcKey, dstKey, size)
+			err = do.MoveFileViaMultipart(srcKey, dstKey, size)
 		}
 		if err != nil {
 			logger.Error("start move",
@@ -158,10 +157,6 @@ var mvCmd = &cli.Command{
 			return err
 		}
 
-		for v := range ch {
-			logger.Error("read next result", zap.Error(v.Error))
-			return v.Error
-		}
 		return
 	},
 }
