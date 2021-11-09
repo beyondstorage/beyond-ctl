@@ -116,8 +116,8 @@ func TestMvFile(t *testing.T) {
 
 	err := app.Run([]string{
 		"byctl", "mv",
-		fmt.Sprintf("oss:%s", path),
-		fmt.Sprintf("cos:%s", targetPath),
+		fmt.Sprintf("%s:%s", base, path),
+		fmt.Sprintf("%s:%s", targetService, targetPath),
 	})
 	if err != nil {
 		t.Error(err)
