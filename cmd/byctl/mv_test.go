@@ -29,7 +29,7 @@ func setupMvFile(t *testing.T) (base, path string) {
 		t.Fatal(err)
 	}
 
-	base = "workdir"
+	base = uuid.NewString()
 	path = uuid.NewString()
 
 	// Limit the content under 1MB.
@@ -58,7 +58,7 @@ func setupMvFile(t *testing.T) (base, path string) {
 }
 
 func setupMvTarget(t *testing.T) (targetService, targetPath string) {
-	targetService = "workdir/"
+	targetService = uuid.NewString()
 	targetPath = uuid.NewString()
 
 	err := os.Setenv(
