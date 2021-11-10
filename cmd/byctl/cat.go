@@ -17,7 +17,7 @@ var catCmd = &cli.Command{
 	Flags:     mergeFlags(globalFlags),
 	Before: func(c *cli.Context) error {
 		if args := c.Args().Len(); args < 1 {
-			return fmt.Errorf("rm command wants one args, but got %d", args)
+			return fmt.Errorf("cat command wants one args, but got %d", args)
 		}
 		return nil
 	},

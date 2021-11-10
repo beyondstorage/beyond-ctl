@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/docker/go-units"
 	"github.com/google/uuid"
@@ -69,6 +70,10 @@ func checkResult(t *testing.T, base, path string) int64 {
 	return n
 }
 
+func random(min, max int) int {
+	return rand.Intn(max-min) + min
+}
+
 func TestTee(t *testing.T) {
 	if os.Getenv("BEYOND_CTL_INTEGRATION_TEST") != "on" {
 		t.Skipf("BEYOND_CTL_INTEGRATION_TEST is not 'on', skipped")
@@ -103,11 +108,13 @@ func TestTeeViaExpectedSize(t *testing.T) {
 	base, path := setupTee(t)
 	defer tearDownTee(t, base, path)
 
-	// Limit the content under 1MB.
-	size := rand.Intn(1024 * 1024)
+	rand.Seed(time.Now().Unix())
+	// Limit the content to between 5MB and 10MB.
+	size := random(5*1024*1024, 10*1024*1024)
 	app.Reader = io.LimitReader(randbytes.NewRand(), int64(size))
 
-	floatSize := float64(size)
+	// Make sure `--expected-size` >= `size`
+	floatSize := float64(size) + 512
 	err := app.Run([]string{
 		"byctl", "tee",
 		fmt.Sprintf("--expected-size=%s", units.BytesSize(floatSize)),
