@@ -5,8 +5,8 @@ go 1.15
 require (
 	github.com/BurntSushi/toml v0.4.1
 	github.com/Xuanwo/go-bufferpool v0.2.0
+	github.com/bmatcuk/doublestar/v4 v4.0.2
 	github.com/docker/go-units v0.4.0
-	github.com/gobwas/glob v0.2.4-0.20181002190808-e7a84e9525fe
 	github.com/google/uuid v1.3.0
 	github.com/panjf2000/ants/v2 v2.4.6
 	github.com/stretchr/testify v1.7.0

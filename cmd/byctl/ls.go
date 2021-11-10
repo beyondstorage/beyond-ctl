@@ -67,7 +67,7 @@ var lsCmd = &cli.Command{
 			format = longListFormat
 		}
 
-		ch, err := so.List(path)
+		ch, err := so.ListWithGlob(path)
 		if err != nil {
 			logger.Error("list",
 				zap.String("path", path),
