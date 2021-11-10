@@ -2,6 +2,7 @@ package operations
 
 import (
 	"errors"
+	"runtime"
 	"strings"
 
 	"github.com/bmatcuk/doublestar/v4"
@@ -75,31 +76,27 @@ func (so *SingleOperator) listRecursively(
 	}
 }
 
+func hasMeta(path string) bool {
+	magicChars := `*?[{`
+	if runtime.GOOS != "windows" {
+		magicChars = `*?[{\`
+	}
+	return strings.ContainsAny(path, magicChars)
+}
+
 func splitPattern(path string) (base, pattern string) {
-	hasMeta := false
-
-	splitIdx := -1
-	for i := 0; i < len(path); i++ {
-		c := path[i]
-		if c == '\\' {
-			i++
-		} else if c == '/' {
-			splitIdx = i
-		} else if c == '*' || c == '?' || c == '[' || c == '{' {
-			hasMeta = true
-			break
-		}
+	if !hasMeta(path) {
+		return path, ""
 	}
 
-	if hasMeta {
-		if splitIdx >= 0 {
-			return path[:splitIdx+1], path[splitIdx+1:]
-		}
-
-		return "", path
+	base, pattern = doublestar.SplitPattern(path)
+	if base == "." {
+		base = ""
+	} else {
+		base += "/"
 	}
 
-	return path, ""
+	return
 }
 
 func (so *SingleOperator) ListWithGlob(path string) (ch chan *ObjectResult, err error) {
@@ -108,7 +105,7 @@ func (so *SingleOperator) ListWithGlob(path string) (ch chan *ObjectResult, err 
 	go func() {
 		defer close(ch)
 
-		so.listWithGlob(ch, path)
+		so.listWithGlob(ch, path, true)
 	}()
 
 	return ch, nil
@@ -117,11 +114,14 @@ func (so *SingleOperator) ListWithGlob(path string) (ch chan *ObjectResult, err 
 func (so *SingleOperator) listWithGlob(
 	ch chan *ObjectResult,
 	path string,
+	errFlag bool,
 ) {
 	base, pattern := splitPattern(path)
 	it, err := so.store.List(base, pairs.WithListMode(types.ListModeDir))
 	if err != nil {
-		ch <- &ObjectResult{Error: err}
+		if errFlag {
+			ch <- &ObjectResult{Error: err}
+		}
 		return
 	}
 
@@ -132,7 +132,9 @@ func (so *SingleOperator) listWithGlob(
 			break
 		}
 		if err != nil {
-			ch <- &ObjectResult{Error: err}
+			if errFlag {
+				ch <- &ObjectResult{Error: err}
+			}
 			break
 		}
 
@@ -144,7 +146,7 @@ func (so *SingleOperator) listWithGlob(
 				if !o.Mode.IsDir() {
 					ch <- &ObjectResult{Object: o}
 				} else {
-					so.listWithGlob(ch, o.Path)
+					so.listWithGlob(ch, o.Path, false)
 				}
 			}
 			break
@@ -153,7 +155,75 @@ func (so *SingleOperator) listWithGlob(
 			ok2, _ := doublestar.Match(base+subPatterns[0]+"/", o.Path)
 			if ok1 || ok2 {
 				if o.Mode.IsDir() {
-					so.listWithGlob(ch, strings.TrimSuffix(o.Path, "/")+"/"+subPatterns[1])
+					so.listWithGlob(ch, strings.TrimSuffix(o.Path, "/")+"/"+subPatterns[1], false)
+				}
+			}
+			break
+		}
+	}
+}
+
+func (so *SingleOperator) ListRecursivelyWithGlob(path string) (ch chan *ObjectResult, err error) {
+	ch = make(chan *ObjectResult, 16)
+
+	go func() {
+		defer close(ch)
+
+		so.listRecursivelyWithGlob(ch, path, true)
+	}()
+
+	return ch, nil
+}
+
+func (so *SingleOperator) listRecursivelyWithGlob(
+	ch chan *ObjectResult,
+	path string,
+	errFlag bool,
+) {
+	base, pattern := splitPattern(path)
+	it, err := so.store.List(base, pairs.WithListMode(types.ListModeDir))
+	if err != nil {
+		if errFlag {
+			ch <- &ObjectResult{Error: err}
+		}
+		return
+	}
+
+	subPatterns := strings.SplitN(pattern, "/", 2)
+	for {
+		o, err := it.Next()
+		if err != nil && errors.Is(err, types.IterateDone) {
+			break
+		}
+		if err != nil {
+			if errFlag {
+				ch <- &ObjectResult{Error: err}
+			}
+			break
+		}
+
+		switch len(subPatterns) {
+		case 1:
+			if subPatterns[0] == "" {
+				if o.Mode.IsDir() {
+					so.listRecursively(ch, o.Path)
+				} else {
+					ch <- &ObjectResult{Object: o}
+				}
+			} else if ok, _ := doublestar.Match(base+subPatterns[0], o.Path); ok {
+				if !o.Mode.IsDir() {
+					ch <- &ObjectResult{Object: o}
+				} else {
+					so.listRecursively(ch, o.Path)
+				}
+			}
+			break
+		case 2:
+			ok1, _ := doublestar.Match(base+subPatterns[0], o.Path)
+			ok2, _ := doublestar.Match(base+subPatterns[0]+"/", o.Path)
+			if ok1 || ok2 {
+				if o.Mode.IsDir() {
+					so.listRecursivelyWithGlob(ch, strings.TrimSuffix(o.Path, "/")+"/"+subPatterns[1], false)
 				}
 			}
 			break
