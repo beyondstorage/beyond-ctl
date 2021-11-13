@@ -1,8 +1,11 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+
 	"path/filepath"
+	"reflect"
 	"time"
 
 	"github.com/docker/go-units"
@@ -47,19 +50,31 @@ var lsCmd = &cli.Command{
 			return err
 		}
 
-		conn, path, err := cfg.ParseProfileInput(c.Args().Get(0))
-		if err != nil {
-			logger.Error("parse profile input", zap.Error(err))
-			return err
-		}
+		var chList []chan *operations.ObjectResult
+		for i := 0; i < c.Args().Len(); i++ {
+			conn, path, err := cfg.ParseProfileInput(c.Args().Get(i))
+			if err != nil {
+				logger.Error("parse profile input", zap.Error(err))
+				continue
+			}
 
-		store, err := services.NewStoragerFromString(conn)
-		if err != nil {
-			logger.Error("init storager", zap.Error(err))
-			return err
-		}
+			store, err := services.NewStoragerFromString(conn)
+			if err != nil {
+				logger.Error("init storager", zap.Error(err))
+				continue
+			}
 
-		so := operations.NewSingleOperator(store)
+			so := operations.NewSingleOperator(store)
+
+			ch, err := so.List(path)
+			chList = append(chList, ch)
+			if err != nil {
+				logger.Error("list",
+					zap.String("path", path),
+					zap.Error(err))
+				continue
+			}
+		}
 
 		// TODO: we need support more format that gnsls supports.
 		format := shortListFormat
@@ -67,42 +82,73 @@ var lsCmd = &cli.Command{
 			format = longListFormat
 		}
 
-		ch, err := so.List(path)
-		if err != nil {
-			logger.Error("list",
-				zap.String("path", path),
-				zap.Error(err))
-			return err
+		// channel read status
+		mo := statsMonitor{}
+		mo.newStatMonitor(len(chList))
+
+		// cache result
+		var resultList = make([][]*operations.ObjectResult, c.Args().Len())
+
+		// search finished first, print first
+		cases := make([]reflect.SelectCase, len(chList))
+		for i, ch := range chList {
+			cases[i] = reflect.SelectCase{Dir: reflect.SelectRecv, Chan: reflect.ValueOf(ch)}
 		}
 
-		isFirst := true
-		var totalNum int
-		var totalSize int64
+		isFirstSrc := true
+		for {
+			index, value, _ := reflect.Select(cases)
+			ret := value.Interface().(*operations.ObjectResult)
+			if ret == nil {
+				// read channel complete or exception
+				mo.setStat(index)
+			} else if ret.Error != nil {
+				// end of search or exception
+				mo.setStat(index)
 
-		for v := range ch {
-			if v.Error != nil {
-				logger.Error("read next result", zap.Error(v.Error))
-				return v.Error
+				// print object information
+				if errors.Is(ret.Error, types.IterateDone) {
+					if c.Args().Len() > 1 {
+						if isFirstSrc {
+							isFirstSrc = false
+						} else {
+							fmt.Printf("\n")
+						}
+						fmt.Printf("%s:\n", c.Args().Get(index))
+					}
+					isFirst := true
+					var totalNum int
+					var totalSize int64
+					for _, v := range resultList[index] {
+						if v.Error != nil {
+							logger.Error("read next result", zap.Error(v.Error))
+							break
+						}
+						oa := parseObject(v.Object)
+						fmt.Print(oa.Format(format, isFirst))
+
+						//Update isFirst
+						if isFirst {
+							isFirst = false
+						}
+
+						totalNum += 1
+						totalSize += oa.size
+					}
+					fmt.Print("\n")
+					// display summary information
+					if c.Bool(lsFlagSummarize) {
+						fmt.Printf("\n%14s %d\n", "Total Objects:", totalNum)
+						fmt.Printf("%14s %s\n", "Total Size:", units.BytesSize(float64(totalSize)))
+					}
+				}
+			} else {
+				resultList[index] = append(resultList[index], ret)
 			}
 
-			oa := parseObject(v.Object)
-			fmt.Print(oa.Format(format, isFirst))
-
-			// Update isFirst
-			if isFirst {
-				isFirst = false
+			if mo.isDone() {
+				break
 			}
-
-			totalNum += 1
-			totalSize += oa.size
-		}
-		// End of line
-		fmt.Print("\n")
-
-		// display summary information
-		if c.Bool(lsFlagSummarize) {
-			fmt.Printf("\n%14s %d\n", "Total Objects:", totalNum)
-			fmt.Printf("%14s %s\n", "Total Size:", units.BytesSize(float64(totalSize)))
 		}
 		return
 	},

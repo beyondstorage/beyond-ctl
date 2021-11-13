@@ -19,9 +19,6 @@ func (so *SingleOperator) List(path string) (ch chan *ObjectResult, err error) {
 
 		for {
 			o, err := it.Next()
-			if err != nil && errors.Is(err, types.IterateDone) {
-				break
-			}
 			if err != nil {
 				ch <- &ObjectResult{Error: err}
 				break

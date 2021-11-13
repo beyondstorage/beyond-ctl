@@ -50,3 +50,29 @@ func parseLimit(text string) (types.Pair, error) {
 		}
 	}), nil
 }
+
+type statsMonitor struct {
+	statsList []bool
+}
+
+func (monitor *statsMonitor) newStatMonitor(num int) {
+	for i := 0; i < num; i++ {
+		monitor.statsList = append(monitor.statsList, false)
+	}
+}
+
+func (monitor *statsMonitor) setStat(n int) {
+	if n >= 0 && n < len(monitor.statsList) {
+		monitor.statsList[n] = true
+	}
+}
+
+func (monitor *statsMonitor) isDone() bool {
+	done := true
+	for i := 0; i < len(monitor.statsList); i++ {
+		if !monitor.statsList[i] {
+			done = false
+		}
+	}
+	return done
+}
