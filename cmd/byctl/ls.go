@@ -47,62 +47,74 @@ var lsCmd = &cli.Command{
 			return err
 		}
 
-		conn, path, err := cfg.ParseProfileInput(c.Args().Get(0))
-		if err != nil {
-			logger.Error("parse profile input", zap.Error(err))
-			return err
-		}
-
-		store, err := services.NewStoragerFromString(conn)
-		if err != nil {
-			logger.Error("init storager", zap.Error(err))
-			return err
-		}
-
-		so := operations.NewSingleOperator(store)
-
-		// TODO: we need support more format that gnsls supports.
 		format := shortListFormat
 		if c.Bool("l") || c.String("format") == "long" {
 			format = longListFormat
 		}
 
-		ch, err := so.List(path)
-		if err != nil {
-			logger.Error("list",
-				zap.String("path", path),
-				zap.Error(err))
-			return err
-		}
-
-		isFirst := true
-		var totalNum int
-		var totalSize int64
-
-		for v := range ch {
-			if v.Error != nil {
-				logger.Error("read next result", zap.Error(v.Error))
-				return v.Error
+		isFirstSrc := true
+		for i := 0; i < c.Args().Len(); i++ {
+			conn, path, err := cfg.ParseProfileInput(c.Args().Get(i))
+			if err != nil {
+				logger.Error("parse profile input", zap.Error(err))
+				continue
 			}
 
-			oa := parseObject(v.Object)
-			fmt.Print(oa.Format(format, isFirst))
-
-			// Update isFirst
-			if isFirst {
-				isFirst = false
+			store, err := services.NewStoragerFromString(conn)
+			if err != nil {
+				logger.Error("init storager", zap.Error(err))
+				continue
 			}
 
-			totalNum += 1
-			totalSize += oa.size
-		}
-		// End of line
-		fmt.Print("\n")
+			so := operations.NewSingleOperator(store)
 
-		// display summary information
-		if c.Bool(lsFlagSummarize) {
-			fmt.Printf("\n%14s %d\n", "Total Objects:", totalNum)
-			fmt.Printf("%14s %s\n", "Total Size:", units.BytesSize(float64(totalSize)))
+			ch, err := so.List(path)
+			if err != nil {
+				logger.Error("list",
+					zap.String("path", path),
+					zap.Error(err))
+				continue
+			}
+
+			// print src path if more than 1 arg
+			if c.Args().Len() > 1 {
+				if isFirstSrc {
+					isFirstSrc = false
+				} else {
+					fmt.Printf("\n")
+				}
+				fmt.Printf("%s:\n", c.Args().Get(i))
+			}
+
+			isFirst := true
+			var totalNum int
+			var totalSize int64
+
+			for v := range ch {
+				if v.Error != nil {
+					logger.Error("read next result", zap.Error(v.Error))
+					break
+				}
+
+				oa := parseObject(v.Object)
+				fmt.Print(oa.Format(format, isFirst))
+
+				// Update isFirst
+				if isFirst {
+					isFirst = false
+				}
+
+				totalNum += 1
+				totalSize += oa.size
+			}
+			// End of line
+			fmt.Print("\n")
+
+			// display summary information
+			if c.Bool(lsFlagSummarize) {
+				fmt.Printf("\n%14s %d\n", "Total Objects:", totalNum)
+				fmt.Printf("%14s %s\n", "Total Size:", units.BytesSize(float64(totalSize)))
+			}
 		}
 		return
 	},
