@@ -52,20 +52,8 @@ var lsCmd = &cli.Command{
 			format = longListFormat
 		}
 
-		var totalNum int
-		var totalSize int64
-		statistic := func(o *types.Object) {
-			totalNum += 1
-			if v, ok := o.GetContentLength(); ok {
-				totalSize += v
-			}
-		}
-
 		isFirstSrc := true
 		for i := 0; i < c.Args().Len(); i++ {
-			totalNum = 0
-			totalSize = 0
-
 			conn, path, err := cfg.ParseProfileInput(c.Args().Get(i))
 			if err != nil {
 				logger.Error("parse profile input", zap.Error(err))
@@ -80,7 +68,7 @@ var lsCmd = &cli.Command{
 
 			so := operations.NewSingleOperator(store)
 
-			ch, err := so.ListWithCallback(path, statistic)
+			ch, err := so.List(path)
 			if err != nil {
 				logger.Error("list",
 					zap.String("path", path),
@@ -99,6 +87,9 @@ var lsCmd = &cli.Command{
 			}
 
 			isFirst := true
+			var totalNum int
+			var totalSize int64
+
 			for v := range ch {
 				if v.Error != nil {
 					logger.Error("read next result", zap.Error(v.Error))
@@ -112,8 +103,13 @@ var lsCmd = &cli.Command{
 				if isFirst {
 					isFirst = false
 				}
+
+				totalNum += 1
+				totalSize += oa.size
 			}
+			// End of line
 			fmt.Print("\n")
+
 			// display summary information
 			if c.Bool(lsFlagSummarize) {
 				fmt.Printf("\n%14s %d\n", "Total Objects:", totalNum)
