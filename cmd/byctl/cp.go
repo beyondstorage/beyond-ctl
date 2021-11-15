@@ -121,7 +121,6 @@ var cpCmd = &cli.Command{
 			return err
 		}
 
-		var chList []chan *operations.EmptyResult
 		for i := 0; i < argsNum-1; i++ {
 			srcConn, srcKey, err := cfg.ParseProfileInput(c.Args().Get(i))
 			if err != nil {
@@ -184,10 +183,7 @@ var cpCmd = &cli.Command{
 					zap.Error(err))
 				continue
 			}
-			chList = append(chList, ch)
-		}
 
-		for _, ch := range chList {
 			for v := range ch {
 				logger.Error("read next result", zap.Error(v.Error))
 			}
