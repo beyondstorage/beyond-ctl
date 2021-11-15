@@ -19,6 +19,9 @@ func (so *SingleOperator) List(path string) (ch chan *ObjectResult, err error) {
 
 		for {
 			o, err := it.Next()
+			if err != nil && errors.Is(err, types.IterateDone) {
+				break
+			}
 			if err != nil {
 				ch <- &ObjectResult{Error: err}
 				break
@@ -30,6 +33,35 @@ func (so *SingleOperator) List(path string) (ch chan *ObjectResult, err error) {
 
 	return ch, nil
 }
+
+func (so *SingleOperator) ListWithCallback(path string, fn func(o *types.Object)) (ch chan *ObjectResult, err error) {
+	it, err := so.store.List(path, pairs.WithListMode(types.ListModeDir))
+	if err != nil {
+		return nil, err
+	}
+
+	ch = make(chan *ObjectResult, 16)
+	go func() {
+		defer close(ch)
+
+		for {
+			o, err := it.Next()
+			if err != nil && errors.Is(err, types.IterateDone) {
+				break
+			}
+			if err != nil {
+				ch <- &ObjectResult{Error: err}
+				break
+			}
+
+			ch <- &ObjectResult{Object: o}
+			fn(o)
+		}
+	}()
+
+	return ch, nil
+}
+
 func (so *SingleOperator) ListRecursively(path string) (ch chan *ObjectResult, err error) {
 	ch = make(chan *ObjectResult, 16)
 
