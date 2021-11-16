@@ -1,9 +1,9 @@
 - Author: abyss-w <mad.hatter@foxmail.com>
 - Start Date: 2021-11-16
-- RFC PR: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/issues/0)
+- RFC PR: [beyondstorage/beyond-ctl#114](https://github.com/beyondstorage/beyond-ctl/pull/114)
 - Tracking Issue: [beyondstorage/beyond-ctl#0](https://github.com/beyondstorage/beyond-ctl/issues/0)
 
-# BCP-0: Add Sync Support
+# BCP-114: Add Sync Support
 
 ## Background
 
