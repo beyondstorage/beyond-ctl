@@ -113,7 +113,7 @@ var mvCmd = &cli.Command{
 
 		if args > 2 {
 			dstObject, err := dstSo.Stat(dstKey)
-			if err != nil || !dstObject.Mode.IsDir() {
+			if err == nil && !dstObject.Mode.IsDir() {
 				fmt.Printf("mv: target '%s' is not a directory\n", dstKey)
 				return fmt.Errorf("mv: target '%s' is not a directory", dstKey)
 			}
@@ -162,7 +162,7 @@ var mvCmd = &cli.Command{
 
 			realDstKey := dstKey
 			if args > 2 {
-				realDstKey = filepath.Join(dstKey, srcKey)
+				realDstKey = filepath.Join(dstKey, filepath.Base(srcKey))
 			}
 
 			if c.Bool(mvFlagRecursive) {
