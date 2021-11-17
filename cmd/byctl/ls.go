@@ -47,14 +47,10 @@ var lsCmd = &cli.Command{
 			return err
 		}
 
-		format := shortListFormat
-		if c.Bool("l") || c.String("format") == "long" {
-			format = longListFormat
-		}
-
-		isFirstSrc := true
-		for i := 0; i < c.Args().Len(); i++ {
-			conn, path, err := cfg.ParseProfileInput(c.Args().Get(i))
+		// parse args
+		var storePathMap = make(map[*operations.SingleOperator][]string)
+		for _, arg := range c.Args().Slice() {
+			conn, path, err := cfg.ParseProfileInput(arg)
 			if err != nil {
 				logger.Error("parse profile input", zap.Error(err))
 				continue
@@ -68,52 +64,76 @@ var lsCmd = &cli.Command{
 
 			so := operations.NewSingleOperator(store)
 
-			ch, err := so.List(path)
-			if err != nil {
-				logger.Error("list",
-					zap.String("path", path),
-					zap.Error(err))
-				continue
+			var args []string
+			args = append(args, path)
+			if hasMeta(path) {
+				args, err = so.Glob(path)
+				if err != nil {
+					logger.Error("glob", zap.Error(err))
+					fmt.Printf("ls: cannot access '%s': No such file or directory\n", path)
+					continue
+				}
 			}
 
-			// print src path if more than 1 arg
-			if c.Args().Len() > 1 {
-				if isFirstSrc {
-					isFirstSrc = false
-				} else {
-					fmt.Printf("\n")
-				}
-				fmt.Printf("%s:\n", c.Args().Get(i))
-			}
+			storePathMap[so] = args
+		}
 
-			isFirst := true
-			var totalNum int
-			var totalSize int64
+		format := shortListFormat
+		if c.Bool("l") || c.String("format") == "long" {
+			format = longListFormat
+		}
 
-			for v := range ch {
-				if v.Error != nil {
-					logger.Error("read next result", zap.Error(v.Error))
-					break
-				}
-
-				oa := parseObject(v.Object)
-				fmt.Print(oa.Format(format, isFirst))
-
-				// Update isFirst
-				if isFirst {
-					isFirst = false
+		isFirstSrc := true
+		for so, paths := range storePathMap {
+			for _, path := range paths {
+				ch, err := so.List(path)
+				if err != nil {
+					logger.Error("list",
+						zap.String("path", path),
+						zap.Error(err))
+					continue
 				}
 
-				totalNum += 1
-				totalSize += oa.size
-			}
-			// End of line
-			fmt.Print("\n")
+				// print src path if more than 1 arg
+				if len(storePathMap) > 1 || len(paths) > 1 {
+					if isFirstSrc {
+						isFirstSrc = false
+					} else {
+						fmt.Printf("\n")
+					}
+					// so.StatStorager.Service + ":" + path
+					fmt.Printf("%s:\n", path)
+				}
 
-			// display summary information
-			if c.Bool(lsFlagSummarize) {
-				fmt.Printf("\n%14s %d\n", "Total Objects:", totalNum)
-				fmt.Printf("%14s %s\n", "Total Size:", units.BytesSize(float64(totalSize)))
+				isFirst := true
+				var totalNum int
+				var totalSize int64
+
+				for v := range ch {
+					if v.Error != nil {
+						logger.Error("read next result", zap.Error(v.Error))
+						break
+					}
+
+					oa := parseObject(v.Object)
+					fmt.Print(oa.Format(format, isFirst))
+
+					// Update isFirst
+					if isFirst {
+						isFirst = false
+					}
+
+					totalNum += 1
+					totalSize += oa.size
+				}
+				// End of line
+				fmt.Print("\n")
+
+				// display summary information
+				if c.Bool(lsFlagSummarize) {
+					fmt.Printf("\n%14s %d\n", "Total Objects:", totalNum)
+					fmt.Printf("%14s %s\n", "Total Size:", units.BytesSize(float64(totalSize)))
+				}
 			}
 		}
 		return

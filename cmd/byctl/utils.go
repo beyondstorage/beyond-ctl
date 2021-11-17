@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"runtime"
+	"strings"
 	"time"
 
 	"github.com/Xuanwo/go-bufferpool"
@@ -49,4 +51,12 @@ func parseLimit(text string) (types.Pair, error) {
 			l -= n
 		}
 	}), nil
+}
+
+func hasMeta(path string) bool {
+	magicChars := `*?[{`
+	if runtime.GOOS != "windows" {
+		magicChars = `*?[{\`
+	}
+	return strings.ContainsAny(path, magicChars)
 }
