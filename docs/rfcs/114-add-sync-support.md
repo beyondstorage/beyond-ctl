@@ -20,26 +20,27 @@ byctl sync [command options] [source] [target]
 ### Command options
 
 ```
---existing         skip creating new files in target dirs
---ignore-existing  skip updating files in target dirs, only copy those not exist
---recursive        recurse into sub directories
---update           skip files that are newer in target dirs
---remove           remove extraneous object(s) on target
---exclude value    regular expression for files to exclude
---include value    regular expression for files to include (not work if exclude not set)
+--existing                   skip creating new files in target dirs (default: false)
+--ignore-existing            skip updating files in target dirs, only copy those not exist (default: false)
+--recursive, -r, -R          recurse into sub directories (default: false)
+--update                     skip files that are newer in target dirs (default: false)
+--remove                     remove extraneous object(s) on target (default: false)
+--exclude value              regular expression for files to exclude
+--include value              regular expression for files to include (not work if exclude not set)
+--multipart-threshold value  Specify multipart threshold. If source file size is larger than this value, byctl will use multipart method to sync file. (default: "1GiB") [$BEYOND_CTL_MULTIPART_THRESHOLD]
 ```
 
 ### Examples
 
-Service `example` given the following directory:
+The following directories and files are given under the `workdir` of the service `example`:
 
 ```
 test/
-	|--dog.go
-	|--dog.txt
-	|--cat.go
-	|--fruit/
-		    |--apple.go
+    |--dog.go
+    |--dog.txt
+    |--cat.go
+    |--fruit/
+            |--apple.go
 ```
 
 ```
@@ -50,9 +51,9 @@ The result in the service `another`:
 
 ```
 test/
-	|--dog.go
-	|--dog.txt
-	|--cat.go
+    |--dog.go
+    |--dog.txt
+    |--cat.go
 ```
 
 #### Sync with `--existing`
@@ -61,8 +62,8 @@ Service `another` has the following directory:
 
 ```
 test/
-	|--dog.go
-	|--dog.txt
+    |--dog.go
+    |--dog.txt
 ```
 
 ```
@@ -73,8 +74,8 @@ The result in the service `another`:
 
 ```
 test/
-	|--dog.go
-	|--dog.txt
+    |--dog.go
+    |--dog.txt
 ```
 
 Only the existing files in service `another` are updated.
@@ -85,8 +86,8 @@ Service `another` has the following directory:
 
 ```
 test/
-	|--dog.go
-	|--dog.txt
+    |--dog.go
+    |--dog.txt
 ```
 
 ```
@@ -97,9 +98,9 @@ The result in the service `another`:
 
 ```
 test/
-	|--dog.go
-	|--dog.txt
-	|--cat.go
+    |--dog.go
+    |--dog.txt
+    |--cat.go
 ```
 
 There are no changes to `dog.go` and `dog.txt`, only `cat.go` has been updated.
@@ -114,11 +115,11 @@ The result in the service `another`:
 
 ```
 test/
-	|--dog.go
-	|--dog.txt
-	|--cat.go
-	|--fruit/
-	   	    |--apple.go
+    |--dog.go
+    |--dog.txt
+    |--cat.go
+    |--fruit/
+            |--apple.go
 ```
 
 #### Sync with `--update`
@@ -137,7 +138,7 @@ Service `another` has the following directory:
 
 ```
 test/
-	|--pig.go
+    |--pig.go
 ```
 
 ```
@@ -148,9 +149,9 @@ The result in the service `another`:
 
 ```
 test/
-	|--dog.go
-	|--dog.txt
-	|--cat.go
+    |--dog.go
+    |--dog.txt
+    |--cat.go
 ```
 
 In this case all files in service `another`'s folder `test` that are not related to service `example`'s folder `test` will be deleted.
@@ -167,7 +168,7 @@ The result in the service `another`:
 
 ```
 test/
-	|--dog.txt
+    |--dog.txt
 ```
 
 ````
@@ -178,7 +179,7 @@ The result in the service `another`:
 
 ```
 test/
-	|--cat.go
+    |--cat.go
 ```
 
 - `--exclude` and `include`
@@ -191,8 +192,8 @@ The result in the service `another`:
 
 ```
 test/
-	|--dog.go
-	|--dog.txt
+    |--dog.go
+    |--dog.txt
 ```
 
 ```
@@ -203,8 +204,8 @@ The result in the service `another`:
 
 ```
 test/
-	|--dog.go
-	|--cat.go
+    |--dog.go
+    |--cat.go
 ```
 
 ## Rationale
