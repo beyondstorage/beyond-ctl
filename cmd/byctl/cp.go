@@ -84,7 +84,7 @@ var cpCmd = &cli.Command{
 			}
 		}
 		if argsNum > 2 {
-			if err == nil && !dstObject.Mode.IsDir() {
+			if dstObject != nil && !dstObject.Mode.IsDir() {
 				fmt.Printf("cp: target '%s' is not a directory\n", dstKey)
 				return fmt.Errorf("cp: target '%s' is not a directory", dstKey)
 			}
