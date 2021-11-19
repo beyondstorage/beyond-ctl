@@ -11,7 +11,6 @@ import (
 	"go.uber.org/zap"
 
 	"go.beyondstorage.io/beyond-ctl/operations"
-	"go.beyondstorage.io/v5/pairs"
 	"go.beyondstorage.io/v5/services"
 	"go.beyondstorage.io/v5/types"
 )
@@ -113,12 +112,12 @@ var mvCmd = &cli.Command{
 
 		dstSo := operations.NewSingleOperator(dst)
 
+		dstObject, err := dstSo.Stat(dstKey)
+		if err != nil && !errors.Is(err, services.ErrObjectNotExist) {
+			logger.Error("stat", zap.Error(err), zap.String("dst path", dstKey))
+			return err
+		}
 		if args > 2 {
-			dstObject, err := dstSo.Stat(dstKey, pairs.WithObjectMode(types.ModeDir))
-			if err != nil && !errors.Is(err, services.ErrObjectNotExist) {
-				logger.Error("stat", zap.Error(err), zap.String("dst path", dstKey))
-				return err
-			}
 			if err == nil && !dstObject.Mode.IsDir() {
 				fmt.Printf("mv: target '%s' is not a directory\n", dstKey)
 				return fmt.Errorf("mv: target '%s' is not a directory", dstKey)
@@ -167,7 +166,7 @@ var mvCmd = &cli.Command{
 			do.WithWritePairs(writePairs...)
 
 			realDstKey := dstKey
-			if args > 2 {
+			if args > 2 || (dstObject != nil && dstObject.Mode.IsDir()) {
 				realDstKey = filepath.Join(dstKey, filepath.Base(srcKey))
 			}
 
