@@ -30,31 +30,35 @@ var catCmd = &cli.Command{
 			return err
 		}
 
-		conn, key, err := cfg.ParseProfileInput(c.Args().Get(0))
-		if err != nil {
-			logger.Error("parse profile input from src", zap.Error(err))
-			return err
-		}
-
-		store, err := services.NewStoragerFromString(conn)
-		if err != nil {
-			logger.Error("init src storager", zap.Error(err), zap.String("conn string", conn))
-			return err
-		}
-
-		so := operations.NewSingleOperator(store)
-
-		ch, err := so.CatFile(key)
-		if err != nil {
-			logger.Error("run cat", zap.Error(err))
-			return err
-		}
-
-		for v := range ch {
-			if v.Error != nil {
-				logger.Error("cat", zap.Error(err))
-				return v.Error
+		for i := 0; i < c.Args().Len(); i++ {
+			conn, key, err := cfg.ParseProfileInput(c.Args().Get(i))
+			if err != nil {
+				logger.Error("parse profile input from src", zap.Error(err))
+				continue
 			}
+
+			store, err := services.NewStoragerFromString(conn)
+			if err != nil {
+				logger.Error("init src storager", zap.Error(err), zap.String("conn string", conn))
+				continue
+			}
+
+			so := operations.NewSingleOperator(store)
+
+			ch, err := so.CatFile(key)
+			if err != nil {
+				logger.Error("run cat", zap.Error(err))
+				continue
+			}
+
+			for v := range ch {
+				if v.Error != nil {
+					logger.Error("cat", zap.Error(err))
+					continue
+				}
+			}
+
+			fmt.Printf("\n")
 		}
 
 		return nil
