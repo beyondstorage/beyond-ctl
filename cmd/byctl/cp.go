@@ -75,9 +75,13 @@ var cpCmd = &cli.Command{
 		dstSo := operations.NewSingleOperator(dst)
 
 		dstObject, err := dstSo.Stat(dstKey)
-		if err != nil && !errors.Is(err, services.ErrObjectNotExist) {
-			logger.Error("stat", zap.Error(err), zap.String("dst path", dstKey))
-			return err
+		if err != nil {
+			if errors.Is(err, services.ErrObjectNotExist) {
+				err = nil
+			} else {
+				logger.Error("stat", zap.Error(err), zap.String("dst path", dstKey))
+				return err
+			}
 		}
 		if argsNum > 2 {
 			if err == nil && !dstObject.Mode.IsDir() {
