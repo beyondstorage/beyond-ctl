@@ -1,15 +1,17 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"go.uber.org/zap"
 	"path/filepath"
 	"strings"
 
 	"github.com/docker/go-units"
 	"github.com/urfave/cli/v2"
-	"go.uber.org/zap"
 
 	"go.beyondstorage.io/beyond-ctl/operations"
+	"go.beyondstorage.io/v5/pairs"
 	"go.beyondstorage.io/v5/services"
 	"go.beyondstorage.io/v5/types"
 )
@@ -75,12 +77,14 @@ var cpCmd = &cli.Command{
 		dstSo := operations.NewSingleOperator(dst)
 
 		if argsNum > 2 {
-			dstObject, err := dstSo.Stat(dstKey)
-			if err != nil {
-				return fmt.Errorf("copy: target '%s' is not a directory", dstKey)
+			dstObject, err := dstSo.Stat(dstKey, pairs.WithObjectMode(types.ModeDir))
+			if err != nil && !errors.Is(err, services.ErrObjectNotExist) {
+				logger.Error("stat", zap.Error(err), zap.String("dst path", dstKey))
+				return err
 			}
-			if !dstObject.Mode.IsDir() {
-				return fmt.Errorf("copy: target '%s' is not a directory", dstKey)
+			if err == nil && !dstObject.Mode.IsDir() {
+				fmt.Printf("cp: target '%s' is not a directory\n", dstKey)
+				return fmt.Errorf("cp: target '%s' is not a directory", dstKey)
 			}
 		}
 
@@ -164,7 +168,7 @@ var cpCmd = &cli.Command{
 
 			realDstKey := dstKey
 			if argsNum > 2 {
-				realDstKey = filepath.Join(dstKey, srcKey)
+				realDstKey = filepath.Join(dstKey, filepath.Base(srcKey))
 			}
 
 			var ch chan *operations.EmptyResult

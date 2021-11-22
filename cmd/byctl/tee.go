@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 
 	"github.com/docker/go-units"
@@ -30,7 +31,7 @@ var teeCmd = &cli.Command{
 	Flags:     mergeFlags(globalFlags, teeFlags),
 	Before: func(c *cli.Context) error {
 		if args := c.Args().Len(); args < 1 {
-			return fmt.Errorf("tee command wants one args, but got %d", args)
+			return fmt.Errorf("tee command wants at least one args, but got %d", args)
 		}
 		return nil
 	},
@@ -43,40 +44,49 @@ var teeCmd = &cli.Command{
 			return err
 		}
 
-		conn, key, err := cfg.ParseProfileInput(c.Args().Get(0))
+		buf := new(bytes.Buffer)
+		_, err = buf.ReadFrom(c.App.Reader)
 		if err != nil {
-			logger.Error("parse profile input from target", zap.Error(err))
+			logger.Error("read data", zap.Error(err))
 			return err
 		}
 
-		store, err := services.NewStoragerFromString(conn)
-		if err != nil {
-			logger.Error("init target storager", zap.Error(err), zap.String("conn string", conn))
-			return err
-		}
-
-		so := operations.NewSingleOperator(store)
-
-		expectedSize, err := units.RAMInBytes(c.String(teeFlagExpectSize))
-		if err != nil {
-			logger.Error("expected-size is invalid", zap.String("input", c.String(teeFlagExpectSize)), zap.Error(err))
-			return err
-		}
-
-		ch, err := so.TeeRun(key, expectedSize, c.App.Reader)
-		if err != nil {
-			logger.Error("run tee", zap.Error(err))
-			return err
-		}
-
-		for v := range ch {
-			if v.Error != nil {
-				logger.Error("tee", zap.Error(err))
-				return v.Error
+		for i := 0; i < c.Args().Len(); i++ {
+			conn, key, err := cfg.ParseProfileInput(c.Args().Get(i))
+			if err != nil {
+				logger.Error("parse profile input from target", zap.Error(err))
+				continue
 			}
-		}
 
-		fmt.Printf("Stdin is saved to <%s>\n", key)
+			store, err := services.NewStoragerFromString(conn)
+			if err != nil {
+				logger.Error("init target storager", zap.Error(err), zap.String("conn string", conn))
+				continue
+			}
+
+			so := operations.NewSingleOperator(store)
+
+			expectedSize, err := units.RAMInBytes(c.String(teeFlagExpectSize))
+			if err != nil {
+				logger.Error("expected-size is invalid", zap.String("input", c.String(teeFlagExpectSize)), zap.Error(err))
+				continue
+			}
+
+			ch, err := so.TeeRun(key, expectedSize, bytes.NewReader(buf.Bytes()))
+			if err != nil {
+				logger.Error("run tee", zap.Error(err))
+				continue
+			}
+
+			for v := range ch {
+				if v.Error != nil {
+					logger.Error("tee", zap.Error(err))
+					continue
+				}
+			}
+
+			fmt.Printf("Stdin is saved to <%s>\n", key)
+		}
 
 		return nil
 	},
