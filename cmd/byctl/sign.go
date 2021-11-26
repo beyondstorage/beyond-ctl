@@ -30,7 +30,7 @@ var signCmd = &cli.Command{
 	Flags:     mergeFlags(globalFlags, signFlags),
 	Before: func(c *cli.Context) error {
 		if args := c.Args().Len(); args < 1 {
-			return fmt.Errorf("sign command wants one args, but got %d", args)
+			return fmt.Errorf("sign command wants at least one args, but got %d", args)
 		}
 		return nil
 	},
@@ -43,31 +43,43 @@ var signCmd = &cli.Command{
 			return err
 		}
 
-		conn, key, err := cfg.ParseProfileInput(c.Args().Get(0))
-		if err != nil {
-			logger.Error("parse profile input from source", zap.Error(err))
-			return err
+		isFirst := true
+		args := c.Args().Len()
+		for i := 0; i < args; i++ {
+			conn, key, err := cfg.ParseProfileInput(c.Args().Get(i))
+			if err != nil {
+				logger.Error("parse profile input from source", zap.Error(err))
+				continue
+			}
+
+			store, err := services.NewStoragerFromString(conn)
+			if err != nil {
+				logger.Error("init source storager", zap.Error(err), zap.String("conn string", conn))
+				continue
+			}
+
+			so := operations.NewSingleOperator(store)
+
+			// The default is 300 second.
+			second := c.Int(signFlagExpire)
+			expire := time.Duration(second) * time.Second
+
+			url, err := so.Sign(key, expire)
+			if err != nil {
+				logger.Error("run sign", zap.Error(err))
+				continue
+			}
+
+			if args > 1 {
+				if isFirst {
+					isFirst = false
+				} else {
+					fmt.Printf("\n")
+				}
+				fmt.Printf("%s:\n", c.Args().Get(i))
+			}
+			fmt.Println(url)
 		}
-
-		store, err := services.NewStoragerFromString(conn)
-		if err != nil {
-			logger.Error("init source storager", zap.Error(err), zap.String("conn string", conn))
-			return err
-		}
-
-		so := operations.NewSingleOperator(store)
-
-		// The default is 300 second.
-		second := c.Int(signFlagExpire)
-		expire := time.Duration(second) * time.Second
-
-		url, err := so.Sign(key, expire)
-		if err != nil {
-			logger.Error("run sign", zap.Error(err))
-			return err
-		}
-
-		fmt.Println(url)
 
 		return nil
 	},

@@ -1,12 +1,12 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"strings"
-
 	"github.com/docker/go-units"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
+	"path/filepath"
 
 	"go.beyondstorage.io/beyond-ctl/operations"
 	"go.beyondstorage.io/v5/services"
@@ -44,7 +44,7 @@ var mvCmd = &cli.Command{
 	Flags:     mergeFlags(globalFlags, ioFlags, mvFlags),
 	Before: func(c *cli.Context) error {
 		if args := c.Args().Len(); args < 2 {
-			return fmt.Errorf("mv command wants two args, but got %d", args)
+			return fmt.Errorf("mv command wants at least two args, but got %d", args)
 		}
 		return nil
 	},
@@ -55,52 +55,6 @@ var mvCmd = &cli.Command{
 		if err != nil {
 			logger.Error("load config", zap.Error(err))
 			return err
-		}
-
-		srcConn, srcKey, err := cfg.ParseProfileInput(c.Args().Get(0))
-		if err != nil {
-			logger.Error("parse profile input from src", zap.Error(err))
-			return err
-		}
-		dstConn, dstKey, err := cfg.ParseProfileInput(c.Args().Get(1))
-		if err != nil {
-			logger.Error("parse profile input from dst", zap.Error(err))
-			return err
-		}
-
-		if c.Bool(mvFlagRecursive) && !strings.HasSuffix(srcKey, "/") {
-			srcKey += "/"
-		}
-
-		src, err := services.NewStoragerFromString(srcConn)
-		if err != nil {
-			logger.Error("init src storager", zap.Error(err), zap.String("conn string", srcConn))
-			return err
-		}
-
-		dst, err := services.NewStoragerFromString(dstConn)
-		if err != nil {
-			logger.Error("init dst storager", zap.Error(err), zap.String("conn string", dstConn))
-			return err
-		}
-
-		so := operations.NewSingleOperator(src)
-
-		srcObject, err := so.Stat(srcKey)
-		if err != nil {
-			logger.Error("stat", zap.String("path", srcKey), zap.Error(err))
-			return err
-		}
-
-		size, ok := srcObject.GetContentLength()
-		if !ok {
-			logger.Error("can't get object content length", zap.String("path", srcKey))
-			return fmt.Errorf("get object content length failed")
-		}
-
-		do := operations.NewDualOperator(src, dst)
-		if c.IsSet(flagWorkersName) {
-			do.WithWorkers(c.Int(flagWorkersName))
 		}
 
 		// Handle read pairs.
@@ -116,7 +70,6 @@ var mvCmd = &cli.Command{
 
 			readPairs = append(readPairs, limitPair)
 		}
-		do.WithReadPairs(readPairs...)
 
 		// Handle write pairs.
 		var writePairs []types.Pair
@@ -131,7 +84,6 @@ var mvCmd = &cli.Command{
 
 			writePairs = append(writePairs, limitPair)
 		}
-		do.WithWritePairs(writePairs...)
 
 		// parse flag multipart-threshold, 1GB is the default value
 		multipartThreshold, err := units.RAMInBytes(c.String(mvFlagMultipartThresholdName))
@@ -142,19 +94,103 @@ var mvCmd = &cli.Command{
 			return err
 		}
 
-		if c.Bool(mvFlagRecursive) {
-			err = do.MoveRecursively(srcKey, dstKey, multipartThreshold)
-		} else if size < multipartThreshold {
-			err = do.MoveFileViaWrite(srcKey, dstKey, size)
-		} else {
-			err = do.MoveFileViaMultipart(srcKey, dstKey, size)
-		}
+		args := c.Args().Len()
+
+		dstConn, dstKey, err := cfg.ParseProfileInput(c.Args().Get(args - 1))
 		if err != nil {
-			logger.Error("start move",
-				zap.String("src", srcKey),
-				zap.String("dst", dstKey),
-				zap.Error(err))
+			logger.Error("parse profile input from dst", zap.Error(err))
 			return err
+		}
+
+		dst, err := services.NewStoragerFromString(dstConn)
+		if err != nil {
+			logger.Error("init dst storager", zap.Error(err), zap.String("conn string", dstConn))
+			return err
+		}
+
+		dstSo := operations.NewSingleOperator(dst)
+
+		dstObject, err := dstSo.Stat(dstKey)
+		if err != nil {
+			if errors.Is(err, services.ErrObjectNotExist) {
+				err = nil
+			} else {
+				logger.Error("stat", zap.Error(err), zap.String("dst path", dstKey))
+				return err
+			}
+		}
+		if args > 2 {
+			if dstObject != nil && !dstObject.Mode.IsDir() {
+				fmt.Printf("mv: target '%s' is not a directory\n", dstKey)
+				return fmt.Errorf("mv: target '%s' is not a directory", dstKey)
+			}
+		}
+
+		for i := 0; i < args-1; i++ {
+			srcConn, srcKey, err := cfg.ParseProfileInput(c.Args().Get(i))
+			if err != nil {
+				logger.Error("parse profile input from src", zap.Error(err))
+				continue
+			}
+
+			src, err := services.NewStoragerFromString(srcConn)
+			if err != nil {
+				logger.Error("init src storager", zap.Error(err), zap.String("conn string", srcConn))
+				continue
+			}
+
+			so := operations.NewSingleOperator(src)
+
+			srcObject, err := so.Stat(srcKey)
+			if err != nil {
+				logger.Error("stat", zap.String("path", srcKey), zap.Error(err))
+				continue
+			}
+
+			if srcObject.Mode.IsDir() && !c.Bool(cpFlagRecursive) {
+				fmt.Printf("mv: -r not specified; omitting directory '%s'\n", srcKey)
+				continue
+			}
+
+			var size int64
+			if srcObject.Mode.IsRead() {
+				n, ok := srcObject.GetContentLength()
+				if !ok {
+					logger.Error("can't get object content length", zap.String("path", srcKey))
+					continue
+				}
+				size = n
+			}
+
+			do := operations.NewDualOperator(src, dst)
+			if c.IsSet(flagWorkersName) {
+				do.WithWorkers(c.Int(flagWorkersName))
+			}
+
+			// set read pairs
+			do.WithReadPairs(readPairs...)
+			// set write pairs
+			do.WithWritePairs(writePairs...)
+
+			realDstKey := dstKey
+			if args > 2 || (dstObject != nil && dstObject.Mode.IsDir()) {
+				realDstKey = filepath.Join(dstKey, filepath.Base(srcKey))
+			}
+
+			if c.Bool(mvFlagRecursive) && srcObject.Mode.IsDir() {
+				err = do.MoveRecursively(srcKey, realDstKey, multipartThreshold)
+			} else if size < multipartThreshold {
+				err = do.MoveFileViaWrite(srcKey, realDstKey, size)
+			} else {
+				err = do.MoveFileViaMultipart(srcKey, realDstKey, size)
+			}
+			if err != nil {
+				logger.Error("start move",
+					zap.String("src", srcKey),
+					zap.String("dst", realDstKey),
+					zap.Error(err))
+				continue
+			}
 		}
 
 		return
