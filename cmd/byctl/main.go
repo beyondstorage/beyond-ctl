@@ -28,6 +28,7 @@ var app = cli.App{
 		catCmd,
 		mvCmd,
 		signCmd,
+		syncCmd,
 	},
 }
 
