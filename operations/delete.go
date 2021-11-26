@@ -116,40 +116,40 @@ func (so *SingleOperator) DeleteMultipartViaRecursively(path string) (ch chan *E
 func (so *SingleOperator) DeleteRecursively(path string) (ch chan *EmptyResult, err error) {
 	ch = make(chan *EmptyResult, 4)
 
-	och, err := so.ListRecursively(path)
-	if err != nil {
-		return nil, err
-	}
-
 	go func() {
 		defer close(ch)
 
-		wg := &sync.WaitGroup{}
-
-		for or := range och {
-			if or.Error != nil {
-				ch <- &EmptyResult{Error: or.Error}
-				break
-			}
-			object := or.Object
-
-			wg.Add(1)
-			err = so.pool.Submit(func() {
-				defer wg.Done()
-
-				err = so.Delete(object.Path)
-				if err != nil {
-					ch <- &EmptyResult{Error: err}
-				}
-			})
-			if err != nil {
-				ch <- &EmptyResult{Error: err}
-				break
-			}
-		}
-
-		wg.Wait()
+		so.deleteRecursively(ch, path)
 	}()
 
-	return ch, nil
+	return
+}
+
+func (so *SingleOperator) deleteRecursively(ch chan *EmptyResult, path string) {
+	it, err := so.store.List(path, pairs.WithListMode(types.ListModeDir))
+	if err != nil {
+		ch <- &EmptyResult{Error: err}
+		return
+	}
+
+	for {
+		o, err := it.Next()
+		if err != nil && errors.Is(err, types.IterateDone) {
+			break
+		}
+		if err != nil {
+			ch <- &EmptyResult{Error: err}
+			break
+		}
+
+		if o.Mode.IsDir() {
+			so.deleteRecursively(ch, o.Path)
+		}
+
+		err = so.store.Delete(o.Path)
+		if err != nil {
+			ch <- &EmptyResult{Error: err}
+			return
+		}
+	}
 }
