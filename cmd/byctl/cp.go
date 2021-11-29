@@ -5,13 +5,11 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"path/filepath"
-	"strings"
 
 	"github.com/docker/go-units"
 	"github.com/urfave/cli/v2"
 
 	"go.beyondstorage.io/beyond-ctl/operations"
-	"go.beyondstorage.io/v5/pairs"
 	"go.beyondstorage.io/v5/services"
 	"go.beyondstorage.io/v5/types"
 )
@@ -76,13 +74,17 @@ var cpCmd = &cli.Command{
 
 		dstSo := operations.NewSingleOperator(dst)
 
-		if argsNum > 2 {
-			dstObject, err := dstSo.Stat(dstKey, pairs.WithObjectMode(types.ModeDir))
-			if err != nil && !errors.Is(err, services.ErrObjectNotExist) {
+		dstObject, err := dstSo.Stat(dstKey)
+		if err != nil {
+			if errors.Is(err, services.ErrObjectNotExist) {
+				err = nil
+			} else {
 				logger.Error("stat", zap.Error(err), zap.String("dst path", dstKey))
 				return err
 			}
-			if err == nil && !dstObject.Mode.IsDir() {
+		}
+		if argsNum > 2 {
+			if dstObject != nil && !dstObject.Mode.IsDir() {
 				fmt.Printf("cp: target '%s' is not a directory\n", dstKey)
 				return fmt.Errorf("cp: target '%s' is not a directory", dstKey)
 			}
@@ -132,10 +134,6 @@ var cpCmd = &cli.Command{
 				continue
 			}
 
-			if c.Bool(cpFlagRecursive) && !strings.HasSuffix(srcKey, "/") {
-				srcKey += "/"
-			}
-
 			src, err := services.NewStoragerFromString(srcConn)
 			if err != nil {
 				logger.Error("init src storager", zap.Error(err), zap.String("conn string", srcConn))
@@ -150,10 +148,19 @@ var cpCmd = &cli.Command{
 				continue
 			}
 
-			size, ok := srcObject.GetContentLength()
-			if !ok {
-				logger.Error("can't get object content length", zap.String("path", srcKey))
+			if srcObject.Mode.IsDir() && !c.Bool(cpFlagRecursive) {
+				fmt.Printf("cp: -r not specified; omitting directory '%s'\n", srcKey)
 				continue
+			}
+
+			var size int64
+			if srcObject.Mode.IsRead() {
+				n, ok := srcObject.GetContentLength()
+				if !ok {
+					logger.Error("can't get object content length", zap.String("path", srcKey))
+					continue
+				}
+				size = n
 			}
 
 			do := operations.NewDualOperator(src, dst)
@@ -167,12 +174,12 @@ var cpCmd = &cli.Command{
 			do.WithWritePairs(writePairs...)
 
 			realDstKey := dstKey
-			if argsNum > 2 {
+			if argsNum > 2 || (dstObject != nil && dstObject.Mode.IsDir()) {
 				realDstKey = filepath.Join(dstKey, filepath.Base(srcKey))
 			}
 
 			var ch chan *operations.EmptyResult
-			if c.Bool(cpFlagRecursive) {
+			if c.Bool(cpFlagRecursive) && srcObject.Mode.IsDir() {
 				ch, err = do.CopyRecursively(srcKey, realDstKey, multipartThreshold)
 			} else if size < multipartThreshold {
 				ch, err = do.CopyFileViaWrite(srcKey, realDstKey, size)

@@ -3,15 +3,12 @@ package main
 import (
 	"errors"
 	"fmt"
-	"path/filepath"
-	"strings"
-
 	"github.com/docker/go-units"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
+	"path/filepath"
 
 	"go.beyondstorage.io/beyond-ctl/operations"
-	"go.beyondstorage.io/v5/pairs"
 	"go.beyondstorage.io/v5/services"
 	"go.beyondstorage.io/v5/types"
 )
@@ -113,13 +110,17 @@ var mvCmd = &cli.Command{
 
 		dstSo := operations.NewSingleOperator(dst)
 
-		if args > 2 {
-			dstObject, err := dstSo.Stat(dstKey, pairs.WithObjectMode(types.ModeDir))
-			if err != nil && !errors.Is(err, services.ErrObjectNotExist) {
+		dstObject, err := dstSo.Stat(dstKey)
+		if err != nil {
+			if errors.Is(err, services.ErrObjectNotExist) {
+				err = nil
+			} else {
 				logger.Error("stat", zap.Error(err), zap.String("dst path", dstKey))
 				return err
 			}
-			if err == nil && !dstObject.Mode.IsDir() {
+		}
+		if args > 2 {
+			if dstObject != nil && !dstObject.Mode.IsDir() {
 				fmt.Printf("mv: target '%s' is not a directory\n", dstKey)
 				return fmt.Errorf("mv: target '%s' is not a directory", dstKey)
 			}
@@ -130,10 +131,6 @@ var mvCmd = &cli.Command{
 			if err != nil {
 				logger.Error("parse profile input from src", zap.Error(err))
 				continue
-			}
-
-			if c.Bool(mvFlagRecursive) && !strings.HasSuffix(srcKey, "/") {
-				srcKey += "/"
 			}
 
 			src, err := services.NewStoragerFromString(srcConn)
@@ -150,10 +147,19 @@ var mvCmd = &cli.Command{
 				continue
 			}
 
-			size, ok := srcObject.GetContentLength()
-			if !ok {
-				logger.Error("can't get object content length", zap.String("path", srcKey))
+			if srcObject.Mode.IsDir() && !c.Bool(cpFlagRecursive) {
+				fmt.Printf("mv: -r not specified; omitting directory '%s'\n", srcKey)
 				continue
+			}
+
+			var size int64
+			if srcObject.Mode.IsRead() {
+				n, ok := srcObject.GetContentLength()
+				if !ok {
+					logger.Error("can't get object content length", zap.String("path", srcKey))
+					continue
+				}
+				size = n
 			}
 
 			do := operations.NewDualOperator(src, dst)
@@ -167,11 +173,11 @@ var mvCmd = &cli.Command{
 			do.WithWritePairs(writePairs...)
 
 			realDstKey := dstKey
-			if args > 2 {
+			if args > 2 || (dstObject != nil && dstObject.Mode.IsDir()) {
 				realDstKey = filepath.Join(dstKey, filepath.Base(srcKey))
 			}
 
-			if c.Bool(mvFlagRecursive) {
+			if c.Bool(mvFlagRecursive) && srcObject.Mode.IsDir() {
 				err = do.MoveRecursively(srcKey, realDstKey, multipartThreshold)
 			} else if size < multipartThreshold {
 				err = do.MoveFileViaWrite(srcKey, realDstKey, size)
