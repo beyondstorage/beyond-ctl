@@ -28,7 +28,8 @@ func (so *SingleOperator) Stat(path string) (o *types.Object, err error) {
 				}
 				if (obj.Mode.IsDir() && strings.HasPrefix(obj.Path, strings.TrimSuffix(path, "/")+"/")) ||
 					(!obj.Mode.IsDir() && strings.HasPrefix(obj.Path, strings.TrimSuffix(path, "/")+"/")) {
-					o = so.store.Create(path, pairs.WithObjectMode(types.ModeDir))
+					o = so.store.Create(path)
+					o.Mode = types.ModeDir
 					err = nil
 					break
 				}
