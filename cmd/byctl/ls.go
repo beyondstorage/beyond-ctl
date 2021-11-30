@@ -80,7 +80,7 @@ var lsCmd = &cli.Command{
 					fmt.Printf("ls: cannot access '%s': No such file or directory\n", path)
 					continue
 				}
-				storeObjectMap[so] = objects
+				storeObjectMap[so] = append(storeObjectMap[so], objects...)
 			} else {
 				var o *types.Object
 				if path == "" {
