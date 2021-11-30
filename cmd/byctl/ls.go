@@ -10,7 +10,6 @@ import (
 	"go.uber.org/zap"
 
 	"go.beyondstorage.io/beyond-ctl/operations"
-	"go.beyondstorage.io/v5/pairs"
 	"go.beyondstorage.io/v5/services"
 	"go.beyondstorage.io/v5/types"
 )
@@ -84,7 +83,8 @@ var lsCmd = &cli.Command{
 			} else {
 				var o *types.Object
 				if path == "" {
-					o = store.Create(path, pairs.WithObjectMode(types.ModeDir))
+					o = store.Create(path)
+					o.Mode = types.ModeDir
 				} else {
 					o, err = so.Stat(path)
 					if err != nil {
