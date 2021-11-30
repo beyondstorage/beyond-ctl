@@ -4,11 +4,13 @@ import (
 	"path/filepath"
 
 	"github.com/bmatcuk/doublestar/v4"
+
+	"go.beyondstorage.io/v5/types"
 )
 
 // Glob returns the names of all files matching pattern or nil
 // if there is no matching file.
-func (so *SingleOperator) Glob(path string) (matches []string, err error) {
+func (so *SingleOperator) Glob(path string) (matches []*types.Object, err error) {
 	unixPath := filepath.ToSlash(path)
 	base, _ := doublestar.SplitPattern(unixPath)
 	if base == "." {
@@ -26,7 +28,7 @@ func (so *SingleOperator) Glob(path string) (matches []string, err error) {
 		}
 
 		if ok, _ := doublestar.Match(unixPath, v.Object.Path); ok {
-			matches = append(matches, v.Object.Path)
+			matches = append(matches, v.Object)
 		}
 	}
 

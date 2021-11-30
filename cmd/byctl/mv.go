@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+
 	"github.com/docker/go-units"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
@@ -94,9 +95,68 @@ var mvCmd = &cli.Command{
 			return err
 		}
 
-		args := c.Args().Len()
+		// parse src args
+		srcNum := 0
+		var storeObjectMap = make(map[types.Storager][]*types.Object)
+		for i := 0; i < c.Args().Len()-1; i++ {
+			arg := c.Args().Get(i)
+			conn, key, err := cfg.ParseProfileInput(arg)
+			if err != nil {
+				logger.Error("parse profile input from src", zap.Error(err))
+				continue
+			}
 
-		dstConn, dstKey, err := cfg.ParseProfileInput(c.Args().Get(args - 1))
+			store, err := services.NewStoragerFromString(conn)
+			if err != nil {
+				logger.Error("init src storager", zap.Error(err), zap.String("conn string", conn))
+				continue
+			}
+
+			so := operations.NewSingleOperator(store)
+
+			if hasMeta(key) {
+				objects, err := so.Glob(key)
+				if err != nil {
+					logger.Error("glob", zap.Error(err), zap.String("path", arg))
+					continue
+				}
+				for _, o := range objects {
+					if o.Mode.IsDir() && !c.Bool(mvFlagRecursive) {
+						// so.StatStorager().Service + ":" + o.Path
+						fmt.Printf("mv: -r not specified; omitting directory '%s'\n", o.Path)
+						continue
+					}
+					storeObjectMap[store] = append(storeObjectMap[store], o)
+					srcNum++
+				}
+			} else {
+				o, err := so.Stat(key)
+				if err != nil && !errors.Is(err, services.ErrObjectNotExist) {
+					if errors.Is(err, services.ErrObjectNotExist) {
+						fmt.Printf("mv: cannot stat '%s': No such file or directory\n", arg)
+					} else {
+						logger.Error("stat", zap.Error(err), zap.String("path", arg))
+					}
+					continue
+				}
+				if err == nil {
+					if o.Mode.IsDir() && !c.Bool(mvFlagRecursive) {
+						fmt.Printf("mv: -r not specified; omitting directory '%s'\n", arg)
+						continue
+					} else if o.Mode.IsPart() {
+						fmt.Printf("mv: cannot move '%s': Is an in progress multipart upload task\n", arg)
+						continue
+					}
+				}
+
+				err = nil
+				storeObjectMap[store] = append(storeObjectMap[store], o)
+				srcNum++
+			}
+		}
+
+		// check dst
+		dstConn, dstKey, err := cfg.ParseProfileInput(c.Args().Get(c.Args().Len() - 1))
 		if err != nil {
 			logger.Error("parse profile input from dst", zap.Error(err))
 			return err
@@ -119,80 +179,60 @@ var mvCmd = &cli.Command{
 				return err
 			}
 		}
-		if args > 2 {
-			if dstObject != nil && !dstObject.Mode.IsDir() {
+		if dstObject != nil {
+			if dstObject.Mode.IsPart() {
+				fmt.Printf("mv: target '%s' is an in progress multipart upload task\n", dstKey)
+				return fmt.Errorf("mv: target '%s' is an in progress multipart upload task", dstKey)
+			}
+			if srcNum > 1 && !dstObject.Mode.IsDir() {
 				fmt.Printf("mv: target '%s' is not a directory\n", dstKey)
 				return fmt.Errorf("mv: target '%s' is not a directory", dstKey)
 			}
 		}
 
-		for i := 0; i < args-1; i++ {
-			srcConn, srcKey, err := cfg.ParseProfileInput(c.Args().Get(i))
-			if err != nil {
-				logger.Error("parse profile input from src", zap.Error(err))
-				continue
-			}
+		for store, objects := range storeObjectMap {
+			for _, o := range objects {
+				var size int64
+				if o.Mode.IsRead() {
+					n, ok := o.GetContentLength()
+					if !ok {
+						logger.Error("can't get object content length", zap.String("path", o.Path))
+						continue
+					}
+					size = n
+				}
 
-			src, err := services.NewStoragerFromString(srcConn)
-			if err != nil {
-				logger.Error("init src storager", zap.Error(err), zap.String("conn string", srcConn))
-				continue
-			}
+				do := operations.NewDualOperator(store, dst)
+				if c.IsSet(flagWorkersName) {
+					do.WithWorkers(c.Int(flagWorkersName))
+				}
 
-			so := operations.NewSingleOperator(src)
+				// set read pairs
+				do.WithReadPairs(readPairs...)
+				// set write pairs
+				do.WithWritePairs(writePairs...)
 
-			srcObject, err := so.Stat(srcKey)
-			if err != nil {
-				logger.Error("stat", zap.String("path", srcKey), zap.Error(err))
-				continue
-			}
+				realDstKey := dstKey
+				if srcNum > 1 || (dstObject != nil && dstObject.Mode.IsDir()) {
+					realDstKey = filepath.Join(dstKey, filepath.Base(o.Path))
+				}
 
-			if srcObject.Mode.IsDir() && !c.Bool(cpFlagRecursive) {
-				fmt.Printf("mv: -r not specified; omitting directory '%s'\n", srcKey)
-				continue
-			}
-
-			var size int64
-			if srcObject.Mode.IsRead() {
-				n, ok := srcObject.GetContentLength()
-				if !ok {
-					logger.Error("can't get object content length", zap.String("path", srcKey))
+				if c.Bool(mvFlagRecursive) && o.Mode.IsDir() {
+					err = do.MoveRecursively(o.Path, realDstKey, multipartThreshold)
+				} else if size < multipartThreshold {
+					err = do.MoveFileViaWrite(o.Path, realDstKey, size)
+				} else {
+					err = do.MoveFileViaMultipart(o.Path, realDstKey, size)
+				}
+				if err != nil {
+					logger.Error("start move",
+						zap.String("src", o.Path),
+						zap.String("dst", realDstKey),
+						zap.Error(err))
 					continue
 				}
-				size = n
-			}
-
-			do := operations.NewDualOperator(src, dst)
-			if c.IsSet(flagWorkersName) {
-				do.WithWorkers(c.Int(flagWorkersName))
-			}
-
-			// set read pairs
-			do.WithReadPairs(readPairs...)
-			// set write pairs
-			do.WithWritePairs(writePairs...)
-
-			realDstKey := dstKey
-			if args > 2 || (dstObject != nil && dstObject.Mode.IsDir()) {
-				realDstKey = filepath.Join(dstKey, filepath.Base(srcKey))
-			}
-
-			if c.Bool(mvFlagRecursive) && srcObject.Mode.IsDir() {
-				err = do.MoveRecursively(srcKey, realDstKey, multipartThreshold)
-			} else if size < multipartThreshold {
-				err = do.MoveFileViaWrite(srcKey, realDstKey, size)
-			} else {
-				err = do.MoveFileViaMultipart(srcKey, realDstKey, size)
-			}
-			if err != nil {
-				logger.Error("start move",
-					zap.String("src", srcKey),
-					zap.String("dst", realDstKey),
-					zap.Error(err))
-				continue
 			}
 		}
-
 		return
 	},
 }

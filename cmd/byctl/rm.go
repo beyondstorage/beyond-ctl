@@ -9,6 +9,7 @@ import (
 
 	"go.beyondstorage.io/beyond-ctl/operations"
 	"go.beyondstorage.io/v5/services"
+	"go.beyondstorage.io/v5/types"
 )
 
 const (
@@ -51,8 +52,10 @@ var rmCmd = &cli.Command{
 			return err
 		}
 
+		var storeObjectMap = make(map[*operations.SingleOperator][]*types.Object)
 		for i := 0; i < c.Args().Len(); i++ {
-			conn, key, err := cfg.ParseProfileInput(c.Args().Get(i))
+			arg := c.Args().Get(i)
+			conn, key, err := cfg.ParseProfileInput(arg)
 			if err != nil {
 				logger.Error("parse profile input from src", zap.Error(err))
 				continue
@@ -66,80 +69,110 @@ var rmCmd = &cli.Command{
 
 			so := operations.NewSingleOperator(store)
 
-			if c.Bool(rmFlagMultipart) && !c.Bool(rmFlagRecursive) {
-				// Remove all multipart objects whose path is `key`
-				ch, err := so.DeleteMultipart(key)
+			if hasMeta(key) {
+				objects, err := so.Glob(key)
 				if err != nil {
-					logger.Error("delete multipart",
-						zap.String("path", key),
-						zap.Error(err))
+					logger.Error("glob", zap.Error(err), zap.String("path", arg))
 					continue
 				}
-
-				if ch != nil {
-					for v := range ch {
-						if v.Error != nil {
-							logger.Error("delete", zap.Error(err))
-							continue
-						}
+				for _, o := range objects {
+					if o.Mode.IsDir() && !c.Bool(rmFlagRecursive) {
+						// so.StatStorager().Service + ":" + o.Path
+						fmt.Printf("rm: cannot remove '%s': Is a directory\n", o.Path)
+						continue
 					}
-				}
-			} else if c.Bool(rmFlagMultipart) && c.Bool(rmFlagRecursive) {
-				// Remove all multipart objects prefixed with `key`.
-				ch, err := so.DeleteMultipartViaRecursively(key)
-				if err != nil {
-					logger.Error("delete multipart recursively",
-						zap.String("path", key),
-						zap.Error(err))
-					continue
-				}
-
-				if ch != nil {
-					for v := range ch {
-						if v.Error != nil {
-							logger.Error("delete", zap.Error(err))
-							continue
-						}
-					}
-				}
-			} else if !c.Bool(rmFlagMultipart) && c.Bool(rmFlagRecursive) {
-				// recursive remove a dir.
-				ch, err := so.DeleteRecursively(key)
-				if err != nil {
-					logger.Error("delete recursively",
-						zap.String("path", key),
-						zap.Error(err))
-					continue
-				}
-
-				if ch != nil {
-					for v := range ch {
-						if v.Error != nil {
-							logger.Error("delete", zap.Error(err))
-							continue
-						}
-					}
+					storeObjectMap[so] = append(storeObjectMap[so], o)
 				}
 			} else {
-				// remove single file
 				o, err := so.Stat(key)
-				if err != nil && errors.Is(err, services.ErrObjectNotExist) {
-					fmt.Printf("rm: cannot remove '%s': No such file or directory\n", key)
+				if err != nil && !errors.Is(err, services.ErrObjectNotExist) {
+					if errors.Is(err, services.ErrObjectNotExist) {
+						fmt.Printf("rm: cannot remove '%s': No such file or directory\n", arg)
+					} else {
+						logger.Error("stat", zap.Error(err), zap.String("path", arg))
+					}
 					continue
 				}
-				if err != nil {
-					logger.Error("stat", zap.String("path", key), zap.Error(err))
-					continue
-				}
-				if o.Mode.IsDir() {
-					fmt.Printf("rm: cannot remove '%s': Is a directory\n", key)
-					continue
+				if err == nil {
+					if o.Mode.IsDir() && !c.Bool(rmFlagRecursive) {
+						fmt.Printf("rm: cannot remove '%s': Is a directory\n", arg)
+						continue
+					} else if o.Mode.IsPart() && !c.Bool(rmFlagMultipart) {
+						fmt.Printf("rm: cannot remove '%s': Is an in progress multipart upload task\n", arg)
+						continue
+					}
 				}
 
-				err = so.Delete(key)
-				if err != nil {
-					logger.Error("delete", zap.String("path", key), zap.Error(err))
-					continue
+				err = nil
+				storeObjectMap[so] = append(storeObjectMap[so], o)
+			}
+		}
+
+		for so, objects := range storeObjectMap {
+			for _, o := range objects {
+				if o.Mode.IsDir() {
+					// recursive remove a dir.
+					ch, err := so.DeleteRecursively(o.Path)
+					if err != nil {
+						logger.Error("delete recursively",
+							zap.String("path", o.Path),
+							zap.Error(err))
+						continue
+					}
+
+					if ch != nil {
+						for v := range ch {
+							if v.Error != nil {
+								logger.Error("delete", zap.Error(err))
+								continue
+							}
+						}
+					}
+				} else if o.Mode.IsPart() {
+					if !c.Bool(rmFlagRecursive) {
+						// Remove all multipart objects whose path is `key`
+						ch, err := so.DeleteMultipart(o.Path)
+						if err != nil {
+							logger.Error("delete multipart",
+								zap.String("path", o.Path),
+								zap.Error(err))
+							continue
+						}
+
+						if ch != nil {
+							for v := range ch {
+								if v.Error != nil {
+									logger.Error("delete", zap.Error(err))
+									continue
+								}
+							}
+						}
+					} else {
+						// Remove all multipart objects prefixed with `key`.
+						ch, err := so.DeleteMultipartViaRecursively(o.Path)
+						if err != nil {
+							logger.Error("delete multipart recursively",
+								zap.String("path", o.Path),
+								zap.Error(err))
+							continue
+						}
+
+						if ch != nil {
+							for v := range ch {
+								if v.Error != nil {
+									logger.Error("delete", zap.Error(err))
+									continue
+								}
+							}
+						}
+					}
+				} else {
+					// remove single file
+					err = so.Delete(o.Path)
+					if err != nil {
+						logger.Error("delete", zap.String("path", o.Path), zap.Error(err))
+						continue
+					}
 				}
 			}
 		}

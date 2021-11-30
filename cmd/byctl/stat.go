@@ -46,9 +46,13 @@ var statCmd = &cli.Command{
 			return err
 		}
 
+		format := normalFormat
+		if c.Bool(statFlagJson) {
+			format = jsonFormat
+		}
+
 		isFirst := true
-		args := c.Args().Len()
-		for i := 0; i < args; i++ {
+		for i := 0; i < c.Args().Len(); i++ {
 			conn, key, err := cfg.ParseProfileInput(c.Args().Get(i))
 			if err != nil {
 				logger.Error("parse profile input from src", zap.Error(err))
@@ -63,11 +67,6 @@ var statCmd = &cli.Command{
 
 			so := operations.NewSingleOperator(store)
 
-			format := normalFormat
-			if c.Bool(statFlagJson) {
-				format = jsonFormat
-			}
-
 			var out string
 			if key == "" {
 				meta := so.StatStorager()
@@ -78,35 +77,53 @@ var statCmd = &cli.Command{
 					logger.Error("format storager", zap.Error(err))
 					continue
 				}
-			} else {
-				o, err := so.Stat(key)
-				if err != nil {
-					logger.Error("stat", zap.Error(err))
-					continue
-				}
 
-				fm, err := parseFileObject(o)
-				if err != nil {
-					logger.Error("parse file object", zap.Error(err))
-					continue
-				}
-
-				out, err = fm.FormatFile(format)
-				if err != nil {
-					logger.Error("format file", zap.Error(err))
-					continue
-				}
-			}
-
-			if args > 1 {
 				if isFirst {
 					isFirst = false
 				} else {
 					fmt.Printf("\n")
 				}
 				fmt.Printf("%s\n", c.Args().Get(i))
+				fmt.Println(out)
+			} else {
+				var objects []*types.Object
+				if hasMeta(key) {
+					objects, err = so.Glob(key)
+					if err != nil {
+						logger.Error("glob", zap.Error(err), zap.String("path", key))
+						continue
+					}
+				} else {
+					o, err := so.Stat(key)
+					if err != nil {
+						logger.Error("stat", zap.Error(err))
+						continue
+					}
+					objects = append(objects, o)
+				}
+
+				for _, o := range objects {
+					fm, err := parseFileObject(o)
+					if err != nil {
+						logger.Error("parse file object", zap.Error(err))
+						continue
+					}
+
+					out, err = fm.FormatFile(format)
+					if err != nil {
+						logger.Error("format file", zap.Error(err))
+						continue
+					}
+					if isFirst {
+						isFirst = false
+					} else {
+						fmt.Printf("\n")
+					}
+					// so.StatStorager().Service + ":" + o.Path
+					fmt.Printf("%s\n", strings.SplitN(c.Args().Get(i), ":", 2)[0]+":"+o.Path)
+					fmt.Println(out)
+				}
 			}
-			fmt.Println(out)
 		}
 
 		return
