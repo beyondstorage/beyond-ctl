@@ -7,9 +7,9 @@
 
 ## Background
 
-Globs, also known as glob patterns, are patterns that can expand a wildcard pattern into a list of path that match the given pattern.
+### Glob patterns
 
-In the command shell, a wildcard is a short textual pattern, that can match another character (or characters) in a file path. It’s kind of a shortcut that allows you to specify a whole set of related path names using a single, concise pattern.
+Globs, also known as glob patterns, are patterns that can expand a wildcard pattern into a list of path that match the given pattern.
 
 A string can be considered a wildcard pattern if it contains one of the following characters (unquoted and unescaped): `*`, `?`, `[` or `{`:
 
@@ -21,6 +21,15 @@ A string can be considered a wildcard pattern if it contains one of the followin
 - The list can be inverted/complemented by using ! at the start, e.g. [!abc] means "any one character not a or b or c".
 { }     - (curly brackets) matches on any of a series of sub-patterns you specify, e.g. {a,b,c} matches one a, one b and one c.
 ```
+
+### Wildcards in cmd arguments
+
+In the command shell, a wildcard is a short textual pattern, that can match another character (or characters) in a file path. It’s kind of a shortcut that allows you to specify a whole set of related path names using a single, concise pattern.
+
+When the shell sees either of these characters unquoted and unescaped in a command line argument:
+
+- It attempts to expand the argument by interpreting it as a path and matching the wildcard to all possible files in the path. The resulting set of file paths is then sent to the target command as a list of arguments.
+- Brace expansion `{...}` works differently to normal wildcards, in that the shell expands the braces before even looking for files: it actually generates all the permutations of the pattern you specify and then performs wildcard expansion on the results.
 
 ## Proposal
 
@@ -36,18 +45,10 @@ Each wildcard will be evaluated against the source path. The following pattern s
 - {...}: Brace expansion, terms are separated by commas (without spaces) and each term must be the name of something or a wildcard.
 - \: Backslash, used as an "escape" character.
 
-**Notice:**
-Instead of expanding the braces before even looking for files, byctl attempts to determine whether the listed file name matches the file name pattern.
+### Implementation
 
-Glob patterns can be used in the following commands:
-
-- cat
-- cp
-- ls
-- mv
-- rm
-- stat
-- sync
+- byctl will expand the argument by matching the wildcard to all possible file paths or objects in service. The resulting set of file paths will then send to the target command as a list of arguments.
+- Instead of expanding the braces `{...}` before even looking for files, byctl attempts to determine whether the listed file name matches the file name pattern.
 
 ### Examples
 

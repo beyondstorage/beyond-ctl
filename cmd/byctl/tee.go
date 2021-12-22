@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 
 	"github.com/docker/go-units"
@@ -44,15 +45,16 @@ var teeCmd = &cli.Command{
 			return err
 		}
 
-		buf := new(bytes.Buffer)
-		_, err = buf.ReadFrom(c.App.Reader)
+		expectedSize, err := units.RAMInBytes(c.String(teeFlagExpectSize))
 		if err != nil {
-			logger.Error("read data", zap.Error(err))
+			logger.Error("expected-size is invalid", zap.String("input", c.String(teeFlagExpectSize)), zap.Error(err))
 			return err
 		}
 
+		var storePathMap = make(map[*operations.SingleOperator][]string)
 		for i := 0; i < c.Args().Len(); i++ {
-			conn, key, err := cfg.ParseProfileInput(c.Args().Get(i))
+			arg := c.Args().Get(i)
+			conn, key, err := cfg.ParseProfileInput(arg)
 			if err != nil {
 				logger.Error("parse profile input from target", zap.Error(err))
 				continue
@@ -66,26 +68,65 @@ var teeCmd = &cli.Command{
 
 			so := operations.NewSingleOperator(store)
 
-			expectedSize, err := units.RAMInBytes(c.String(teeFlagExpectSize))
-			if err != nil {
-				logger.Error("expected-size is invalid", zap.String("input", c.String(teeFlagExpectSize)), zap.Error(err))
-				continue
-			}
-
-			ch, err := so.TeeRun(key, expectedSize, bytes.NewReader(buf.Bytes()))
-			if err != nil {
-				logger.Error("run tee", zap.Error(err))
-				continue
-			}
-
-			for v := range ch {
-				if v.Error != nil {
-					logger.Error("tee", zap.Error(err))
+			if hasMeta(key) {
+				objects, err := so.Glob(key)
+				if err != nil {
+					logger.Error("glob", zap.Error(err), zap.String("path", arg))
 					continue
 				}
+				for _, o := range objects {
+					if o.Mode.IsDir() {
+						// so.StatStorager().Service + ":" + o.Path
+						fmt.Printf("tee: '%s': Is a directory\n", o.Path)
+						continue
+					}
+					storePathMap[so] = append(storePathMap[so], o.Path)
+				}
+			} else {
+				o, err := so.Stat(key)
+				if err == nil {
+					if o.Mode.IsDir() {
+						fmt.Printf("tee: '%s': Is a directory\n", arg)
+						continue
+					} else if o.Mode.IsPart() {
+						fmt.Printf("tee: '%s': Is an in progress multipart upload task\n", arg)
+						continue
+					}
+				}
+				if err != nil && !errors.Is(err, services.ErrObjectNotExist) {
+					logger.Error("stat", zap.Error(err), zap.String("path", arg))
+					continue
+				}
+				err = nil
+				storePathMap[so] = append(storePathMap[so], key)
 			}
+		}
 
-			fmt.Printf("Stdin is saved to <%s>\n", key)
+		buf := new(bytes.Buffer)
+		_, err = buf.ReadFrom(c.App.Reader)
+		if err != nil {
+			logger.Error("read data", zap.Error(err))
+			return err
+		}
+
+		for so, paths := range storePathMap {
+			for _, path := range paths {
+				ch, err := so.TeeRun(path, expectedSize, bytes.NewReader(buf.Bytes()))
+				if err != nil {
+					logger.Error("run tee", zap.Error(err))
+					continue
+				}
+
+				for v := range ch {
+					if v.Error != nil {
+						logger.Error("tee", zap.Error(err))
+						continue
+					}
+				}
+
+				// so.StatStorager().Service + ":" + o.Path
+				fmt.Printf("Stdin is saved to <%s>\n", path)
+			}
 		}
 
 		return nil

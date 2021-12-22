@@ -47,14 +47,17 @@ var lsCmd = &cli.Command{
 			return err
 		}
 
-		format := shortListFormat
-		if c.Bool("l") || c.String("format") == "long" {
-			format = longListFormat
+		// parse args
+		var args []string
+		if c.Args().Len() == 0 {
+			args = append(args, "")
+		} else {
+			args = c.Args().Slice()
 		}
 
-		isFirstSrc := true
-		for i := 0; i < c.Args().Len(); i++ {
-			conn, path, err := cfg.ParseProfileInput(c.Args().Get(i))
+		var storeObjectMap = make(map[*operations.SingleOperator][]*types.Object)
+		for _, arg := range args {
+			conn, path, err := cfg.ParseProfileInput(arg)
 			if err != nil {
 				logger.Error("parse profile input", zap.Error(err))
 				continue
@@ -68,52 +71,96 @@ var lsCmd = &cli.Command{
 
 			so := operations.NewSingleOperator(store)
 
-			ch, err := so.List(path)
-			if err != nil {
-				logger.Error("list",
-					zap.String("path", path),
-					zap.Error(err))
-				continue
-			}
-
-			// print src path if more than 1 arg
-			if c.Args().Len() > 1 {
-				if isFirstSrc {
-					isFirstSrc = false
+			var objects []*types.Object
+			if hasMeta(path) {
+				objects, err = so.Glob(path)
+				if err != nil {
+					logger.Error("glob", zap.Error(err))
+					fmt.Printf("ls: cannot access '%s': No such file or directory\n", path)
+					continue
+				}
+				storeObjectMap[so] = append(storeObjectMap[so], objects...)
+			} else {
+				var o *types.Object
+				if path == "" {
+					o = store.Create(path)
+					o.Mode = types.ModeDir
 				} else {
-					fmt.Printf("\n")
+					o, err = so.Stat(path)
+					if err != nil {
+						logger.Error("stat", zap.Error(err))
+						fmt.Printf("stat: cannot access '%s': No such file or directory\n", path)
+						continue
+					}
 				}
-				fmt.Printf("%s:\n", c.Args().Get(i))
+
+				storeObjectMap[so] = append(storeObjectMap[so], o)
 			}
+		}
 
-			isFirst := true
-			var totalNum int
-			var totalSize int64
+		format := shortListFormat
+		if c.Bool("l") || c.String("format") == "long" {
+			format = longListFormat
+		}
 
-			for v := range ch {
-				if v.Error != nil {
-					logger.Error("read next result", zap.Error(v.Error))
-					break
+		isFirstSrc := true
+		for so, objects := range storeObjectMap {
+			for _, o := range objects {
+				// print src path if more than 1 arg
+				if len(storeObjectMap) > 1 || len(objects) > 1 {
+					if isFirstSrc {
+						isFirstSrc = false
+					} else {
+						fmt.Printf("\n")
+					}
+					//so.StatStorager().Service + ":" + path
+					fmt.Printf("%s:\n", o.Path)
 				}
 
-				oa := parseObject(v.Object)
-				fmt.Print(oa.Format(format, isFirst))
+				if o.Mode.IsDir() {
+					ch, err := so.List(o.Path)
+					if err != nil {
+						logger.Error("list",
+							zap.String("path", o.Path),
+							zap.Error(err))
+						continue
+					}
 
-				// Update isFirst
-				if isFirst {
-					isFirst = false
+					isFirst := true
+					var totalNum int
+					var totalSize int64
+
+					for v := range ch {
+						if v.Error != nil {
+							logger.Error("read next result", zap.Error(v.Error))
+							break
+						}
+
+						oa := parseObject(v.Object)
+						fmt.Print(oa.Format(format, isFirst))
+
+						// Update isFirst
+						if isFirst {
+							isFirst = false
+						}
+
+						totalNum += 1
+						totalSize += oa.size
+					}
+					// End of line
+					fmt.Print("\n")
+
+					// display summary information
+					if c.Bool(lsFlagSummarize) {
+						fmt.Printf("\n%14s %d\n", "Total Objects:", totalNum)
+						fmt.Printf("%14s %s\n", "Total Size:", units.BytesSize(float64(totalSize)))
+					}
+				} else {
+					oa := parseObject(o)
+					fmt.Print(oa.Format(format, true))
+					// End of line
+					fmt.Print("\n")
 				}
-
-				totalNum += 1
-				totalSize += oa.size
-			}
-			// End of line
-			fmt.Print("\n")
-
-			// display summary information
-			if c.Bool(lsFlagSummarize) {
-				fmt.Printf("\n%14s %d\n", "Total Objects:", totalNum)
-				fmt.Printf("%14s %s\n", "Total Size:", units.BytesSize(float64(totalSize)))
 			}
 		}
 		return
@@ -164,6 +211,8 @@ func (oa objectAttr) longFormat(isFirst bool) string {
 	} else if oa.mode.IsDir() {
 		// Keep align with read.
 		buf.AppendString("dir ")
+	} else if oa.mode.IsPart() {
+		buf.AppendString("part")
 	}
 	// FIXME: it's hard to calculate the padding, so we hardcoded the padding here.
 	buf.AppendString(fmt.Sprintf("%12d", oa.size))

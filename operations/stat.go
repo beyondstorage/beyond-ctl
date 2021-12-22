@@ -12,6 +12,7 @@ import (
 func (so *SingleOperator) Stat(path string) (o *types.Object, err error) {
 	o, err = so.store.Stat(path)
 
+	// so.store.Features().VirtualDir
 	if err != nil && errors.Is(err, services.ErrObjectNotExist) {
 		it, cerr := so.store.List(path, pairs.WithListMode(types.ListModeDir))
 		if cerr == nil {
@@ -25,12 +26,36 @@ func (so *SingleOperator) Stat(path string) (o *types.Object, err error) {
 					err = cerr
 					break
 				}
-				if (obj.Mode.IsDir() && strings.TrimSuffix(obj.Path, "/") == strings.TrimSuffix(path, "/")) ||
+				if (obj.Mode.IsDir() && strings.HasPrefix(obj.Path, strings.TrimSuffix(path, "/")+"/")) ||
 					(!obj.Mode.IsDir() && strings.HasPrefix(obj.Path, strings.TrimSuffix(path, "/")+"/")) {
 					o = so.store.Create(path)
 					o.Mode = types.ModeDir
 					err = nil
 					break
+				}
+			}
+		}
+	}
+
+	// in progress multipart upload
+	if err != nil && errors.Is(err, services.ErrObjectNotExist) {
+		// so.store.Features().CreateMultipart
+		if _, ok := so.store.(types.Multiparter); ok {
+			it, cerr := so.store.List(path, pairs.WithListMode(types.ListModePart))
+			if cerr == nil {
+				for {
+					obj, cerr := it.Next()
+					if cerr != nil {
+						if !errors.Is(cerr, types.IterateDone) {
+							err = cerr
+						}
+						break
+					}
+					if obj.Path == path {
+						o = so.store.Create(path, pairs.WithMultipartID(obj.MustGetMultipartID()))
+						err = nil
+						break
+					}
 				}
 			}
 		}
