@@ -25,6 +25,6 @@ require (
 	go.beyondstorage.io/services/s3/v3 v3.0.1
 	go.beyondstorage.io/services/uss/v3 v3.0.0
 	go.beyondstorage.io/v5 v5.0.0
-	go.uber.org/zap v1.19.1
+	go.uber.org/zap v1.20.0
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
 )
