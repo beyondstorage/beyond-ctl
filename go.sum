@@ -423,8 +423,8 @@ github.com/texttheater/golang-levenshtein v0.0.0-20180516184445-d188e65d659e/go.
 github.com/upyun/go-sdk/v3 v3.0.2 h1:Ke+iOipK5CT0xzMwsgJsi7faJV7ID4lAs+wrH1RH0dA=
 github.com/upyun/go-sdk/v3 v3.0.2/go.mod h1:P/SnuuwhrIgAVRd/ZpzDWqCsBAf/oHg7UggbAxyZa0E=
 github.com/urfave/cli/v2 v2.3.0/go.mod h1:LJmUH05zAU44vOAcrfzZQKsZbVcdbOG8rtL3/XcUArI=
-github.com/urfave/cli/v2 v2.7.1 h1:DsAOFeI9T0vmUW4LiGR5mhuCIn5kqGIE4WMU2ytmH00=
-github.com/urfave/cli/v2 v2.7.1/go.mod h1:TYFbtzt/azQoJOrGH5mDfZtS0jIkl/OeFwlRWPR9KRM=
+github.com/urfave/cli/v2 v2.8.0 h1:EZsAB20oRW4nHcB99TTL6PrXpBGIEujMEKdjwruY9KQ=
+github.com/urfave/cli/v2 v2.8.0/go.mod h1:TYFbtzt/azQoJOrGH5mDfZtS0jIkl/OeFwlRWPR9KRM=
 github.com/whyrusleeping/tar-utils v0.0.0-20180509141711-8c6c8ba81d5c h1:GGsyl0dZ2jJgVT+VvWBf/cNijrHRhkrTjkmp5wg7li0=
 github.com/whyrusleeping/tar-utils v0.0.0-20180509141711-8c6c8ba81d5c/go.mod h1:xxcJeBb7SIUl/Wzkz1eVKJE/CB34YNrqX2TQI6jY9zs=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
