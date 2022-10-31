@@ -9,7 +9,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/panjf2000/ants/v2 v2.6.0
 	github.com/stretchr/testify v1.8.1
-	github.com/urfave/cli/v2 v2.20.3
+	github.com/urfave/cli/v2 v2.23.0
 	go.beyondstorage.io/services/azblob/v3 v3.0.0
 	go.beyondstorage.io/services/cos/v3 v3.0.0
 	go.beyondstorage.io/services/dropbox/v3 v3.0.0
