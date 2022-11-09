@@ -9,7 +9,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/panjf2000/ants/v2 v2.6.0
 	github.com/stretchr/testify v1.8.1
-	github.com/urfave/cli/v2 v2.23.4
+	github.com/urfave/cli/v2 v2.23.5
 	go.beyondstorage.io/services/azblob/v3 v3.0.0
 	go.beyondstorage.io/services/cos/v3 v3.0.0
 	go.beyondstorage.io/services/dropbox/v3 v3.0.0
@@ -26,5 +26,6 @@ require (
 	go.beyondstorage.io/services/uss/v3 v3.0.0
 	go.beyondstorage.io/v5 v5.0.0
 	go.uber.org/zap v1.23.0
+	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
 )
