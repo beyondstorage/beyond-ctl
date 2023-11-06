@@ -27,5 +27,5 @@ require (
 	go.beyondstorage.io/v5 v5.0.0
 	go.uber.org/zap v1.23.0
 	golang.org/x/text v0.3.8 // indirect
-	golang.org/x/time v0.3.0
+	golang.org/x/time v0.4.0
 )
