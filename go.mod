@@ -8,7 +8,7 @@ require (
 	github.com/docker/go-units v0.5.0
 	github.com/google/uuid v1.6.0
 	github.com/panjf2000/ants/v2 v2.9.1
-	github.com/stretchr/testify v1.8.2
+	github.com/stretchr/testify v1.9.0
 	github.com/urfave/cli/v2 v2.24.4
 	go.beyondstorage.io/services/azblob/v3 v3.0.0
 	go.beyondstorage.io/services/cos/v3 v3.0.0
