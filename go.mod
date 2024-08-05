@@ -3,7 +3,7 @@ module go.beyondstorage.io/beyond-ctl
 go 1.15
 
 require (
-	github.com/BurntSushi/toml v1.3.2
+	github.com/BurntSushi/toml v1.4.0
 	github.com/Xuanwo/go-bufferpool v0.2.0
 	github.com/docker/go-units v0.5.0
 	github.com/google/uuid v1.6.0
