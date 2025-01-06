@@ -3,13 +3,13 @@ module go.beyondstorage.io/beyond-ctl
 go 1.15
 
 require (
-	github.com/BurntSushi/toml v1.3.2
+	github.com/BurntSushi/toml v1.4.0
 	github.com/Xuanwo/go-bufferpool v0.2.0
 	github.com/docker/go-units v0.5.0
 	github.com/google/uuid v1.6.0
 	github.com/panjf2000/ants/v2 v2.10.0
 	github.com/stretchr/testify v1.8.2
-	github.com/urfave/cli/v2 v2.24.4
+	github.com/urfave/cli/v2 v2.27.5
 	go.beyondstorage.io/services/azblob/v3 v3.0.0
 	go.beyondstorage.io/services/cos/v3 v3.0.0
 	go.beyondstorage.io/services/dropbox/v3 v3.0.0
